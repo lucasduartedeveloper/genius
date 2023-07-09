@@ -1,12 +1,12 @@
 FROM php:8.0-apache
 # FROM nginx-php-fpm:1.9.1
 
-COPY genius /var/www/apps/genius
+COPY genius /var/www/html
 
-ENV WEBROOT /var/www/apps/genius
-WORKDIR /var/www/apps/genius
+ENV WEBROOT /var/www/html
+WORKDIR /var/www/html
 
-ENV APACHE_DOCUMENT_ROOT=/var/www/apps/genius
+ENV APACHE_DOCUMENT_ROOT=/var/www/html
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/conf-available/*.conf
 
