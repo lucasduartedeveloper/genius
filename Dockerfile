@@ -1,7 +1,7 @@
 FROM php:8.0-apache
 # FROM nginx-php-fpm:1.9.1
 
-# COPY . .
+COPY genius /var/www/apps/genius
 
 ENV WEBROOT /var/www/apps/genius
 WORKDIR /var/www/apps/genius
