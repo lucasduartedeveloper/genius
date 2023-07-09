@@ -1,6 +1,7 @@
-FROM php:8.0-apache
+# FROM php:8.0-apache
+FROM nginx-php-fpm:1.9.1
 
-COPY . .
+# COPY . .
 
 ENV WEBROOT /var/www/html/public
 WORKDIR /var/www/html/public
