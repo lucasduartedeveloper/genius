@@ -1,7 +1,8 @@
 FROM php:8.0-apache
 # FROM nginx-php-fpm:1.9.1
 
-COPY genius /var/www/html
+COPY . .
+RUN ls
 
 ENV WEBROOT /var/www/html
 WORKDIR /var/www/html
