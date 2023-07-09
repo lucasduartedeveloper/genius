@@ -1,5 +1,7 @@
 FROM php:8.0-apache
 
+COPY . .
+
 ENV WEBROOT /var/www/html/public
 WORKDIR /var/www/html/public
 
