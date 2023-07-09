@@ -1,4 +1,4 @@
-ENV WEBROOT /var/www/html/public
+# ENV WEBROOT /var/www/html/public
 
 # WORKDIR /var/www/html/public
 
