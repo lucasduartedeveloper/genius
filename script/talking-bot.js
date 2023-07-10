@@ -223,7 +223,7 @@ $(document).ready(function() {
         btn.style.position = "absolute";
         btn.style.lineHeight = "125px";
         //btn.style.opacity = "0";
-        btn.style.color = "#fff";
+        btn.style.color = "#000";
         btn.style.left = 
         ((sw/2)-(50+62.5))+(col*(50+62.5))-(col*(125-(50+62.5)))+"px";
         btn.style.top = 
@@ -403,7 +403,7 @@ var adjustSpeed = function() {
         timeLabel.innerText = (averageTime/1000).toFixed(3)+" s";
     }
     if (averageTime > 0) {
-        speed = 5000 / averageTime;
+        speed = (5000/averageTime)*2;
     }
     lastTime = new Date().getTime();
 };
