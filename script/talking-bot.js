@@ -394,16 +394,18 @@ var validate = function(option) {
     return false;
 };
 
+var multiplier = 2;
 var averageTime = 0;
 var lastTime = 0;
 var adjustSpeed = function() {
     if (lastTime > 0) {
         averageTime += new Date().getTime() - lastTime;
         averageTime /= 2;
-        timeLabel.innerText = (averageTime/1000).toFixed(3)+" s";
+        timeLabel.innerText = 
+        (averageTime/(1000*multiplier)).toFixed(3)+" s";
     }
     if (averageTime > 0) {
-        speed = (5000/averageTime)*2;
+        speed = (5000/averageTime)*multiplier;
     }
     lastTime = new Date().getTime();
 };
