@@ -50,6 +50,70 @@ $(document).ready(function() {
     canvasElem.style.zIndex = "3";
     document.body.appendChild(canvasElem);
 
+    target = 0;
+    previousTargetBtn = document.createElement("button");
+    previousTargetBtn.style.position = "absolute";
+    previousTargetBtn.className = "animate__animated";
+    previousTargetBtn.style.color = "#000";
+    previousTargetBtn.style.fontSize = "10px";
+    previousTargetBtn.style.left = ((sw/2)+150)+"px";
+    previousTargetBtn.style.top = ((sh/2)+125)+"px";
+    previousTargetBtn.style.width = (20)+"px";
+    previousTargetBtn.style.height = (20)+"px";
+    previousTargetBtn.style.overflowY = "auto";
+    previousTargetBtn.style.border = "1px solid white";
+    previousTargetBtn.style.borderRadius = "50%";
+    previousTargetBtn.style.zIndex = "3";
+    previousTargetBtn.onclick = function() {
+        target -= 1;
+        target = target < 0 ? 3 : target;
+        for (var n = 0; n < buttons.length; n++) {
+            buttons[n].className = "";
+        }
+        buttons[target].className = "fa-regular fa-circle";
+    };
+    document.body.appendChild(previousTargetBtn);
+
+    nextTargetBtn = document.createElement("button");
+    nextTargetBtn.style.position = "absolute";
+    nextTargetBtn.className = "animate__animated";
+    nextTargetBtn.style.color = "#000";
+    nextTargetBtn.style.fontSize = "10px";
+    nextTargetBtn.style.left = ((sw/2)+150)+"px";
+    nextTargetBtn.style.top = ((sh/2)+150)+"px";
+    nextTargetBtn.style.width = (20)+"px";
+    nextTargetBtn.style.height = (20)+"px";
+    nextTargetBtn.style.overflowY = "auto";
+    nextTargetBtn.style.border = "1px solid white";
+    nextTargetBtn.style.borderRadius = "50%";
+    nextTargetBtn.style.zIndex = "3";
+    nextTargetBtn.onclick = function() {
+        target += 1;
+        target = target > 3 ? 0 : target;
+        for (var n = 0; n < buttons.length; n++) {
+            buttons[n].className = "";
+        }
+        buttons[target].className = "fa-regular fa-circle";
+    };
+    document.body.appendChild(nextTargetBtn);
+
+    pushTargetBtn = document.createElement("button");
+    pushTargetBtn.style.position = "absolute";
+    pushTargetBtn.className = "animate__animated";
+    pushTargetBtn.style.color = "#000";
+    pushTargetBtn.style.left = ((sw/2)+150)+"px";
+    pushTargetBtn.style.top = ((sh/2)+175)+"px";
+    pushTargetBtn.style.width = (20)+"px";
+    pushTargetBtn.style.height = (20)+"px";
+    pushTargetBtn.style.overflowY = "auto";
+    pushTargetBtn.style.border = "1px solid white";
+    pushTargetBtn.style.borderRadius = "50%";
+    pushTargetBtn.style.zIndex = "3";
+    pushTargetBtn.onclick = function() {
+        buttons[target].click();
+    };
+    document.body.appendChild(pushTargetBtn);
+
     canvasElem.addEventListener("animationend", function() {
         draw();
         canvasElem.classList.remove("animate__backOutLeft");
@@ -145,6 +209,40 @@ $(document).ready(function() {
         ab[n] = 0;
     }
     drawAB(ab);
+
+    for (var n = 0; n < 4; n++) {
+        var line = Math.floor((n/2));
+        var col = (n%2);
+
+        col = line == 1 ? 
+        (col == 0 ? 1 : 0) : col;
+
+        var btn = document.createElement("i");
+        btn.id = "option-"+n+"-"+line+"-"+col;
+        //btn.innerText = n;
+        btn.style.position = "absolute";
+        btn.style.lineHeight = "125px";
+        //btn.style.opacity = "0";
+        btn.style.color = "#fff";
+        btn.style.left = ((sw/2)-125)+(col*125)+"px";
+        btn.style.top = ((sh/2)-125)+(line*125)+"px";
+        btn.style.width = (125)+"px";
+        btn.style.height = (125)+"px";
+        btn.style.border = "1px solid #fff";
+        btn.style.borderRadius = "50%";
+        btn.style.zIndex = "3";
+        btn.option = options[n];
+        btn.onclick = function() {
+            if (locked) return;
+            if (validate(this.option)) {
+                oto_path = [];
+                showPath();
+            }
+        };
+        document.body.appendChild(btn);
+
+        buttons.push(btn);
+    }
 
     monitorWebsocket();
 });
@@ -328,7 +426,7 @@ var color_list = [
     "#80f", "#f80", "#888", "#f08"
 ];
 var colors = [ "#f00", "#ff0", "#0f0", "#00f" ];
-var options = [ 2, 3, 1, 0 ];
+var options = [ 2, 3, 0, 1 ];
 
 var sortColors = function() {
     colors = [];
@@ -344,10 +442,6 @@ var last_option = -1;
 var buttons = [];
 
 var draw = function(option=-1, index=-1) {
-    for (var n = 0; n < buttons.length; n++) {
-        buttons[n].remove();
-    }
-
     var ctx = canvasElem.getContext("2d");
     var width = canvasElem.width;
     var height = canvasElem.height;
@@ -416,27 +510,6 @@ var draw = function(option=-1, index=-1) {
             ctx.strokeStyle = "#fff";
             ctx.stroke();
         }
-
-        var btn = document.createElement("button");
-        btn.id = "option-"+n;
-        btn.style.position = "absolute";
-        btn.style.opacity = "0";
-        btn.style.left = ((sw/2)-125)+((n%2)*125)+"px";
-        btn.style.top = ((sh/2)-125)+(Math.floor((n/2))*125)+"px";
-        btn.style.width = (125)+"px";
-        btn.style.height = (125)+"px";
-        btn.style.zIndex = "3";
-        btn.option = options[n];
-        btn.onclick = function() {
-            if (locked) return;
-            if (validate(this.option)) {
-                oto_path = [];
-                showPath();
-            }
-        };
-        document.body.appendChild(btn);
-
-        buttons.push(btn);
     }
     last_option = option;
 };
