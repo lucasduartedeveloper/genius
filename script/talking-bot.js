@@ -246,6 +246,7 @@ $(document).ready(function() {
         buttons.push(btn);
     }
 
+    setupKeys();
     monitorWebsocket();
 });
 
@@ -575,6 +576,26 @@ var startBot = function() {
         }
         else n += 1;
     }, 1000);
+};
+
+var setupKeys = function() {
+    window.addEventListener("keyup", (event) => {
+        if (event.isComposing || event.keyCode === 229) {
+            return;
+        }
+        // do something
+        switch (event.keyCode) {
+        case 65:
+            previousTargetBtn.click();
+            break;
+        case 68:
+            nextTargetBtn.click();
+            break;
+        case 87:
+            pushTargetBtn.click();
+            break;
+        }
+    });
 };
 
 var getRandom = function(callback) {
