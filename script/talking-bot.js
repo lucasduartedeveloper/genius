@@ -134,10 +134,6 @@ var increase = function() {
     path.push(rnd);
 };
 
-var speed_obs = [
-   "EMPTY", "5s", "2.5s", "1.25s", "0.65s"
-];
-
 var locked = false;
 var showPath = function() {
     locked = true;
@@ -175,6 +171,7 @@ var validate = function(option) {
 
     if (path[n] == option) {
         oto_path.push(option);
+        beepPool.play("audio/slot-in.wav");
         distance.innerText = (path.length - oto_path.length);
 
         if (oto_path.length == path.length) {
