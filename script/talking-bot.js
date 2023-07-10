@@ -224,11 +224,13 @@ $(document).ready(function() {
         btn.style.lineHeight = "125px";
         //btn.style.opacity = "0";
         btn.style.color = "#fff";
-        btn.style.left = ((sw/2)-125)+(col*125)+"px";
-        btn.style.top = ((sh/2)-125)+(line*125)+"px";
+        btn.style.left = 
+        ((sw/2)-(50+62.5))+(col*(50+62.5))-(col*(125-(50+62.5)))+"px";
+        btn.style.top = 
+        ((sh/2)-(50+62.5))+(line*(50+62.5))-(line*(125-(50+62.5)))+"px";
         btn.style.width = (125)+"px";
         btn.style.height = (125)+"px";
-        btn.style.border = "1px solid #fff";
+        //btn.style.border = "1px solid #fff";
         btn.style.borderRadius = "50%";
         btn.style.zIndex = "3";
         btn.option = options[n];
