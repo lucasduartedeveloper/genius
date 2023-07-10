@@ -16,6 +16,25 @@ $(document).ready(function() {
 
     $("#title")[0].innerText = "111";
 
+    audioElem = document.createElement("canvas");
+    audioElem.style.position = "absolute";
+    audioElem.className = "animate__animated";
+    audioElem.width = (300);
+    audioElem.height = (50);
+    //canvasElem.style.background = "#fff";
+    audioElem.style.color = "#000";
+    audioElem.style.left = ((sw/2)-150)+"px";
+    audioElem.style.top = ((sh/2)-225)+"px";
+    audioElem.style.width = (300)+"px";
+    audioElem.style.height = (50)+"px";
+    audioElem.style.overflowY = "auto";
+    audioElem.style.zIndex = "3";
+    audioElem.onclick = function() {
+        if (mic.closed)
+        mic.open(true, 250);
+    };
+    document.body.appendChild(audioElem);
+
     canvasElem = document.createElement("canvas");
     canvasElem.style.position = "absolute";
     canvasElem.className = "animate__animated";
@@ -113,8 +132,90 @@ $(document).ready(function() {
         "height": "25px"
     });
 
+    mic = new EasyMicrophone();
+    mic.onsuccess = function() { };
+    mic.onupdate = function(freqArray, reachedFreq, avgValue) {
+        var resumedWave = resumeWave(freqArray);
+        analyseWave(resumedWave);
+        drawAB(resumedWave, avgValue);
+    };
+    mic.onclose = function() { };
+    var ab = new Array(50);
+    for (var n = 0; n < 50; n++) {
+        ab[n] = 0;
+    }
+    drawAB(ab);
+
     monitorWebsocket();
 });
+
+var wave = [];
+var analyseWave = function(freqArray) {
+     wave = [ ...wave, ...freqArray ];
+};
+
+var resumeWave = function(freqArray) {
+    var blocks = 50;
+    var blockSize = Math.floor(freqArray.length / blocks);
+
+    var resumedArray = [];
+    var sum = 0;
+    for (var n = 0; n < blocks; n++) {
+        sum = 0;
+        for (var k = 0; k < blockSize; k++) {
+            var m = (n * blockSize) + k;
+             if ((m+1) <= freqArray.length) {
+                 sum += freqArray[m];
+             }
+        }
+
+        resumedArray.push(sum/blockSize);
+    }
+    //console.log(blockSize);
+    //console.log(resumedArray);
+
+    return resumedArray;
+};
+
+var drawAB = 
+function(freqArray=false, avgValue=0) {
+
+    var canvas = audioElem;
+    var ctx = canvas.getContext("2d");
+
+    var offset = 0;
+    var polygon = [];
+
+    // create waveform A
+    if (freqArray) 
+    offset = (canvas.width/freqArray.length)/2;
+    if (freqArray) 
+    for (var n = 0; n < freqArray.length; n++) {
+        var obj = {
+            x: offset+(n*(canvas.width/freqArray.length)),
+            y0: (25)+
+            (-freqArray[n]*25),
+            y1: (25)+
+            (freqArray[n]*25)
+        };
+        polygon.push(obj);
+    }
+
+    // draw waveform A
+    ctx.strokeStyle = "#fff";
+
+    if (freqArray) {
+        ctx.lineWidth = (canvas.width/freqArray.length)-2;
+        ctx.clearRect(0, 0, canvas.width, 100);
+    }
+    if (freqArray)
+    for (var n = 0; n < polygon.length; n++) {
+        ctx.beginPath();
+        ctx.moveTo(polygon[n].x, polygon[n].y0-1);
+        ctx.lineTo(polygon[n].x, polygon[n].y1+1);
+        ctx.stroke();
+    }
+};
 
 var speed = 1;
 var path = [];
