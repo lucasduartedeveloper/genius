@@ -77,6 +77,27 @@ $(document).ready(function() {
         bubblesElem.classList.add("animate__backInLeft");
     });
 
+    positionElem = document.createElement("canvas");
+    positionElem.style.position = "absolute";
+    positionElem.className = "animate__animated";
+    positionElem.width = (300);
+    positionElem.height = (300);
+    //bubblesElem.style.background = "#fff";
+    positionElem.style.color = "#000";
+    positionElem.style.left = ((sw/2)-150)+"px";
+    positionElem.style.top = ((sh/2)-150)+"px";
+    positionElem.style.width = (300)+"px";
+    positionElem.style.height = (300)+"px";
+    positionElem.style.overflowY = "auto";
+    positionElem.style.zIndex = "3";
+    document.body.appendChild(positionElem);
+
+    positionElem.addEventListener("animationend", function() {
+        animateBubbles();
+        positionElem.classList.remove("animate__backOutLeft");
+        positionElem.classList.add("animate__backInLeft");
+    });
+
     target = 0;
     previousTargetBtn = document.createElement("button");
     previousTargetBtn.style.position = "absolute";
@@ -257,6 +278,8 @@ $(document).ready(function() {
     mic = new EasyMicrophone();
     mic.onsuccess = function() { };
     mic.onupdate = function(freqArray, reachedFreq, avgValue) {
+        volumeInfo.innerText = avgValue.toFixed(2);
+
         var resumedWave = resumeWave(freqArray);
         analyseWave(resumedWave);
         drawAB(resumedWave, avgValue);
@@ -326,6 +349,19 @@ $(document).ready(function() {
     document.body.appendChild(buildInfo);
 
     getBuildNo();
+
+    volumeInfo = document.createElement("span");
+    volumeInfo.style.position = "absolute";
+    volumeInfo.innerText = "0.00";
+    volumeInfo.style.fontSize = "10px";
+    volumeInfo.style.lineHeight = "25px";
+    volumeInfo.style.color = "#f80";
+    volumeInfo.style.right = (0)+"px";
+    volumeInfo.style.top = (0)+"px";
+    volumeInfo.style.width = (50)+"px";
+    volumeInfo.style.height = (25)+"px";
+    volumeInfo.style.zIndex = "3";
+    document.body.appendChild(volumeInfo);
 });
 
 var getBuildNo = function() {
@@ -942,8 +978,14 @@ var monitorMovement = function() {
         if (amt > 0)
         drawBubbles();
 
-        if (bubbles.length == 100)
-        motion = false;
+        /*if (bubbles.length == 100)
+        motion = false;*/
+        var angle = ((Math.PI*2)/4)+
+        _angle2d(ev.accX, ev.accY)-
+        (((Math.PI*2)/4)*3);
+
+        //distance.innerText = ((180/Math.PI)*angle).toFixed(2)+"°";
+        drawPosition(angle);
 
         last_accX = ev.accX;
         last_accY = ev.accY;
@@ -967,4 +1009,54 @@ var wait = function(index) {
 var skip = function() {
     if (waitTimeout) clearTimeout(waitTimeout);
     //console.log("skipped");
+};
+
+var drawPosition = function(angle) {
+    var ctx = positionElem.getContext("2d");
+    var width = positionElem.width;
+    var height = positionElem.height;
+
+    ctx.clearRect(0, 0, 300, 300);
+
+    var diam = width/2;
+    var points = [];
+
+    var x = 150;
+    var y = 150;
+
+    var padding = (Math.PI*2)/360;
+    angle = angle-(((Math.PI*2)/8)*3);
+
+    ctx.beginPath();
+    ctx.arc(x, y, (diam/2)-30, angle-padding, angle+padding);
+
+    ctx.closePath();
+
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#fff";
+    ctx.stroke();
+};
+
+var _angle2d = function(co, ca) {
+    /*if (co > ca) {
+       var tco = co;
+       co = ca;
+       ca = tco;
+    }*/
+    var h = Math.sqrt(
+    Math.abs(Math.pow(co, 2)) + 
+    Math.abs(Math.pow(ca, 2)));
+    var senA = co/h;
+    var a = Math.asin(senA);
+    a = co == 0 && ca > 0 ? 1.5707963267948966 * 2 : a;
+    a = co > 0 && ca > 0 ? 1.5707963267948966 * 2 - a : a;
+    a = co < 0 && ca > 0 ? 1.5707963267948966 * 2 - a : a;
+
+    /*console.log("/\/--- ");
+    console.log("co: "+co);
+    console.log("ca: "+ca);
+    console.log("h: "+h);
+    console.log("r: "+a);*/
+
+    return isNaN(a) ? 0 : a;
 };
