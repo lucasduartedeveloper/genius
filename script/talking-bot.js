@@ -330,7 +330,8 @@ $(document).ready(function() {
 
 var getBuildNo = function() {
     $.ajax({
-        url: "https://genius-wm1f.onrender.com/version.txt",
+        url: "ajax/http-get.php?url="+
+        "https://genius-wm1f.onrender.com/version.txt",
         method: "GET"
     }).done(function(data, status, xhr) {
         buildInfo.innerText = "build no. "+data;
