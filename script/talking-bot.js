@@ -246,6 +246,7 @@ $(document).ready(function() {
         buttons.push(btn);
     }
 
+    getBubbles();
     setupKeys();
     monitorWebsocket();
 });
@@ -522,11 +523,12 @@ var draw = function(option=-1, index=-1) {
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.fill();
 
-    getRandom2();
+    drawBubbles();
     last_option = option;
 };
 
-var drawBubbles = function(amt) {
+var bubbles = [];
+var drawBubbles = function() {
     var ctx = canvasElem.getContext("2d");
     var width = canvasElem.width;
     var height = canvasElem.height;
@@ -572,11 +574,11 @@ var drawBubbles = function(amt) {
     //ctx.fill(region, "evenodd");
     ctx.clip(region, "evenodd");
 
-    for (var n = 0; n < amt; n++) {
-        var x = 25+Math.floor(Math.random()*250);
-        var y = 25+Math.floor(Math.random()*250);
+    for (var n = 0; n < bubbles.length; n++) {
+        var x = bubbles[n].x; //25+Math.floor(Math.random()*250);
+        var y = bubbles[n].y; //25+Math.floor(Math.random()*250);
 
-        var diam = Math.floor(Math.random()*25)+5;
+        var diam = bubbles[n].diam; //Math.floor(Math.random()*25)+5;
 
         ctx.beginPath();
         ctx.arc(x, y, (diam/2), 0, (Math.PI*2));
@@ -689,14 +691,22 @@ var getRandom = function(callback) {
     });
 };
 
-var getRandom2 = function(callback) {
+var getBubbles = function(callback) {
     $.ajax({
         url: "ajax/get-random-docker.php",
         method: "GET"
     }).done(function(data, status, xhr) {
         var obj = JSON.parse(data);
-        var arr = Object.entries(obj);
+        //var arr = Object.entries(obj);
         var amt = Math.floor(obj.z/10);
-        drawBubbles(amt);
+        for (var n = 0; n < amt; n++) {
+            var bubble = {
+                x: 25+Math.floor(Math.random()*250),
+                y: 25+Math.floor(Math.random()*250),
+                diam: Math.floor(Math.random()*25)+5
+            };
+            bubbles.push(bubble);
+        }
+        //drawBubbles(amt);
     });
 };
