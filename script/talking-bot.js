@@ -141,6 +141,25 @@ $(document).ready(function() {
     };
     document.body.appendChild(pushTargetBtn);
 
+    lockRotation = false;
+    lockRotationBtn = document.createElement("button");
+    lockRotationBtn.style.position = "absolute";
+    lockRotationBtn.className = "animate__animated";
+    lockRotationBtn.style.color = "#000";
+    lockRotationBtn.style.fontSize = "10px";
+    lockRotationBtn.style.left = ((sw/2)+150)+"px";
+    lockRotationBtn.style.top = ((sh/2)-125)+"px";
+    lockRotationBtn.style.width = (20)+"px";
+    lockRotationBtn.style.height = (20)+"px";
+    lockRotationBtn.style.overflowY = "auto";
+    lockRotationBtn.style.border = "1px solid white";
+    //lockRotationBtn.style.borderRadius = "50%";
+    lockRotationBtn.style.zIndex = "3";
+    lockRotationBtn.onclick = function() {
+        lockRotation = !lockRotation;
+    };
+    document.body.appendChild(lockRotationBtn);
+
     colorHistory = document.createElement("span");
     colorHistory.style.position = "absolute";
     colorHistory.innerHTML = "";
@@ -746,6 +765,7 @@ var getBubbles = function(callback) {
 var stopAnimation = false;
 var rotation = 0;
 var animateBubbles = function() {
+    if (lockRotation) return;
     for (var n = 0; n < bubbles.length; n++) {
         var c = { x: 150, y: 150 };
         var p = { x: bubbles[n].x, y: bubbles[n].y };
