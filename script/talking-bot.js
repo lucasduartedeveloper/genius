@@ -304,7 +304,11 @@ $(document).ready(function() {
         buttons.push(btn);
     }
 
+    if (hasMotionSensor)
+    monitorMovement();
+    else
     getBubbles();
+
     setupKeys();
     monitorWebsocket();
 });
@@ -880,4 +884,36 @@ var playMusic = function() {
 
     leftAudio.playbackRate = leftAudioSpeed;
     rightAudio.playbackRate = rightAudioSpeed;
+};
+
+var monitorMovement = function() {
+    motion = true;
+    var last_accX = 0;
+    var last_accY = 0;
+    var last_accZ = 0;
+
+    gyroUpdated = function(ev) {
+        var amt = (1-(bubbles.length/100))*
+        Math.floor(Math.abs(ev.accY));
+
+        for (var n = 0; n < amt; n++) {
+            var bubble = {
+                x: 25+Math.floor(Math.random()*250),
+                y: 25+Math.floor(Math.random()*250),
+                diam: Math.floor(Math.random()*25)+5
+            };
+            bubbles.push(bubble);
+        }
+
+        if (amt > 0)
+        drawBubbles();
+
+        if (bubbles.length == 100)
+        motion = false;
+
+        last_accX = ev.accX;
+        last_accY = ev.accY;
+        last_accZ = ev.accZ;
+    };
+    animateBubbles();
 };

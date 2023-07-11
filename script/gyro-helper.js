@@ -1,3 +1,4 @@
+var hasMotionSensor = false;
 if ('DeviceMotionEvent' in window) {
     var onDeviceMotion = function (e) {
         accHandler(e.accelerationIncludingGravity);
@@ -5,7 +6,9 @@ if ('DeviceMotionEvent' in window) {
     window
     .addEventListener('devicemotion',
     onDeviceMotion, false);
-}
+
+    hasMotionSensor = true;
+} 
 
 var x = 0;
 var y = 0;
@@ -32,6 +35,9 @@ var gyro = {
         this.distX = 0;
         this.distY = 0;
         this.distZ = 0;
+    },
+    updated: function() {
+        //console.log("gyro-updated", gyro);
     }
 }
 function accHandler(acc) {
