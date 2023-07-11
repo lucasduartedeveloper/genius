@@ -362,6 +362,16 @@ $(document).ready(function() {
     volumeInfo.style.height = (25)+"px";
     volumeInfo.style.zIndex = "3";
     document.body.appendChild(volumeInfo);
+
+    ws.onmessage = function(e) {
+        var msg = e.data.split("|");
+        if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-audio-attached") {
+            remote = true;
+        }
+    }
+    ws.send("PAPER|"+playerId+"|remote-audio-attach");
 });
 
 var getBuildNo = function() {
@@ -530,6 +540,7 @@ var validate = function(option) {
     }
     else {
         beepPool.play("audio/mario-die_cut.wav");
+        say("You forgot "+colors[path[n]].name+"!");
         sortColors();
         init();
         stopAnimation = true;
@@ -772,9 +783,14 @@ var escapeHtml = function(unsafe) {
          .replace(/'/g, "&#039;");
 };
 
+var remote = false;
 var speaking = false;
 var lastText = "";
 var say = function(text, lang) {
+    if (remote) {
+        ws.send("PAPER|"+playerId+"|remote-audio|"+text);
+        return;
+    }
     lastText = text;
     var msg = new SpeechSynthesisUtterance();
     msg.lang = lang;
@@ -978,14 +994,15 @@ var monitorMovement = function() {
         if (amt > 0)
         drawBubbles();
 
-        /*if (bubbles.length == 100)
-        motion = false;*/
+        if (bubbles.length == 100)
+        motion = false;
+
         var angle = ((Math.PI*2)/4)+
         _angle2d(ev.accX, ev.accY)-
         (((Math.PI*2)/4)*3);
 
         //distance.innerText = ((180/Math.PI)*angle).toFixed(2)+"°";
-        drawPosition(angle);
+        //drawPosition(angle);
 
         last_accX = ev.accX;
         last_accY = ev.accY;
