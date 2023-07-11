@@ -198,9 +198,10 @@ $(document).ready(function() {
     timeLabel.style.zIndex = "3";
     document.body.appendChild(timeLabel);
 
+    running = false;
     label = document.createElement("span");
     label.style.position = "absolute";
-    label.innerHTML = "";
+    label.innerHTML = "PLAY";
     label.style.fontSize = "25px";
     label.style.lineHeight = "25px";
     label.style.color = "#fff";
@@ -209,6 +210,15 @@ $(document).ready(function() {
     label.style.width = (300)+"px";
     label.style.height = (25)+"px";
     label.style.zIndex = "3";
+    label.onclick = function() {
+        if (running) return;
+        running = !running;
+        debug = false;
+        if (running) {
+            init();
+            showPath();
+        }
+    };
     label.ondblclick = function() {
         debug = !debug;
         if (debug) {
@@ -235,8 +245,6 @@ $(document).ready(function() {
     document.body.appendChild(distance);
 
     draw();
-    init();
-    showPath();
 
     $("*").not("i").css("font-family", "Khand");
 
@@ -423,6 +431,15 @@ var showPath = function() {
 var validate = function(option) {
     adjustSpeed();
     var n = oto_path.length;
+    if (!running) {
+        oto_path.push(option);
+        setRotation("user", n);
+        beepPool.play("audio/slot-in.wav");
+
+        draw(option, (oto_path.length-1));
+        distance.innerText = (oto_path.length);
+        return;
+    }
 
     if (path[n] == option) {
         oto_path.push(option);
@@ -814,15 +831,15 @@ var setRotation = function(from, n) {
         flip = false;
 
         if (!flip && option > last_option)
-        force += -1;
+        force = -1;
         else if (!flip && option < last_option)
-        force += 1;
+        force = 1;
 
         if (last_option == 3 && option == 0) 
-        force += -1;
+        force = -1;
 
         if (last_option == 0 && option == 3) 
-        force += 1;
+        force = 1;
 
         result += force;
 
