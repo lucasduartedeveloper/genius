@@ -50,6 +50,12 @@ $(document).ready(function() {
     canvasElem.style.zIndex = "3";
     document.body.appendChild(canvasElem);
 
+    canvasElem.addEventListener("animationend", function() {
+        draw();
+        canvasElem.classList.remove("animate__backOutLeft");
+        canvasElem.classList.add("animate__backInLeft");
+    });
+
     bubblesElem = document.createElement("canvas");
     bubblesElem.style.position = "absolute";
     bubblesElem.className = "animate__animated";
@@ -64,6 +70,12 @@ $(document).ready(function() {
     bubblesElem.style.overflowY = "auto";
     bubblesElem.style.zIndex = "3";
     document.body.appendChild(bubblesElem);
+
+    bubblesElem.addEventListener("animationend", function() {
+        animateBubbles();
+        bubblesElem.classList.remove("animate__backOutLeft");
+        bubblesElem.classList.add("animate__backInLeft");
+    });
 
     target = 0;
     previousTargetBtn = document.createElement("button");
@@ -128,12 +140,6 @@ $(document).ready(function() {
         buttons[target].click();
     };
     document.body.appendChild(pushTargetBtn);
-
-    canvasElem.addEventListener("animationend", function() {
-        draw();
-        canvasElem.classList.remove("animate__backOutLeft");
-        canvasElem.classList.add("animate__backInLeft");
-    });
 
     colorHistory = document.createElement("span");
     colorHistory.style.position = "absolute";
@@ -361,10 +367,10 @@ var showPath = function() {
 
     var n = 0;
     var show = function() {
+        setRotation(path[n]);
+
         draw(path[n], n);
         distance.innerText = (n+1);
-
-        setRotation(path[n]);
 
         if (n == (path.length-1)) {
             locked = false;
@@ -408,7 +414,9 @@ var validate = function(option) {
         beepPool.play("audio/mario-die_cut.wav");
         sortColors();
         init();
+        stopAnimation = true;
         canvasElem.classList.add("animate__backOutLeft");
+        bubblesElem.classList.add("animate__backOutLeft");
         return true;
     }
 
@@ -451,7 +459,7 @@ var color_list = [
     "#80f", "#f80", "#888", "#f08"
 ];
 var colors = [ "#f00", "#ff0", "#0f0", "#00f" ];
-var options = [ 2, 3, 0, 1 ];
+var options = [ 0, 1, 2, 3 ];
 
 var sortColors = function() {
     colors = [];
@@ -491,11 +499,13 @@ var draw = function(option=-1, index=-1) {
 
     for (var n = 0; n < 4; n++) {
         ctx.beginPath();
-        ctx.arc(x, y, (diam/2)+25, (n*((Math.PI*2)/4))+padding, 
-        ((n+1)*((Math.PI*2)/4))-padding);
+        ctx.arc(x, y, (diam/2)+25, 
+        ((n*((Math.PI*2)/4))+padding)-((Math.PI*2)/2), 
+        (((n+1)*((Math.PI*2)/4))-padding)-((Math.PI*2)/2));
 
-        ctx.arc(x, y, (diam/2)-25, ((n+1)*((Math.PI*2)/4))-(padding*2), 
-        (n*((Math.PI*2)/4))+(padding*2), true);
+        ctx.arc(x, y, (diam/2)-25, 
+        (((n+1)*((Math.PI*2)/4))-(padding*2))-((Math.PI*2)/2), 
+        ((n*((Math.PI*2)/4))+(padding*2))-((Math.PI*2)/2), true);
 
         ctx.closePath();
 
@@ -516,8 +526,9 @@ var draw = function(option=-1, index=-1) {
 
             for (var k = 0; k <= loop; k++) {
                 ctx.beginPath();
-                ctx.arc(x, y, (diam/2)+45+(k*10), (n*((Math.PI*2)/4)), 
-                ((n+1)*((Math.PI*2)/4)));
+                ctx.arc(x, y, (diam/2)+45+(k*10), 
+                ((n*((Math.PI*2)/4)))-((Math.PI*2)/2), 
+                (((n+1)*((Math.PI*2)/4)))-((Math.PI*2)/2));
                 //ctx.fill();
 
                 ctx.lineWidth = 1.5;
@@ -732,6 +743,7 @@ var getBubbles = function(callback) {
     });
 };
 
+var stopAnimation = false;
 var rotation = 0;
 var animateBubbles = function() {
     for (var n = 0; n < bubbles.length; n++) {
@@ -743,12 +755,29 @@ var animateBubbles = function() {
         bubbles[n].y = r.y;
     }
     drawBubbles();
+    if (stopAnimation) {
+        stopAnimation = false;
+        return;
+    }
     requestAnimationFrame(animateBubbles);
 };
 
 var setRotation = function(option) {
+    var result = rotation;
+
     if (option > last_option)
-    rotation = -1;
+    result = -1;
     else
-    rotation = 1;
+    result = 1;
+
+    if (last_option == 3 && option == 0) 
+    result = -1;
+
+    if (last_option == 0 && option == 3) 
+    result = 1;
+
+    console.log(
+    last_option+" to "+option+" = "+result);
+
+    rotation = result;
 };
