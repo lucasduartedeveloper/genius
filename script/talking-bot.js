@@ -422,7 +422,7 @@ var showPath = function() {
         else {
            n += 1;
            beepPool.play("audio/slot-in.wav");
-           navigator.vibrate(200);
+           //navigator.vibrate(200);
         }
     }
     var showInterval = setInterval(show, 5000/speed);
@@ -437,7 +437,7 @@ var validate = function(option) {
         setRotation("user", n);
         beepPool.play("audio/slot-in.wav");
 
-        navigator.vibrate(200);
+        //navigator.vibrate(200);
 
         draw(option, (oto_path.length-1));
         distance.innerText = (oto_path.length);
@@ -451,7 +451,7 @@ var validate = function(option) {
         beepPool.play("audio/slot-in.wav");
         distance.innerText = (path.length - oto_path.length);
 
-        navigator.vibrate(200);
+        //navigator.vibrate(200);
 
         if (oto_path.length == path.length) {
             draw(option, (oto_path.length-1));
