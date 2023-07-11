@@ -317,7 +317,7 @@ $(document).ready(function() {
     buildInfo.innerText = "";
     buildInfo.style.fontSize = "10px";
     buildInfo.style.lineHeight = "25px";
-    buildInfo.style.color = "#fff";
+    buildInfo.style.color = "#8f8";
     buildInfo.style.left = (0)+"px";
     buildInfo.style.top = (0)+"px";
     buildInfo.style.width = (50)+"px";
