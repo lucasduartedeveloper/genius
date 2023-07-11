@@ -522,7 +522,7 @@ var draw = function(option=-1, index=-1) {
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.fill();
 
-    getRandom();
+    getRandom2();
     last_option = option;
 };
 
@@ -694,10 +694,10 @@ var getRandom2 = function(callback) {
         url: "ajax/get-random-docker.php",
         method: "GET"
     }).done(function(data, status, xhr) {
-        //var obj = JSON.parse(data);
-        //var arr = Object.entries(obj);
-        //var amt = Math.floor(arr[2][1]/10);
-        //drawBubbles(amt);
+        var obj = JSON.parse(data);
+        var arr = Object.entries(obj);
+        var amt = Math.floor(obj.z/10);
+        drawBubbles(amt);
         console.log(data);
     });
 };
