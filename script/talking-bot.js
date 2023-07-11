@@ -571,7 +571,8 @@ var drawBubbles = function() {
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.fill();
 
-    for (var n = 0; n < 150; n++) {
+    var amt = Math.floor(Math.random()*100);
+    for (var n = 0; n < amt; n++) {
         var x = 25+Math.floor(Math.random()*250);
         var y = 25+Math.floor(Math.random()*250);
 
