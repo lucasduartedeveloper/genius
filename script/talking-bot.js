@@ -311,7 +311,31 @@ $(document).ready(function() {
 
     setupKeys();
     monitorWebsocket();
+
+    buildInfo = document.createElement("span");
+    buildInfo.style.position = "absolute";
+    buildInfo.innerText = "";
+    buildInfo.style.fontSize = "10px";
+    buildInfo.style.lineHeight = "25px";
+    buildInfo.style.color = "#fff";
+    buildInfo.style.left = (0)+"px";
+    buildInfo.style.top = (0)+"px";
+    buildInfo.style.width = (50)+"px";
+    buildInfo.style.height = (25)+"px";
+    buildInfo.style.zIndex = "3";
+    document.body.appendChild(buildInfo);
+
+    getBuildNo();
 });
+
+var getBuildNo = function() {
+    $.ajax({
+        url: "https://genius-wm1f.onrender.com/version.txt",
+        method: "GET"
+    }).done(function(data, status, xhr) {
+        buildInfo.innerText = "build no. "+data;
+    });
+};
 
 var wave = [];
 var analyseWave = function(freqArray) {
