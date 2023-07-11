@@ -678,12 +678,25 @@ var setupKeys = function() {
 
 var getRandom = function(callback) {
     $.ajax({
-        url: "ajax/get-random-docker.php",
+        url: "ajax/get-random.php",
         method: "GET"
     }).done(function(data, status, xhr) {
         var obj = JSON.parse(data);
         var arr = Object.entries(obj);
         var amt = Math.floor(arr[2][1]/10);
+        drawBubbles(amt);
+    });
+};
+
+var getRandom2 = function(callback) {
+    $.ajax({
+        url: "ajax/get-random-docker.php",
+        method: "GET"
+    }).done(function(data, status, xhr) {
+        //var obj = JSON.parse(data);
+        //var arr = Object.entries(obj);
+        //var amt = Math.floor(arr[2][1]/10);
         //drawBubbles(amt);
+        console.log(data);
     });
 };
