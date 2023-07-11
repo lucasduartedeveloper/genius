@@ -396,7 +396,7 @@ var showPath = function() {
 
     var n = 0;
     var show = function() {
-        setRotation(path[n]);
+        setRotation("cpu", n);
 
         draw(path[n], n);
         distance.innerText = (n+1);
@@ -424,7 +424,7 @@ var validate = function(option) {
     adjustSpeed();
     var n = oto_path.length;
 
-    setRotation(option);
+    setRotation("user", (n-1));
 
     if (path[n] == option) {
         oto_path.push(option);
@@ -792,22 +792,46 @@ var animateBubbles = function() {
     requestAnimationFrame(animateBubbles);
 };
 
-var setRotation = function(option) {
-    var result = rotation;
+var setRotation = function(from, n) {
+    var result = 0;
 
-    if (option > last_option)
-    result = -1;
-    else
-    result = 1;
+    var last_option = from == "cpu" ?
+    path[0] : oto_path[0];
+    var moves = n+1;
 
-    if (last_option == 3 && option == 0) 
-    result = -1;
+    console.log(" ----- setRotation() ");
+    if (moves >= 2)
+    for (var n = 0; n < moves; n++) {
+        var option = from == "cpu" ?
+        path[n] : oto_path[n];
 
-    if (last_option == 0 && option == 3) 
-    result = 1;
+        var force = 0;
+        var flip = Math.abs(option-last_option) > 1;
 
-    console.log(
-    last_option+" to "+option+" = "+result);
+        if (last_option == 3 && option == 0) 
+        flip = false;
+        if (last_option == 0 && option == 3) 
+        flip = false;
+
+        if (!flip && option > last_option)
+        force += -1;
+        else if (!flip && option < last_option)
+        force += 1;
+
+        if (last_option == 3 && option == 0) 
+        force += -1;
+
+        if (last_option == 0 && option == 3) 
+        force += 1;
+
+        result += force;
+
+        console.log(
+        last_option+" to "+option+" = "+result);
+
+        last_option = from == "cpu" ?
+        path[n] : oto_path[n];
+    }
 
     rotation = result;
 };
