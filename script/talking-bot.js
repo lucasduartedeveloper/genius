@@ -424,10 +424,10 @@ var validate = function(option) {
     adjustSpeed();
     var n = oto_path.length;
 
-    setRotation("user", (n-1));
-
     if (path[n] == option) {
         oto_path.push(option);
+        setRotation("user", n);
+
         beepPool.play("audio/slot-in.wav");
         distance.innerText = (path.length - oto_path.length);
 
@@ -799,7 +799,7 @@ var setRotation = function(from, n) {
     path[0] : oto_path[0];
     var moves = n+1;
 
-    console.log(" ----- setRotation() ");
+    //console.log(" ----- setRotation("+from+") ");
     if (moves >= 2)
     for (var n = 0; n < moves; n++) {
         var option = from == "cpu" ?
@@ -826,8 +826,8 @@ var setRotation = function(from, n) {
 
         result += force;
 
-        console.log(
-        last_option+" to "+option+" = "+result);
+        /*console.log(
+        last_option+" to "+option+" = "+result);*/
 
         last_option = from == "cpu" ?
         path[n] : oto_path[n];
