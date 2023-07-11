@@ -954,6 +954,7 @@ var monitorMovement = function() {
 
 var waitTimeout = false;
 var wait = function(index) {
+    if (!hasMotionSensor) return;
     if (waitTimeout) clearTimeout(waitTimeout);
     //console.log("skipped");
     //console.log("waiting on "+colors[path[index]].name);
