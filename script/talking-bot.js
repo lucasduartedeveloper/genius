@@ -567,6 +567,10 @@ var drawBubbles = function() {
     //ctx.fill(region, "evenodd");
     ctx.clip(region, "evenodd");
 
+    ctx.arc(x, y, (diam/2)+25, 0, (Math.PI*2));
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fill();
+
     for (var n = 0; n < 150; n++) {
         var x = 25+Math.floor(Math.random()*250);
         var y = 25+Math.floor(Math.random()*250);
