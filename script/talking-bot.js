@@ -517,11 +517,11 @@ var draw = function(option=-1, index=-1) {
         }
     }
 
-    drawBubbles();
+    getRandom();
     last_option = option;
 };
 
-var drawBubbles = function() {
+var drawBubbles = function(amt) {
     var ctx = canvasElem.getContext("2d");
     var width = canvasElem.width;
     var height = canvasElem.height;
@@ -571,7 +571,6 @@ var drawBubbles = function() {
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.fill();
 
-    var amt = Math.floor(Math.random()*100);
     for (var n = 0; n < amt; n++) {
         var x = 25+Math.floor(Math.random()*250);
         var y = 25+Math.floor(Math.random()*250);
@@ -682,9 +681,9 @@ var getRandom = function(callback) {
         url: "ajax/get-random.php",
         method: "GET"
     }).done(function(data, status, xhr) {
-        var pos = JSON.parse(data);
-        pos.x = (1/1000)*pos.x;
-        pos.y = (1/1000)*pos.y;
-        callback(pos);
+        var obj = JSON.parse(data);
+        var arr = Object.entries(obj);
+        var amt = Math.floor(arr[2][1]/10);
+        drawBubbles(amt);
     });
 };
