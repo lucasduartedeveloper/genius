@@ -678,7 +678,7 @@ var setupKeys = function() {
 
 var getRandom = function(callback) {
     $.ajax({
-        url: "ajax/get-random.php",
+        url: "ajax/get-random-docker.php",
         method: "GET"
     }).done(function(data, status, xhr) {
         var obj = JSON.parse(data);
