@@ -698,6 +698,5 @@ var getRandom2 = function(callback) {
         var arr = Object.entries(obj);
         var amt = Math.floor(obj.z/10);
         drawBubbles(amt);
-        console.log(data);
     });
 };
