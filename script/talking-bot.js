@@ -684,6 +684,6 @@ var getRandom = function(callback) {
         var obj = JSON.parse(data);
         var arr = Object.entries(obj);
         var amt = Math.floor(arr[2][1]/10);
-        drawBubbles(amt);
+        //drawBubbles(amt);
     });
 };
