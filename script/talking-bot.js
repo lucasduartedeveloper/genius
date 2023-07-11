@@ -485,10 +485,12 @@ var validate = function(option) {
         if (oto_path.length == path.length) {
             draw(option, (oto_path.length-1));
             increase();
+            skip();
             return true;
         }
         draw(option);
         drawHistory();
+        wait(n+1);
     }
     else {
         beepPool.play("audio/mario-die_cut.wav");
@@ -526,7 +528,7 @@ var drawHistory = function() {
 
     for (var n = oto_path.length-1; n >= limit; n--) {
         var k = oto_path[n];
-        html += "<i style=\"color:"+colors[k]+"\" "+
+        html += "<i style=\"color:"+colors[k].code+"\" "+
         "class=\"fa-solid fa-circle\" />";
         if (n > limit)
         html += "&nbsp;";
@@ -535,10 +537,17 @@ var drawHistory = function() {
 };
 
 var color_list = [
-    "#f00", "#ff0", "#0f0", "#00f",
-    "#80f", "#f80", "#888", "#f08"
+    { name: "red", code: "#f00" }, 
+    { name: "yellow", code: "#ff0" }, 
+    { name: "green", code: "#0f0" }, 
+    { name: "blue", code: "#00f" },
+    { name: "purple", code: "#80f" }, 
+    { name: "orange", code: "#f80" }, 
+    { name: "gray", code: "#888" }, 
+    { name: "pink", code: "#f08" }
 ];
-var colors = [ "#f00", "#ff0", "#0f0", "#00f" ];
+var colors = [ color_list[0], color_list[1], color_list[2], color_list[3] ];
+
 var options = [ 0, 1, 2, 3 ];
 
 var sortColors = function() {
@@ -591,11 +600,11 @@ var draw = function(option=-1, index=-1) {
 
         var grd = ctx.createRadialGradient(x, y, 25, x, y, 100);
         grd.addColorStop(0, "#fff");
-        grd.addColorStop(1, colors[n]);
+        grd.addColorStop(1, colors[n].code);
 
         ctx.lineWidth = 1;
         ctx.fillStyle = grd;
-        ctx.strokeStyle = colors[n];
+        ctx.strokeStyle = colors[n].code;
 
         ctx.fill();
         ctx.stroke();
@@ -733,9 +742,9 @@ var say = function(text, lang) {
     lastText = text;
     var msg = new SpeechSynthesisUtterance();
     msg.lang = lang;
+    msg.lang = "en-US";
     //msg.lang = "ru-RU";
-    msg.lang = "pt-BR";
-    //msg.lang = "en-US";
+    //msg.lang = "pt-BR";
     msg.text = text;
     msg.onend = function(event) {
          if (afterAudio) afterAudio();
@@ -941,4 +950,20 @@ var monitorMovement = function() {
         last_accZ = ev.accZ;
     };
     animateBubbles();
+};
+
+var waitTimeout = false;
+var wait = function(index) {
+    if (waitTimeout) clearTimeout(waitTimeout);
+    //console.log("skipped");
+    //console.log("waiting on "+colors[path[index]].name);
+
+    waitTimeout = setTimeout(function() {
+        say("You forgot "+colors[path[index]].name+"!");
+    }, averageTime*2);
+};
+
+var skip = function() {
+    if (waitTimeout) clearTimeout(waitTimeout);
+    //console.log("skipped");
 };
