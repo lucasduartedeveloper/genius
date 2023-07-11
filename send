@@ -1,4 +1,12 @@
 cd /storage/emulated/0/Download/heroku/mapa-php/
+
+version=$(cat version.txt)
+//mapfile version < version.txt
+
+new_version=$((version+1))
+
+echo $new_version > version.txt
+
 git add .
 git commit -am "first commit"
 git push origin main
