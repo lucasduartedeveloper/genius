@@ -516,7 +516,81 @@ var draw = function(option=-1, index=-1) {
             ctx.stroke();
         }
     }
+
+    drawBubbles();
     last_option = option;
+};
+
+var drawBubbles = function() {
+    var ctx = canvasElem.getContext("2d");
+    var width = canvasElem.width;
+    var height = canvasElem.height;
+
+    var diam = width/2;
+    var points = [];
+
+    var x = 150;
+    var y = 150;
+
+    var padding = (Math.PI*2)/200;
+
+    var region = new Path2D();
+    ctx.save();
+    /// change composite mode to use that shape
+    //ctx.globalCompositeOperation = "source-in";
+
+    for (var n = 0; n < 4; n++) {
+        ctx.beginPath();
+        ctx.arc(x, y, (diam/2)+25, (n*((Math.PI*2)/4))+padding, 
+        ((n+1)*((Math.PI*2)/4))-padding);
+
+        ctx.arc(x, y, (diam/2)-25, ((n+1)*((Math.PI*2)/4))-(padding*2), 
+        (n*((Math.PI*2)/4))+(padding*2), true);
+
+        ctx.closePath();
+
+        ctx.lineWidth = 1;
+        ctx.fillStyle = "#ccc";
+        //ctx.fill();
+        //ctx.clip();
+    }
+
+    region.arc(x, y, (diam/2)+25, 0, (Math.PI*2));
+    region.arc(x, y, (diam/2)-25, 0, (Math.PI*2));
+    region.rect(x-((diam/2)+25), y-3, (50), 6);
+    region.rect(x+((diam/2)-25), y-3, (50), 6);
+    region.rect(x-3, y-((diam/2)+25), 6, (50));
+    region.rect(x-3, y+((diam/2)-25), 6, (50));
+    //region.closePath();
+
+    ctx.fillStyle = "#ccc";
+    //ctx.fill(region, "evenodd");
+    ctx.clip(region, "evenodd");
+
+    for (var n = 0; n < 150; n++) {
+        var x = 25+Math.floor(Math.random()*250);
+        var y = 25+Math.floor(Math.random()*250);
+
+        var diam = Math.floor(Math.random()*25)+5;
+
+        ctx.beginPath();
+        ctx.arc(x, y, (diam/2), 0, (Math.PI*2));
+
+        var grd = 
+        ctx.createRadialGradient(x+2, y+2, (diam/2), 
+        x+2, y+2, (diam/4));
+        grd.addColorStop(0, "rgba(255,255,255,0.3)");
+        grd.addColorStop(1, "rgba(255,255,255,0)");
+
+        ctx.lineWidth = 1;
+        ctx.fillStyle = grd;
+        ctx.strokeStyle = "rgba(255,255,255,0.3)";
+
+        ctx.fill();
+        ctx.stroke();
+    }
+
+    ctx.restore();
 };
 
 var monitorWebsocket = function() {
