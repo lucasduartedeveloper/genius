@@ -856,4 +856,28 @@ var setRotation = function(from, n) {
     }
 
     rotation = result;
+    //playMusic();
+};
+
+var leftAudio = new Audio("audio/left-audio.wav");
+var rightAudio = new Audio("audio/right-audio.wav");
+
+var playMusic = function() {
+    leftAudio.loop = true;
+    rightAudio.loop = true;
+
+    if (leftAudio.paused)
+    leftAudio.play();
+
+    if (rightAudio.paused)
+    rightAudio.play();
+
+    var leftAudioSpeed =
+    rotation < 0 ? (rotation*-1) : 0;
+
+    var rightAudioSpeed =
+    rotation > 0 ? (rotation) : 0;
+
+    leftAudio.playbackRate = leftAudioSpeed;
+    rightAudio.playbackRate = rightAudioSpeed;
 };
