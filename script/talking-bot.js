@@ -517,6 +517,11 @@ var draw = function(option=-1, index=-1) {
         }
     }
 
+    // light filter
+    ctx.arc(x, y, (diam/2)+25, 0, (Math.PI*2));
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fill();
+
     getRandom();
     last_option = option;
 };
@@ -566,10 +571,6 @@ var drawBubbles = function(amt) {
     ctx.fillStyle = "#ccc";
     //ctx.fill(region, "evenodd");
     ctx.clip(region, "evenodd");
-
-    ctx.arc(x, y, (diam/2)+25, 0, (Math.PI*2));
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
-    ctx.fill();
 
     for (var n = 0; n < amt; n++) {
         var x = 25+Math.floor(Math.random()*250);

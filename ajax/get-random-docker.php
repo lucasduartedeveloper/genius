@@ -1,11 +1,13 @@
 <?php
-echo rand(0, 1000);
-echo time();
+$x =  rand(0, 1000);
+$y =  rand(0, 1000);
+$z =  rand(0, 1000);
+$time = time();
 
-/*$array = array(
-   “x” => time(),
-   “y” => time(),
-   “z” => time(),
-);*/
-//echo json_encode($array);
+$array = array(
+   “x” => $x,
+   “y” => $y,
+   “z” => $z,
+);
+echo json_encode($array);
 ?>
