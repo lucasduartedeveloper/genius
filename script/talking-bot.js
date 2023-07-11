@@ -50,6 +50,21 @@ $(document).ready(function() {
     canvasElem.style.zIndex = "3";
     document.body.appendChild(canvasElem);
 
+    bubblesElem = document.createElement("canvas");
+    bubblesElem.style.position = "absolute";
+    bubblesElem.className = "animate__animated";
+    bubblesElem.width = (300);
+    bubblesElem.height = (300);
+    //bubblesElem.style.background = "#fff";
+    bubblesElem.style.color = "#000";
+    bubblesElem.style.left = ((sw/2)-150)+"px";
+    bubblesElem.style.top = ((sh/2)-150)+"px";
+    bubblesElem.style.width = (300)+"px";
+    bubblesElem.style.height = (300)+"px";
+    bubblesElem.style.overflowY = "auto";
+    bubblesElem.style.zIndex = "3";
+    document.body.appendChild(bubblesElem);
+
     target = 0;
     previousTargetBtn = document.createElement("button");
     previousTargetBtn.style.position = "absolute";
@@ -349,6 +364,8 @@ var showPath = function() {
         draw(path[n], n);
         distance.innerText = (n+1);
 
+        setRotation(path[n]);
+
         if (n == (path.length-1)) {
             locked = false;
             label.innerHTML = "";
@@ -371,6 +388,8 @@ var showPath = function() {
 var validate = function(option) {
     adjustSpeed();
     var n = oto_path.length;
+
+    setRotation(option);
 
     if (path[n] == option) {
         oto_path.push(option);
@@ -523,15 +542,16 @@ var draw = function(option=-1, index=-1) {
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.fill();
 
-    drawBubbles();
     last_option = option;
 };
 
 var bubbles = [];
 var drawBubbles = function() {
-    var ctx = canvasElem.getContext("2d");
-    var width = canvasElem.width;
-    var height = canvasElem.height;
+    var ctx = bubblesElem.getContext("2d");
+    var width = bubblesElem.width;
+    var height = bubblesElem.height;
+
+    ctx.clearRect(0, 0, 300, 300);
 
     var diam = width/2;
     var points = [];
@@ -708,5 +728,27 @@ var getBubbles = function(callback) {
             bubbles.push(bubble);
         }
         //drawBubbles(amt);
+        animateBubbles();
     });
+};
+
+var rotation = 0;
+var animateBubbles = function() {
+    for (var n = 0; n < bubbles.length; n++) {
+        var c = { x: 150, y: 150 };
+        var p = { x: bubbles[n].x, y: bubbles[n].y };
+        var r = _rotate2d(c, p, (1-((1/30)*bubbles[n].diam))*
+        ((90/60)*rotation));
+        bubbles[n].x = r.x;
+        bubbles[n].y = r.y;
+    }
+    drawBubbles();
+    requestAnimationFrame(animateBubbles);
+};
+
+var setRotation = function(option) {
+    if (option > last_option)
+    rotation = -1;
+    else
+    rotation = 1;
 };
