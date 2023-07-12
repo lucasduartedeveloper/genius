@@ -1035,8 +1035,42 @@ var wait = function(index) {
     //console.log("waiting on "+colors[path[index]].name);
 
     waitTimeout = setTimeout(function() {
+        navigator.vibrate(200);
         say("You forgot "+colors[path[index]].name+"!");
+
+        waitTimeout = setTimeout(function() {
+            var text = "The colors are ";
+            for (var n = 0; n < colors.length; n++) {
+                text += colors[n].name;
+                if (n < colors.length-2)
+                text += ", ";
+                else if (n < colors.length-1)
+                text += " and ";
+            }
+            text += ". The next is the "+
+            (path[index]+1)+suffix(path[index]+1)+".";
+            say(text);
+        }, averageTime*2);
     }, averageTime*2);
+};
+
+var suffix = function(pos) {
+    var result = "";
+    switch (pos) {
+        case 1:
+            result = "st";
+            break;
+        case 2:
+            result = "nd";
+            break;
+        case 3:
+            result = "rd";
+            break;
+        case 4:
+            result = "th";
+            break;
+    }
+    return result;
 };
 
 var skip = function() {
