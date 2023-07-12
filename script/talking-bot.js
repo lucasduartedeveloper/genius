@@ -363,6 +363,22 @@ $(document).ready(function() {
     volumeInfo.style.zIndex = "3";
     document.body.appendChild(volumeInfo);
 
+    remoteAudioBtn = document.createElement("i");
+    remoteAudioBtn.style.position = "absolute";
+    remoteAudioBtn.className = "fa-solid fa-phone";
+    remoteAudioBtn.style.color = "#fff";
+    remoteAudioBtn.style.fontSize = "20px";
+    remoteAudioBtn.style.right = (10)+"px";
+    remoteAudioBtn.style.top = (25)+"px";
+    remoteAudioBtn.style.width = (20)+"px";
+    remoteAudioBtn.style.height = (20)+"px";
+    remoteAudioBtn.style.overflowY = "auto";
+    remoteAudioBtn.style.zIndex = "3";
+    remoteAudioBtn.onclick = function() {
+        window.open("remote-audio/", "_blank");
+    };
+    document.body.appendChild(remoteAudioBtn);
+
     ws.onmessage = function(e) {
         var msg = e.data.split("|");
         if (msg[0] == "PAPER" &&
