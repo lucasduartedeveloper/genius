@@ -368,8 +368,8 @@ $(document).ready(function() {
     remoteAudioBtn.className = "fa-solid fa-phone";
     remoteAudioBtn.style.color = "#fff";
     remoteAudioBtn.style.fontSize = "20px";
-    remoteAudioBtn.style.right = (10)+"px";
-    remoteAudioBtn.style.top = (25)+"px";
+    remoteAudioBtn.style.left = (10)+"px";
+    remoteAudioBtn.style.bottom = (10)+"px";
     remoteAudioBtn.style.width = (20)+"px";
     remoteAudioBtn.style.height = (20)+"px";
     remoteAudioBtn.style.overflowY = "auto";
