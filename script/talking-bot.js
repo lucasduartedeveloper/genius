@@ -14,7 +14,7 @@ $(document).ready(function() {
     $("#title").css("font-size", "30px");
     $("#title").css("color", "#fff");
 
-    $("#title")[0].innerText = "111";
+    $("#title")[0].innerText = "GENIUS-111";
 
     audioElem = document.createElement("canvas");
     audioElem.style.position = "absolute";
@@ -365,7 +365,7 @@ $(document).ready(function() {
 
     remoteAudioBtn = document.createElement("i");
     remoteAudioBtn.style.position = "absolute";
-    remoteAudioBtn.className = "fa-solid fa-phone";
+    remoteAudioBtn.className = "fa-solid fa-envelope";
     remoteAudioBtn.style.color = "#fff";
     remoteAudioBtn.style.fontSize = "20px";
     remoteAudioBtn.style.left = (10)+"px";

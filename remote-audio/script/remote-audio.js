@@ -14,7 +14,7 @@ $(document).ready(function() {
     $("#title").css("font-size", "30px");
     $("#title").css("color", "#fff");
 
-    $("#title")[0].innerText = "111";
+    $("#title")[0].innerText = "GENIUS-111";
 
     label = document.createElement("span");
     label.style.position = "absolute";
@@ -33,7 +33,7 @@ $(document).ready(function() {
     labelLang = document.createElement("span");
     labelLang.style.position = "absolute";
     labelLang.innerText = "LOAD VOICES";
-    labelLang.style.fontSize = "25px";
+    labelLang.style.fontSize = "15px";
     labelLang.style.lineHeight = "25px";
     labelLang.style.color = "#fff";
     labelLang.style.left = ((sw/2)-100)+"px";
