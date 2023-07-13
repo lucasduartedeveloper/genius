@@ -1059,6 +1059,9 @@ var wait = function(index, fixedTime0=false, fixedTime1=false) {
 
     waitTimeout = setTimeout(function() {
         navigator.vibrate(200);
+        if (fixedTime0)
+        say("It started with "+colors[path[index]].name+"!");
+        else
         say("You forgot "+colors[path[index]].name+"!");
         //say("You didn't register "+colors[path[index]].name+"!");
 
