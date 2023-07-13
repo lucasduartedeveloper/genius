@@ -564,7 +564,9 @@ var validate = function(option) {
     else {
         skip();
         beepPool.play("audio/mario-die_cut.wav");
-        say("No! It was "+colors[path[n]].name+".");
+        say("No! You misclicked "+colors[option].name+" for "+
+        colors[path[n]].name+".");
+        //say("No! It was "+colors[path[n]].name+".");
         //say("You forgot "+colors[path[n]].name+"!");
         sortColors();
         init();
