@@ -279,6 +279,8 @@ $(document).ready(function() {
     mic.onsuccess = function() { };
     mic.onupdate = function(freqArray, reachedFreq, avgValue) {
         volumeInfo.innerText = avgValue.toFixed(2);
+        if (avgValue > 0.5)
+        solve();
 
         var resumedWave = resumeWave(freqArray);
         analyseWave(resumedWave);
@@ -545,9 +547,9 @@ var validate = function(option) {
         //navigator.vibrate(200);
 
         if (oto_path.length == path.length) {
+            skip();
             draw(option, (oto_path.length-1));
             increase();
-            skip();
             return true;
         }
         draw(option);
@@ -555,6 +557,7 @@ var validate = function(option) {
         wait(n+1);
     }
     else {
+        skip();
         beepPool.play("audio/mario-die_cut.wav");
         say("You forgot "+colors[path[n]].name+"!");
         sortColors();
@@ -802,7 +805,7 @@ var escapeHtml = function(unsafe) {
 var remote = false;
 var speaking = false;
 var lastText = "";
-var say = function(text, lang) {
+var say = function(text, lang) {;
     if (remote) {
         ws.send("PAPER|"+playerId+"|remote-audio|"+text);
         return;
@@ -845,6 +848,12 @@ var startBot = function() {
         }
         else n += 1;
     }, 1000);
+};
+
+var solve = function() {
+    var option = path[n];
+    var k = options.indexOf(option);
+    buttons[k].click();
 };
 
 var setupKeys = function() {
