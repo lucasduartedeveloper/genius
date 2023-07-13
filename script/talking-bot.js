@@ -515,6 +515,7 @@ var showPath = function() {
             last_option = -1;
 
             if (debug) startBot();
+            else wait(0, 2000, 4000);
         }
         else {
            n += 1;
@@ -563,7 +564,8 @@ var validate = function(option) {
     else {
         skip();
         beepPool.play("audio/mario-die_cut.wav");
-        say("You forgot "+colors[path[n]].name+"!");
+        say("No! It was "+colors[path[n]].name+".");
+        //say("You forgot "+colors[path[n]].name+"!");
         sortColors();
         init();
         stopAnimation = true;
@@ -1042,11 +1044,16 @@ var monitorMovement = function() {
 };
 
 var waitTimeout = false;
-var wait = function(index) {
+var wait = function(index, fixedTime0=false, fixedTime1=false) {
     if (!hasMotionSensor) return;
     if (waitTimeout) clearTimeout(waitTimeout);
     //console.log("skipped");
     //console.log("waiting on "+colors[path[index]].name);
+
+    var timeout0 = fixedTime0 ?
+    fixedTime0 : averageTime*2;
+    var timeout1 = fixedTime1 ?
+    fixedTime1 : averageTime*3;
 
     waitTimeout = setTimeout(function() {
         navigator.vibrate(200);
@@ -1054,7 +1061,8 @@ var wait = function(index) {
         //say("You didn't register "+colors[path[index]].name+"!");
 
         waitTimeout = setTimeout(function() {
-            var text = "The colors are ";
+            var text = "The colors you should be seeing are ";
+            //var text = "The colors are ";
             for (var n = 0; n < colors.length; n++) {
                 text += colors[n].name;
                 if (n < colors.length-2)
@@ -1062,18 +1070,23 @@ var wait = function(index) {
                 else if (n < colors.length-1)
                 text += " and ";
             }
-            text += ". The next is "+
-            colors[path[index]].name;
+            text += ". The next ";
             if ((index+1)<path.length) {
-                text += " followed by "+colors[path[index+1]].name;
-            };
+                text += "is "+colors[path[index]].name+
+                " followed by "+colors[path[index+1]].name;
+                //text += "is "+colors[path[index]].name+
+                //" then "+colors[path[index+1]].name;
+            }
+            else {
+                text += "is "+colors[path[index]].name;
+            }
             text += ".";
 
             //text += ". The next is the "+
             //(path[index]+1)+suffix(path[index]+1)+".";
             say(text);
-        }, averageTime*3);
-    }, averageTime*2);
+        }, timeout1);
+    }, timeout0);
 };
 
 var suffix = function(pos) {
