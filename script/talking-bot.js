@@ -275,12 +275,16 @@ $(document).ready(function() {
         "height": "25px"
     });
 
+    var rested = false;
     mic = new EasyMicrophone();
     mic.onsuccess = function() { };
     mic.onupdate = function(freqArray, reachedFreq, avgValue) {
         volumeInfo.innerText = avgValue.toFixed(2);
-        if (avgValue > 0.5)
+        if (avgValue > 0.3)
         solve();
+
+        if (avgValue <= 0.1)
+        rested = true;
 
         var resumedWave = resumeWave(freqArray);
         analyseWave(resumedWave);
@@ -851,6 +855,7 @@ var startBot = function() {
 };
 
 var solve = function() {
+    var n = oto_path.length;
     var option = path[n];
     var k = options.indexOf(option);
     buttons[k].click();
@@ -1046,6 +1051,7 @@ var wait = function(index) {
     waitTimeout = setTimeout(function() {
         navigator.vibrate(200);
         say("You forgot "+colors[path[index]].name+"!");
+        //say("You didn't register "+colors[path[index]].name+"!");
 
         waitTimeout = setTimeout(function() {
             var text = "The colors are ";
@@ -1056,10 +1062,17 @@ var wait = function(index) {
                 else if (n < colors.length-1)
                 text += " and ";
             }
-            text += ". The next is the "+
-            (path[index]+1)+suffix(path[index]+1)+".";
+            text += ". The next is "+
+            colors[path[index]].name;
+            if ((index+1)<path.length) {
+                text += " followed by "+colors[path[index+1]].name;
+            };
+            text += ".";
+
+            //text += ". The next is the "+
+            //(path[index]+1)+suffix(path[index]+1)+".";
             say(text);
-        }, averageTime*2);
+        }, averageTime*3);
     }, averageTime*2);
 };
 
@@ -1085,6 +1098,7 @@ var suffix = function(pos) {
 var skip = function() {
     if (waitTimeout) clearTimeout(waitTimeout);
     //console.log("skipped");
+    cancelText();
 };
 
 var drawPosition = function(angle) {
