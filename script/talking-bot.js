@@ -493,6 +493,7 @@ var increase = function() {
 };
 
 var locked = false;
+var showInterval = false;
 var showPath = function() {
     locked = true;
     last_option = -1;
@@ -514,8 +515,10 @@ var showPath = function() {
             clearInterval(showInterval);
             last_option = -1;
 
-            if (debug) startBot();
-            else wait(0, 2000, 4000);
+            say("", function() {
+                if (debug) startBot();
+                else wait(0, 2000, 4000);
+            });
         }
         else {
            n += 1;
@@ -523,7 +526,10 @@ var showPath = function() {
            //navigator.vibrate(200);
         }
     }
-    var showInterval = setInterval(show, 5000/speed);
+
+    say("", function() {
+        showInterval = setInterval(show, 5000/speed);
+    });
     //show();
 };
 
@@ -550,13 +556,14 @@ var validate = function(option) {
         distance.innerText = (path.length - oto_path.length);
 
         //navigator.vibrate(200);
-
         if (oto_path.length == path.length) {
+            say("");
             skip();
             draw(option, (oto_path.length-1));
             increase();
             return true;
         }
+        skip();
         draw(option);
         drawHistory();
         wait(n+1);
@@ -813,14 +820,13 @@ var escapeHtml = function(unsafe) {
 var remote = false;
 var speaking = false;
 var lastText = "";
-var say = function(text, lang) {;
+var say = function(text, afterAudio) {;
     if (remote) {
         ws.send("PAPER|"+playerId+"|remote-audio|"+text);
         return;
     }
     lastText = text;
     var msg = new SpeechSynthesisUtterance();
-    msg.lang = lang;
     msg.lang = "en-US";
     //msg.lang = "ru-RU";
     //msg.lang = "pt-BR";
