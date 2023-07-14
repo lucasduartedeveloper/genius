@@ -265,6 +265,20 @@ $(document).ready(function() {
     distance.style.zIndex = "3";
     document.body.appendChild(distance);
 
+    memorySizeLabel = document.createElement("span");
+    memorySizeLabel.style.position = "absolute";
+    memorySizeLabel.innerText = "0 colors";
+    memorySizeLabel.style.fontSize = "15px";
+    memorySizeLabel.style.lineHeight = "50px";
+    memorySizeLabel.style.color = "#fff";
+    memorySizeLabel.style.textAlign = "center";
+    memorySizeLabel.style.left = ((sw/2)-150)+"px";
+    memorySizeLabel.style.top = ((sh/2)-175)+"px";
+    memorySizeLabel.style.width = (100)+"px";
+    memorySizeLabel.style.height = (50)+"px";
+    memorySizeLabel.style.zIndex = "3";
+    document.body.appendChild(memorySizeLabel);
+
     draw();
 
     $("*").not("i").css("font-family", "Khand");
@@ -395,6 +409,11 @@ $(document).ready(function() {
     }
     ws.send("PAPER|"+playerId+"|remote-audio-attach");
 });
+
+var memorySize_name = [
+    "mouse", "dolphin", ""
+];
+var memorySize = 0;
 
 var getBuildNo = function() {
     $.ajax({
@@ -569,6 +588,14 @@ var validate = function(option) {
         wait(n+1);
     }
     else {
+        // save memory size
+        memorySize = oto_path.length > memorySize ?
+        oto_path.length : memorySize;
+        memorySizeLabel.innerText = memorySize+" color";
+        memorySizeLabel.innerText += 
+        memorySize > 1 || memorySize == 0 ? 
+        "s" : "";
+
         skip();
         beepPool.play("audio/mario-die_cut.wav");
         say("No! You misclicked "+colors[option].name+" for "+
