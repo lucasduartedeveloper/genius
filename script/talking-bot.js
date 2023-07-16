@@ -347,7 +347,8 @@ $(document).ready(function() {
         buttons.push(btn);
     }
 
-    if (hasMotionSensor)
+    isMobile = isMobile();
+    if (isMobile)
     monitorMovement();
     else
     getBubbles();
