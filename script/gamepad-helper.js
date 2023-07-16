@@ -24,7 +24,7 @@ var buttonsPreviousStates = [];
 var listGamepadButtons = function(index=0) {
      gamepadList = navigator.getGamepads();
 
-     if (!gamepadList[index]) return;
+     if (!gamepadList[index]) return [];
      var buttonSet = [];
 
      for (var n = 0; n < gamepadList[index].buttons.length; n++) {

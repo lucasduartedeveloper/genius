@@ -100,6 +100,7 @@ var say = function(text, lang) {
     msg.text = text;
     msg.onend = function(event) {
          if (afterAudio) afterAudio();
+         ws.send("PAPER|"+playerId+"|remote-audio-ended");
     };
     window.speechSynthesis.speak(msg);
 }

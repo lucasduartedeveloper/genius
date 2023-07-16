@@ -407,6 +407,12 @@ $(document).ready(function() {
             msg[2] == "remote-audio-attached") {
             remote = true;
         }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-audio-ended") {
+            if (afterAudio_callback)
+            afterAudio_callback();
+        }
     }
     ws.send("PAPER|"+playerId+"|remote-audio-attach");
 });
@@ -853,9 +859,12 @@ var escapeHtml = function(unsafe) {
 var remote = false;
 var speaking = false;
 var lastText = "";
+var afterAudio_callback = false;
+
 var say = function(text, afterAudio) {;
     if (remote) {
         ws.send("PAPER|"+playerId+"|remote-audio|"+text);
+        afterAudio_callback = afterAudio;
         return;
     }
     lastText = text;
