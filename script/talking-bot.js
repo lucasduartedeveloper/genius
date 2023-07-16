@@ -591,11 +591,15 @@ var validate = function(option) {
         // save memory size
         memorySize = oto_path.length > memorySize ?
         oto_path.length : memorySize;
-        /*memorySizeLabel.innerText = memorySize+" color";
+
+        memorySizeLabel.innerText = memorySize+" color";
         memorySizeLabel.innerText += 
         memorySize > 1 || memorySize == 0 ? 
-        "s" : "";*/
-        memorySizeLabel.innerText = memorySize_name[memorySize];
+        "s" : "";
+
+        if (memorySize > 0)
+        memorySizeLabel.innerText = 
+        memorySize_name[memorySize-1];
 
         skip();
         beepPool.play("audio/mario-die_cut.wav");
