@@ -411,7 +411,7 @@ $(document).ready(function() {
 });
 
 var memorySize_name = [
-    "mouse", "cat", "monkey", "dolphin", "elephant", "whale"
+    "mouse", "cat", "monkey", "dolphin", "elephant", "whale", "Jeová"
 ];
 var memorySize = 0;
 
@@ -591,10 +591,11 @@ var validate = function(option) {
         // save memory size
         memorySize = oto_path.length > memorySize ?
         oto_path.length : memorySize;
-        memorySizeLabel.innerText = memorySize+" color";
+        /*memorySizeLabel.innerText = memorySize+" color";
         memorySizeLabel.innerText += 
         memorySize > 1 || memorySize == 0 ? 
-        "s" : "";
+        "s" : "";*/
+        memorySizeLabel.innerText = memorySize_name[memorySize];
 
         skip();
         beepPool.play("audio/mario-die_cut.wav");
