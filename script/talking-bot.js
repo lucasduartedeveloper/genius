@@ -978,10 +978,10 @@ var animateBubbles = function() {
     var buttonSet = listGamepadButtons();
     if (rescueButtonFromSet(buttonSet, 4).value != 0)
     previousTargetBtn.click();
-    if (rescueButtonFromSet(buttonSet, 4).value != 0)
-    previousTargetBtn.click();
-    if (rescueButtonFromSet(buttonSet, 4).value != 0)
-    previousTargetBtn.click();
+    if (rescueButtonFromSet(buttonSet, 5).value != 0)
+    nextTargetBtn.click();
+    if (rescueButtonFromSet(buttonSet, 1).value != 0)
+    pushTargetBtn.click();
 
     requestAnimationFrame(animateBubbles);
 };
