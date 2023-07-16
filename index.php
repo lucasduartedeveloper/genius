@@ -30,7 +30,8 @@ $script = [
     7 => "script/gyro-helper.js",
     8 => "script/request-pin.js",
     9 => "script/ai-network.js",
-    10 => "script/talking-bot.js"
+    10 => "script/gamepad-helper.js",
+    11 => "script/talking-bot.js"
 ];
 $module = [
 

@@ -968,6 +968,8 @@ var animateBubbles = function() {
         stopAnimation = false;
         return;
     }
+
+    listGamepadButtons();
     requestAnimationFrame(animateBubbles);
 };
 
