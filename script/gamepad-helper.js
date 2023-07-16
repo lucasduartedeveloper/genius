@@ -33,7 +33,7 @@ var listGamepadButtons = function(index=0) {
               (buttonsPreviousStates.length == 0 || 
               (buttonsPreviousStates.length > 0 && 
               button.value != buttonsPreviousStates[n].value))) {
-              console.log("Button "+n+" pressed");
+              //console.log("Button "+n+" pressed");
               var obj = {
                    index: n,
                    value: button.value,
