@@ -1108,11 +1108,16 @@ var wait = function(index, fixedTime0=false, fixedTime1=false) {
         waitTimeout = setTimeout(function() {
             var text = "The colors you should be seeing are ";
             //var text = "The colors are ";
-            for (var n = 0; n < colors.length; n++) {
+            for (var n = 0; n < colors.length/2; n++) {
                 text += colors[n].name;
                 if (n < colors.length-2)
                 text += ", ";
                 else if (n < colors.length-1)
+                text += " and ";
+            }
+            for (var n = colors.length-1; n >= 2; n--) {
+                text += colors[n].name;
+                if (n > colors.length-2)
                 text += " and ";
             }
             text += ". The next ";
