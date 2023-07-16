@@ -24,6 +24,7 @@ var buttonsPreviousStates = [];
 
 var listGamepadButtons = function(index=0) {
      if (!gamepadList[index]) return;
+     var buttonSet = [];
 
      for (var n = 0; n < gamepadList[index].buttons.length; n++) {
           var button = gamepadList[index].buttons[n];
@@ -32,6 +33,12 @@ var listGamepadButtons = function(index=0) {
               (buttonsPreviousStates.length > 0 && 
               button.value != buttonsPreviousStates[n].value))) {
               console.log("Button "+n+" pressed");
+              var obj = {
+                   index: n,
+                   value: button.value,
+                   pressed: button.pressed
+              };
+              buttonSet.push(obj);
           }
           var obj = {
               value: button.value,
@@ -39,6 +46,8 @@ var listGamepadButtons = function(index=0) {
           };
           buttonsPreviousStates[n] = obj;
      }
+
+     return buttonSet;
 };
 
 var isMobile = function() {
