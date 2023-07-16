@@ -51,7 +51,7 @@ var listGamepadButtons = function(index=0) {
      return buttonSet;
 };
 
-var rescueValueFromSet = function(buttonSet, index) {
+var rescueButtonFromSet = function(buttonSet, index) {
      var button = buttonSet.filter((b) => { return b.index == index; })[0];
      if (button) return button;
      else return { value: 0 };
