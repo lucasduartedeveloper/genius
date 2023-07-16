@@ -411,7 +411,7 @@ $(document).ready(function() {
 });
 
 var memorySize_name = [
-    "mouse", "dolphin", ""
+    "mouse", "cat", "monkey", "dolphin", "elephant", "whale"
 ];
 var memorySize = 0;
 
