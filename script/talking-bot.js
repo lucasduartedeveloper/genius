@@ -419,8 +419,8 @@ $(document).ready(function() {
 });
 
 var memorySize_name = [
-    "mouse QI", "cat QI", "monkey QI", 
-    "dolphin QI", "elephant QI", "whale QI", "Jeová"
+    "mouse left", "cat left", "monkey left", 
+    "dolphin left", "elephant left", "whale left", "Jeová"
 ];
 var memorySize = 0;
 
