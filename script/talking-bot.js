@@ -412,6 +412,7 @@ $(document).ready(function() {
             msg[2] == "remote-audio-ended") {
             if (afterAudio_callback)
             afterAudio_callback();
+            afterAudio_callback = false;
         }
     }
     ws.send("PAPER|"+playerId+"|remote-audio-attach");
