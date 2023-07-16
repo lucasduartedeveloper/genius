@@ -975,7 +975,14 @@ var animateBubbles = function() {
         return;
     }
 
-    listGamepadButtons();
+    var buttonSet = listGamepadButtons();
+    if (rescueButtonFromSet(buttonSet, 4).value != 0)
+    previousTargetBtn.click();
+    if (rescueButtonFromSet(buttonSet, 4).value != 0)
+    previousTargetBtn.click();
+    if (rescueButtonFromSet(buttonSet, 4).value != 0)
+    previousTargetBtn.click();
+
     requestAnimationFrame(animateBubbles);
 };
 
