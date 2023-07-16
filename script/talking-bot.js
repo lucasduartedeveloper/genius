@@ -980,7 +980,7 @@ var animateBubbles = function() {
     previousTargetBtn.click();
     if (rescueButtonFromSet(buttonSet, 5).value != 0)
     nextTargetBtn.click();
-    if (rescueButtonFromSet(buttonSet, 1).value != 0)
+    if (rescueButtonFromSet(buttonSet, 0).value != 0)
     pushTargetBtn.click();
 
     requestAnimationFrame(animateBubbles);
