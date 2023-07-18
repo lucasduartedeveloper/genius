@@ -113,12 +113,19 @@ $(document).ready(function() {
     previousTargetBtn.style.borderRadius = "50%";
     previousTargetBtn.style.zIndex = "3";
     previousTargetBtn.onclick = function() {
+        var lastTarget = target;
         target -= 1;
         target = target < 0 ? 3 : target;
         for (var n = 0; n < buttons.length; n++) {
             buttons[n].className = "";
         }
         buttons[target].className = "fa-regular fa-circle";
+
+        if (target != lastTarget) {
+            end_angle -= 90;
+        }
+
+        if (!unlockedAngles) unlockedAngles = true;
     };
     document.body.appendChild(previousTargetBtn);
 
@@ -136,12 +143,19 @@ $(document).ready(function() {
     nextTargetBtn.style.borderRadius = "50%";
     nextTargetBtn.style.zIndex = "3";
     nextTargetBtn.onclick = function() {
+        var lastTarget = target;
         target += 1;
         target = target > 3 ? 0 : target;
         for (var n = 0; n < buttons.length; n++) {
             buttons[n].className = "";
         }
         buttons[target].className = "fa-regular fa-circle";
+
+        if (target != lastTarget) {
+            end_angle += 90;
+        }
+
+        if (!unlockedAngles) unlockedAngles = true;
     };
     document.body.appendChild(nextTargetBtn);
 
@@ -311,6 +325,7 @@ $(document).ready(function() {
     }
     drawAB(ab);
 
+    buttons = [];
     for (var n = 0; n < 4; n++) {
         var line = Math.floor((n/2));
         var col = (n%2);
@@ -325,6 +340,10 @@ $(document).ready(function() {
         btn.style.lineHeight = "125px";
         //btn.style.opacity = "0";
         btn.style.color = "#000";
+        btn.x = 
+        ((sw/2)-(50+62.5))+(col*(50+62.5))-(col*(125-(50+62.5)))+62.5;
+        btn.y = 
+        ((sh/2)-(50+62.5))+(line*(50+62.5))-(line*(125-(50+62.5)))+62.5;
         btn.style.left = 
         ((sw/2)-(50+62.5))+(col*(50+62.5))-(col*(125-(50+62.5)))+"px";
         btn.style.top = 
@@ -429,6 +448,51 @@ $(document).ready(function() {
     ws.send("PAPER|"+playerId+"|remote-audio-attach");
     ws.send("PAPER|"+playerId+"|remote-gamepad-attach");
 });
+
+var unlockedAngles = false;
+
+var angle = 315;
+var end_angle = 315;
+
+var setButtonsPositionFromAngle = function() {
+    for (var n = 0; n < 4; n++) {
+        var c = {
+            x: (sw/2),
+            y: (sh/2)
+        };
+        var p = {
+            x: buttons[n].x,
+            y: buttons[n].y
+        };
+        var result = _rotate2d(c, p, -angle);
+
+        buttons[n].style.left = (result.x-62.5)+"px";
+        buttons[n].style.top = (result.y-62.5)+"px";
+    }
+}
+var rotateAll = function(angleDiff=0) {
+    if (angleDiff == 0 && end_angle != angle) {
+        //getAngleDiff();
+        angleDiff = 0.5;
+        if (end_angle < angle) angleDiff *= -1;
+    }
+
+    angle += angleDiff;
+    if (angle > 360) angle = angle-360;
+    if (angle < 0) angle = 360-angle;
+
+    setButtonsPositionFromAngle();
+    draw(last_option, last_index);
+};
+var setTargetFromAngle = function() {
+    target = Math.floor(angle/90);
+};
+
+// 350 -> 0
+var getAngleDiff = function() {
+    var result = end_angle - angle;
+    return result;
+};
 
 var memorySize_name = [
     "to do"
@@ -609,8 +673,9 @@ var validate = function(option) {
     }
     else {
         // save memory size
-        memorySize = oto_path.length > memorySize ?
-        oto_path.length : memorySize;
+        memorySize = oto_path.length;
+        /*oto_path.length > memorySize ?
+        oto_path.length : memorySize;*/
 
         memorySizeLabel.innerText = 
         memorySize+" color";
@@ -694,8 +759,8 @@ var sortColors = function() {
 };
 
 var loop = 0;
+var last_index = -1;
 var last_option = -1;
-var buttons = [];
 
 var draw = function(option=-1, index=-1) {
     var ctx = canvasElem.getContext("2d");
@@ -719,6 +784,12 @@ var draw = function(option=-1, index=-1) {
     var y = 150;
 
     var padding = (Math.PI*2)/200;
+
+    ctx.save();
+    ctx.translate(150, 150);
+    if (unlockedAngles)
+    ctx.rotate((Math.PI/180)*angle);
+    ctx.translate(-150, -150);
 
     for (var n = 0; n < 4; n++) {
         ctx.beginPath();
@@ -776,7 +847,9 @@ var draw = function(option=-1, index=-1) {
     ctx.fillStyle = "rgba(0,0,0,0.3)";
     ctx.fill();
 
+    ctx.restore();
     last_option = option;
+    last_index = index;
 };
 
 var bubbles = [];
@@ -795,8 +868,14 @@ var drawBubbles = function() {
 
     var padding = (Math.PI*2)/200;
 
-    var region = new Path2D();
     ctx.save();
+    ctx.translate(150, 150);
+    if (unlockedAngles)
+    ctx.rotate((Math.PI/180)*angle);
+    ctx.translate(-150, -150);
+
+    var region = new Path2D();
+    //ctx.save();
     /// change composite mode to use that shape
     //ctx.globalCompositeOperation = "source-in";
 
@@ -1019,6 +1098,10 @@ var animateBubbles = function() {
     if (rescueButtonFromSet(buttonSet, 9).value != 0) {
         label.click();
         say("Game started.");
+    }
+
+    if (end_angle != angle) {
+        rotateAll();
     }
 
     buttonSet = [];
