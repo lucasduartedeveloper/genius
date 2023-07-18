@@ -122,7 +122,7 @@ $(document).ready(function() {
         buttons[target].className = "fa-regular fa-circle";
 
         if (target != lastTarget) {
-            end_angle -= 90;
+            end_angle += 90;
         }
 
         if (!unlockedAngles) unlockedAngles = true;
@@ -152,7 +152,7 @@ $(document).ready(function() {
         buttons[target].className = "fa-regular fa-circle";
 
         if (target != lastTarget) {
-            end_angle += 90;
+            end_angle -= 90;
         }
 
         if (!unlockedAngles) unlockedAngles = true;
@@ -473,21 +473,33 @@ var setButtonsPositionFromAngle = function() {
 }
 var rotateAll = function(angleDiff=0) {
     if (angleDiff == 0 && end_angle != loose_angle) {
-        angleDiff = 1;
+        angleDiff = (45/5);
         if (end_angle < loose_angle) angleDiff *= -1;
     }
 
     angle = convertAngle(angle + angleDiff);
     loose_angle = (loose_angle + angleDiff);
 
+    if ((angleDiff > 0 && loose_angle > end_angle) ||
+    (angleDiff < 0 &&  loose_angle < end_angle))
+    loose_angle = end_angle;
+
     setButtonsPositionFromAngle();
+
     draw(last_option, last_index);
+    drawBubbles();
 
     setTargetFromAngle();
 };
 var setTargetFromAngle = function() {
-    var targetAngle = convertAngle(angle-315);
+    var targetAngle = 360-convertAngle(angle-90);
     target = Math.floor(targetAngle/90);
+
+    /*console.log(
+    "angle: "+angle+"°", 
+    "linked angle:"+targetAngle+"°", 
+    "target: "+target);*/
+
     for (var n = 0; n < buttons.length; n++) {
         buttons[n].className = "";
     }
@@ -496,7 +508,7 @@ var setTargetFromAngle = function() {
 var convertAngle = function(lostAngle) {
     var result = lostAngle;
     if (result > 360) result = result-360;
-    if (result < 0) result = 360-(result*-1);
+    if (result < 1) result = 360-(result*-1);
     return result;
 };
 
@@ -616,6 +628,7 @@ var showPath = function() {
 
     var n = 0;
     var show = function() {
+        setLoop("cpu", n);
         setRotation("cpu", n);
 
         draw(path[n], n);
@@ -652,6 +665,7 @@ var validate = function(option) {
     var n = oto_path.length;
     if (!running) {
         oto_path.push(option);
+        setLoop("user", (oto_path.length-1));
         setRotation("user", n);
         beepPool.play("audio/slot-in.wav");
 
@@ -664,6 +678,7 @@ var validate = function(option) {
 
     if (path[n] == option) {
         oto_path.push(option);
+        setLoop("user", (oto_path.length-1));
         setRotation("user", n);
 
         beepPool.play("audio/slot-in.wav");
@@ -841,9 +856,6 @@ var draw = function(option=-1, index=-1) {
         ctx.stroke();
 
         if (option == n) {
-            if (last_option == n) loop += 1;
-            else loop = 0;
-
             for (var k = 0; k <= loop; k++) {
                 ctx.beginPath();
                 ctx.arc(x, y, (diam/2)+45+(k*10), 
@@ -876,6 +888,21 @@ var draw = function(option=-1, index=-1) {
     ctx.restore();
     last_option = option;
     last_index = index;
+};
+
+var setLoop = function(from, n) {
+    loop = 0;
+    var last_option = from == "cpu" ?
+    path[0] : oto_path[0];
+    var moves = n+1;
+
+    for (var n = 1; n < moves; n++) {
+        var option = from == "cpu" ?
+        path[n] : oto_path[n];
+        if (option == last_option) loop += 1;
+        else loop = 0;
+        last_option = option;
+    }
 };
 
 var bubbles = [];
@@ -1100,6 +1127,7 @@ var animateBubbles = function() {
         bubbles[n].x = r.x;
         bubbles[n].y = r.y;
     }
+    if (!unlockedAngles)
     drawBubbles();
     if (stopAnimation) {
         stopAnimation = false;
@@ -1119,6 +1147,8 @@ var animateBubbles = function() {
     say("You are resting at "+colors[target].name+".");
     if (rescueButtonFromSet(buttonSet, 8).value != 0) {
         averageTime = 0;
+        timeLabel.innerText = 
+        (averageTime/(1000*multiplier)).toFixed(3)+" s";
         say("Restarted timer.");
     }
     if (rescueButtonFromSet(buttonSet, 9).value != 0) {
