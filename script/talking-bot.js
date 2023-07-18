@@ -1148,7 +1148,7 @@ var animateBubbles = function() {
     else if (rescueButtonFromSet(buttonSet, 1).value != 0)
     say("You forgot "+colors[path[oto_path.length]].name+"!");
     else if (rescueButtonFromSet(buttonSet, 3).value != 0)
-    say("You are should be looking at "+colors[target].name+".");
+    say("You should be looking at "+colors[target].name+".");
     else if (rescueButtonFromSet(buttonSet, 8).value != 0) {
         averageTime = 0;
         timeLabel.innerText = 
