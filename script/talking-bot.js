@@ -1137,21 +1137,25 @@ var animateBubbles = function() {
     if (!remoteGamepad)
     buttonSet = listGamepadButtons();
 
-    if (rescueButtonFromSet(buttonSet, 4).value != 0)
+    if (locked && buttonSet.length > 0)
+    say("CPU is in control!");
+    else if (rescueButtonFromSet(buttonSet, 4).value != 0)
     previousTargetBtn.click();
-    if (rescueButtonFromSet(buttonSet, 5).value != 0)
+    else if (rescueButtonFromSet(buttonSet, 5).value != 0)
     nextTargetBtn.click();
-    if (rescueButtonFromSet(buttonSet, 2).value != 0)
+    else if (rescueButtonFromSet(buttonSet, 2).value != 0)
     pushTargetBtn.click();
-    if (rescueButtonFromSet(buttonSet, 3).value != 0)
-    say("You are resting at "+colors[target].name+".");
-    if (rescueButtonFromSet(buttonSet, 8).value != 0) {
+    else if (rescueButtonFromSet(buttonSet, 1).value != 0)
+    say("You forgot "+colors[path[oto_path.length]].name+"!");
+    else if (rescueButtonFromSet(buttonSet, 3).value != 0)
+    say("You are should be looking at "+colors[target].name+".");
+    else if (rescueButtonFromSet(buttonSet, 8).value != 0) {
         averageTime = 0;
         timeLabel.innerText = 
         (averageTime/(1000*multiplier)).toFixed(3)+" s";
         say("Restarted timer.");
     }
-    if (rescueButtonFromSet(buttonSet, 9).value != 0) {
+    else if (rescueButtonFromSet(buttonSet, 9).value != 0) {
         label.click();
         say("Game started.");
     }
