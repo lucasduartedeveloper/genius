@@ -72,3 +72,25 @@ var isMobile = function() {
      }
      return result;
 };
+
+/*
+USB indexes
+4 = L1
+5 = R1
+1 = square
+0 = x
+3 = triangle
+2 = circle
+8 = select
+9 = start
+
+BLUETOOTH indexes
+4 = L1
+5 = R1
+2 = square
+0 = x
+3 = triangle
+1 = circle
+8 = select
+9 = start
+*/

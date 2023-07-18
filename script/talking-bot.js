@@ -414,13 +414,24 @@ $(document).ready(function() {
             afterAudio_callback();
             afterAudio_callback = false;
         }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-gamepad-attached") {
+            remoteGamepad = true;
+        }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-gamepad") {
+            buttonSet = JSON.parse(msg[3]);
+        }
     }
+
     ws.send("PAPER|"+playerId+"|remote-audio-attach");
+    ws.send("PAPER|"+playerId+"|remote-gamepad-attach");
 });
 
 var memorySize_name = [
-    "mouse left", "cat left", "monkey left", 
-    "dolphin left", "elephant left", "whale left", "Jeová"
+    "to do"
 ];
 var memorySize = 0;
 
@@ -601,14 +612,15 @@ var validate = function(option) {
         memorySize = oto_path.length > memorySize ?
         oto_path.length : memorySize;
 
-        memorySizeLabel.innerText = memorySize+" color";
+        memorySizeLabel.innerText = 
+        memorySize+" color";
         memorySizeLabel.innerText += 
         memorySize > 1 || memorySize == 0 ? 
         "s" : "";
 
-        if (memorySize > 0)
+        /*if (memorySize > 0)
         memorySizeLabel.innerText = 
-        memorySize_name[memorySize-1];
+        memorySize_name[memorySize-1];*/
 
         skip();
         beepPool.play("audio/mario-die_cut.wav");
@@ -968,6 +980,9 @@ var getBubbles = function(callback) {
     });
 };
 
+var remoteGamepad = false;
+var buttonSet = [];
+
 var stopAnimation = false;
 var rotation = 0;
 var animateBubbles = function() {
@@ -986,13 +1001,27 @@ var animateBubbles = function() {
         return;
     }
 
-    var buttonSet = listGamepadButtons();
+    if (!remoteGamepad)
+    buttonSet = listGamepadButtons();
+
     if (rescueButtonFromSet(buttonSet, 4).value != 0)
     previousTargetBtn.click();
     if (rescueButtonFromSet(buttonSet, 5).value != 0)
     nextTargetBtn.click();
-    if (rescueButtonFromSet(buttonSet, 0).value != 0)
+    if (rescueButtonFromSet(buttonSet, 2).value != 0)
     pushTargetBtn.click();
+    if (rescueButtonFromSet(buttonSet, 3).value != 0)
+    say("You are resting at "+colors[target].name+".");
+    if (rescueButtonFromSet(buttonSet, 8).value != 0) {
+        averageTime = 0;
+        say("Restarted timer.");
+    }
+    if (rescueButtonFromSet(buttonSet, 9).value != 0) {
+        label.click();
+        say("Game started.");
+    }
+
+    buttonSet = [];
 
     requestAnimationFrame(animateBubbles);
 };
