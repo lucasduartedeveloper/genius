@@ -452,6 +452,7 @@ $(document).ready(function() {
 var unlockedAngles = false;
 
 var angle = 315;
+var loose_angle = 315;
 var end_angle = 315;
 
 var setButtonsPositionFromAngle = function() {
@@ -471,27 +472,36 @@ var setButtonsPositionFromAngle = function() {
     }
 }
 var rotateAll = function(angleDiff=0) {
-    if (angleDiff == 0 && end_angle != angle) {
-        //getAngleDiff();
-        angleDiff = 0.5;
-        if (end_angle < angle) angleDiff *= -1;
+    if (angleDiff == 0 && end_angle != loose_angle) {
+        angleDiff = 1;
+        if (end_angle < loose_angle) angleDiff *= -1;
     }
 
-    angle += angleDiff;
-    if (angle > 360) angle = angle-360;
-    if (angle < 0) angle = 360-angle;
+    angle = convertAngle(angle + angleDiff);
+    loose_angle = (loose_angle + angleDiff);
 
     setButtonsPositionFromAngle();
     draw(last_option, last_index);
+
+    setTargetFromAngle();
 };
 var setTargetFromAngle = function() {
     target = Math.floor(angle/90);
+    for (var n = 0; n < buttons.length; n++) {
+        buttons[n].className = "";
+    }
+    buttons[target].className = "fa-regular fa-circle";
+};
+var convertAngle = function(lostAngle) {
+    var result = lostAngle;
+    if (result > 360) result = result-360;
+    if (result < 0) result = 360-result;
+    return result;
 };
 
-// 350 -> 0
+// 315 -> 45
 var getAngleDiff = function() {
-    var result = end_angle - angle;
-    return result;
+    return (loose_angle-end_angle);
 };
 
 var memorySize_name = [
@@ -785,6 +795,21 @@ var draw = function(option=-1, index=-1) {
 
     var padding = (Math.PI*2)/200;
 
+    if (unlockedAngles) {
+        ctx.fillStyle = "rgba(255,255,255,0.3)";
+        ctx.strokeStyle = "#fff";
+        ctx.beginPath();
+        ctx.moveTo(x-15, 0);
+        ctx.lineTo(x+15, 0);
+        //ctx.moveTo(x+15, 0);
+        ctx.lineTo(x, 25);
+        //ctx.moveTo(x, 25);
+        ctx.lineTo(x-15, 0);
+        ctx.closePath();
+        ctx.fill();
+        //ctx.stroke();
+    }
+    
     ctx.save();
     ctx.translate(150, 150);
     if (unlockedAngles)
@@ -1100,7 +1125,7 @@ var animateBubbles = function() {
         say("Game started.");
     }
 
-    if (end_angle != angle) {
+    if (end_angle != loose_angle) {
         rotateAll();
     }
 
