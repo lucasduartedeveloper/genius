@@ -486,7 +486,8 @@ var rotateAll = function(angleDiff=0) {
     setTargetFromAngle();
 };
 var setTargetFromAngle = function() {
-    target = Math.floor(angle/90);
+    var targetAngle = convertAngle(angle-315);
+    target = Math.floor(targetAngle/90);
     for (var n = 0; n < buttons.length; n++) {
         buttons[n].className = "";
     }
@@ -495,7 +496,7 @@ var setTargetFromAngle = function() {
 var convertAngle = function(lostAngle) {
     var result = lostAngle;
     if (result > 360) result = result-360;
-    if (result < 0) result = 360-result;
+    if (result < 0) result = 360-(result*-1);
     return result;
 };
 
