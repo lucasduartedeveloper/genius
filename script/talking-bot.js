@@ -473,7 +473,7 @@ var setButtonsPositionFromAngle = function() {
 }
 var rotateAll = function(angleDiff=0) {
     if (angleDiff == 0 && end_angle != loose_angle) {
-        angleDiff = (45/5);
+        angleDiff = (45/3);
         if (end_angle < loose_angle) angleDiff *= -1;
     }
 
@@ -644,7 +644,10 @@ var showPath = function() {
 
             say("", function() {
                 if (debug) startBot();
-                else wait(0, 2000, 4000);
+                else {
+                    if (!unlockedAngles)
+                    wait(0, 2000, 4000);
+                }
             });
         }
         else {
@@ -678,6 +681,7 @@ var validate = function(option) {
 
     if (path[n] == option) {
         oto_path.push(option);
+
         setLoop("user", (oto_path.length-1));
         setRotation("user", n);
 
@@ -686,15 +690,27 @@ var validate = function(option) {
 
         //navigator.vibrate(200);
         if (oto_path.length == path.length) {
-            say("");
+            if (!unlockedAngles)
             skip();
+
+            if (oto_path.length % 5 == 0)
+            say("You accumulated "+oto_path.length+" colors.");
+
             draw(option, (oto_path.length-1));
             increase();
             return true;
         }
+
+        if (!unlockedAngles)
         skip();
+
+        if (oto_path.length % 5 == 0)
+        say("You accumulated "+oto_path.length+" colors.");
+
         draw(option);
         drawHistory();
+
+        if (!unlockedAngles)
         wait(n+1);
     }
     else {
@@ -1013,6 +1029,7 @@ var say = function(text, afterAudio) {;
         afterAudio_callback = afterAudio;
         return;
     }
+    //console.log("say: ", text);
     lastText = text;
     var msg = new SpeechSynthesisUtterance();
     msg.lang = "en-US";
@@ -1026,6 +1043,7 @@ var say = function(text, afterAudio) {;
 }
 
 var cancelText = function() {
+    //console.log("window.speechSynthesis.cancel()");
     window.speechSynthesis.cancel();
 }
 
@@ -1137,7 +1155,15 @@ var animateBubbles = function() {
     if (!remoteGamepad)
     buttonSet = listGamepadButtons();
 
-    if (locked && buttonSet.length > 0)
+    if (rescueButtonFromSet(buttonSet, 6).value == 1) {
+        debug = !debug;
+        var state = debug ? "ON" : "OFF";
+        say("AUTOPILOT "+state);
+        label.innerHTML = "AUTOPILOT "+state;
+    }
+    else if (locked && 
+    rescueButtonFromSet(buttonSet, 6).value == 0 &&
+    buttonSet.length > 0)
     say("CPU is in control!");
     else if (rescueButtonFromSet(buttonSet, 4).value != 0)
     previousTargetBtn.click();
