@@ -88,6 +88,14 @@ var fitImageContain = function(img, frame) {
     return obj;
 };
 
+// 480x640 0.75
+// 150x150 1
+/*
+var img = { width: 480, height: 640 };
+var frame = { width: 150, height: 150 };
+fitImageCover(img, frame);
+*/
+
 var fitImageCover = function(img, frame) {
     var obj = {
         left: 0,
@@ -98,7 +106,10 @@ var fitImageCover = function(img, frame) {
 
     var left, top, width, height;
 
-    if (frame.width > frame.height) {
+    var img_aspectRatio = img.width/img.height;
+    var frame_aspectRatio = frame.width/frame.height;
+
+    if (frame_aspectRatio > img_aspectRatio) {
         width = frame.width;
         height = (img.height/img.width)*frame.width;
 
@@ -117,6 +128,8 @@ var fitImageCover = function(img, frame) {
     obj.top = top;
     obj.width = width;
     obj.height = height;
+
+    
 
     return obj;
 };

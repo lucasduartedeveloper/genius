@@ -27,6 +27,22 @@ var listGamepadButtons = function(index=0) {
      if (!gamepadList[index]) return [];
      var buttonSet = [];
 
+     try {
+     for (var n = 0; n < gamepadList[index].axes.length/2; n++) {
+          var value = [ 
+              gamepadList[index].axes[(n*2)],
+              gamepadList[index].axes[(n*2)+1]
+          ];
+          var obj = {
+              index: 99-n,
+              value: value,
+              pressed: Math.abs(value[0]) > 0.1 || Math.abs(value[1]) > 0.1
+          };
+
+          if (obj.pressed)
+          buttonSet.push(obj);
+     }
+
      for (var n = 0; n < gamepadList[index].buttons.length; n++) {
           var button = gamepadList[index].buttons[n];
           if (button.value != 0 && 
@@ -47,6 +63,7 @@ var listGamepadButtons = function(index=0) {
           };
           buttonsPreviousStates[n] = obj;
      }
+    } catch(ex) { console.log(ex); }
 
      return buttonSet;
 };
@@ -54,7 +71,7 @@ var listGamepadButtons = function(index=0) {
 var rescueButtonFromSet = function(buttonSet, index) {
      var button = buttonSet.filter((b) => { return b.index == index; })[0];
      if (button) return button;
-     else return { value: 0 };
+     else return (index < 90) ? { value: 0 } : { value: [ 0, 0 ] };
 };
 
 var isMobile = function() {

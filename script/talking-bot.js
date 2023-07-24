@@ -303,16 +303,29 @@ $(document).ready(function() {
         "height": "25px"
     });
 
-    var rested = false;
+    var thresholds = [
+       0.3, 0.4, 0.5
+    ];
     mic = new EasyMicrophone();
     mic.onsuccess = function() { };
     mic.onupdate = function(freqArray, reachedFreq, avgValue) {
+        var value = parseFloat(avgValue.toFixed(2));
         volumeInfo.innerText = avgValue.toFixed(2);
-        if (avgValue > 0.3)
-        solve();
-
-        if (avgValue <= 0.1)
-        rested = true;
+        if (thresholds.includes(value)) {
+            say("Treshold "+value+" reached.");
+        }
+        else {
+            if (value > thresholds[2]) {
+                for (var n = 0; thresholds.length;  n++)
+                thresholds[n] += 1;
+                say("Thresholds increased.");
+            }
+            else if (value < thresholds[0]) {
+                for (var n = 0; thresholds.length;  n++)
+                thresholds[n] -= 1;
+                say("Thresholds decreased.");
+            }
+        }
 
         var resumedWave = resumeWave(freqArray);
         analyseWave(resumedWave);
@@ -625,6 +638,9 @@ var showPath = function() {
     last_option = -1;
     colorHistory.innerHTML = "";
     label.innerHTML = "CPU";
+
+    if (unlockedAngles)
+    say("CPU is in control!");
 
     var n = 0;
     var show = function() {
@@ -1155,7 +1171,30 @@ var animateBubbles = function() {
     if (!remoteGamepad)
     buttonSet = listGamepadButtons();
 
-    if (rescueButtonFromSet(buttonSet, 6).value == 1) {
+    if (buttonSet.length > 0)
+    for (var n = 0; n < buttonSet.length; n++) {
+        //console.log("button "+buttonSet[n].index+" pressed");
+    }
+
+    if (rescueButtonFromSet(buttonSet, 98).value[1] != 0) {
+        setVolume(rescueButtonFromSet(buttonSet, 98).value[1]);
+    }
+    else if (rescueButtonFromSet(buttonSet, 14).value != 0) {
+        playMusic(0);
+    }
+    else if (rescueButtonFromSet(buttonSet, 12).value != 0) {
+        playMusic(1);
+    }
+    else if (rescueButtonFromSet(buttonSet, 15).value != 0) {
+        playMusic(2);
+    }
+    else if (rescueButtonFromSet(buttonSet, 13).value != 0) {
+        playMusic(3);
+    }
+    else if (rescueButtonFromSet(buttonSet, 11).value != 0) {
+        playMusic(-1);
+    }
+    else if (rescueButtonFromSet(buttonSet, 6).value == 1) {
         debug = !debug;
         var state = debug ? "ON" : "OFF";
         say("AUTOPILOT "+state);
@@ -1241,26 +1280,54 @@ var setRotation = function(from, n) {
 };
 
 var leftAudio = new Audio("audio/left-audio.wav");
+var centerAudio = new Audio("audio/center-audio.wav");
 var rightAudio = new Audio("audio/right-audio.wav");
+var audioStream = new Audio("");
 
-var playMusic = function() {
+var playMusic = function(n) {
     leftAudio.loop = true;
+    centerAudio.loop = true;
     rightAudio.loop = true;
 
-    if (leftAudio.paused)
-    leftAudio.play();
+    switch (n) {
+        case 0:
+            leftAudio.play();
+            centerAudio.pause();
+            rightAudio.pause();
+            audioStream.pause();
+            break;
+        case 1:
+            leftAudio.pause();
+            centerAudio.play();
+            rightAudio.pause();
+            audioStream.pause();
+            break;
+        case 2:
+            leftAudio.pause();
+            centerAudio.pause();
+            rightAudio.play();
+            audioStream.pause();
+            break;
+        case 3:
+            leftAudio.pause();
+            centerAudio.pause();
+            rightAudio.pause();
+            audioStream.play();
+            break;
+        default:
+            leftAudio.pause();
+            centerAudio.pause();
+            rightAudio.pause();
+            audioStream.pause();
+            break;
+    }
+};
 
-    if (rightAudio.paused)
-    rightAudio.play();
-
-    var leftAudioSpeed =
-    rotation < 0 ? (rotation*-1) : 0;
-
-    var rightAudioSpeed =
-    rotation > 0 ? (rotation) : 0;
-
-    leftAudio.playbackRate = leftAudioSpeed;
-    rightAudio.playbackRate = rightAudioSpeed;
+var setVolume = function(value) {
+    leftAudio.volume = value;
+    centerAudio.volume = value;
+    rightAudio.volume = value;
+    audioStream.volume = value;
 };
 
 var monitorMovement = function() {
