@@ -304,7 +304,7 @@ $(document).ready(function() {
     });
 
     var thresholds = [
-       0.3, 0.4, 0.5
+       0.1, 0.2, 0.3
     ];
     mic = new EasyMicrophone();
     mic.onsuccess = function() { };
@@ -312,18 +312,18 @@ $(document).ready(function() {
         var value = parseFloat(avgValue.toFixed(2));
         volumeInfo.innerText = avgValue.toFixed(2);
         if (thresholds.includes(value)) {
-            say("Treshold "+value+" reached.");
+            //say("Treshold "+value+" reached.");
         }
         else {
             if (value > thresholds[2]) {
                 for (var n = 0; thresholds.length;  n++)
                 thresholds[n] += 1;
-                say("Thresholds increased.");
+                //say("Thresholds increased.");
             }
             else if (value < thresholds[0]) {
                 for (var n = 0; thresholds.length;  n++)
                 thresholds[n] -= 1;
-                say("Thresholds decreased.");
+                //say("Thresholds decreased.");
             }
         }
 
