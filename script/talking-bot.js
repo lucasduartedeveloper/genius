@@ -306,24 +306,28 @@ $(document).ready(function() {
     var thresholds = [
        0.1, 0.2, 0.3
     ];
+    var startTime = new Date().getTime();
     mic = new EasyMicrophone();
     mic.onsuccess = function() { };
     mic.onupdate = function(freqArray, reachedFreq, avgValue) {
         var value = parseFloat(avgValue.toFixed(2));
         volumeInfo.innerText = avgValue.toFixed(2);
         if (thresholds.includes(value)) {
-            //say("Treshold "+value+" reached.");
+            say("point "+value.toString().replace("0.","")+".");
         }
         else {
-            if (value > thresholds[2]) {
-                for (var n = 0; thresholds.length;  n++)
-                thresholds[n] += 1;
-                //say("Thresholds increased.");
-            }
-            else if (value < thresholds[0]) {
-                for (var n = 0; thresholds.length;  n++)
-                thresholds[n] -= 1;
-                //say("Thresholds decreased.");
+            if (new Date().getTime() - startTime > 1000/60) {
+                if (value > thresholds[2]) {
+                    for (var n = 0; thresholds.length;  n++)
+                    thresholds[n] += 1;
+                    say("increased.");
+                }
+                else if (value < thresholds[0]) {
+                    for (var n = 0; thresholds.length;  n++)
+                    thresholds[n] -= 1;
+                    say("decreased.");
+                }
+                startTime = new Date().getTime();
             }
         }
 
