@@ -310,6 +310,23 @@ var textInputControl = function() {
         currentText[cursorPosition] = alphabet[currentIndex];
         ouija.innerText = currentText.join("").toUpperCase();
     }
+    if (rescueButtonFromSet(buttonSet, 1).value != 0) {
+        var vocals = "bgnt";
+        var vocalIndex = 0;
+        var resultIndex = currentIndex;
+        for (var n = 0; n < vocals.length; n++) {
+            vocalIndex = alphabet.indexOf(vocals[n]);
+            if (currentIndex < vocalIndex) {
+                resultIndex = vocalIndex;
+                break;
+            }
+        }
+        if (resultIndex <= currentIndex)
+        resultIndex = 28;
+        currentIndex = resultIndex;
+        currentText[cursorPosition] = alphabet[currentIndex];
+        ouija.innerText = currentText.join("").toUpperCase();
+    }
 };
 
 var cameraControl = function() {
