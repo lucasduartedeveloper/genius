@@ -168,16 +168,17 @@ var UrlExists = function(url) {
     icon.style.top = ((sh/2)-25)+"px";
 */
 
-var mode = 0;
+var speakMode = 0;
 var alphabet = "-abcdefghijklmnopqrstuvwxyz? ";
 var numbers = "0123456789";
 
 var getSpelling = function() {
-    var text = currentText.join(" ");
-    text = text.replace("   ", " space ");
+    var text = currentText.join(", ");
+    text = text.replace(", ,", ",space,");
     return text;
 };
 
+var controlMode = 0;
 var currentIndex = 0;
 var cursorPosition = 0;
 var currentText = [ "-" ];
@@ -206,6 +207,33 @@ var gameLoop = function() {
         ouija.style.top = ((position.y-25).toFixed(2))+"px";
     }
 
+    if (rescueButtonFromSet(buttonSet, 8).value != 0) {
+        controlMode += 1;
+        controlMode = controlMode > 1 ? 0 : controlMode;
+        say(controlMode == 0 ? "text mode" : "image mode");
+    }
+    if (controlMode == 0) textInputControl();
+    else cameraControl();
+
+    // limit fps
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(fps, 25, 25);
+    document.body.appendChild(canvas);
+
+    buttonSet = [];
+    requestAnimationFrame(gameLoop);
+};
+
+var parseFloatEx = function(num, decimalPlaces) {
+    return parseFloat(num.toFixed(decimalPlaces));
+};
+
+var textInputControl = function() {
     if (rescueButtonFromSet(buttonSet, 14).value != 0) {
         cursorPosition -= 1;
         var erased = false;
@@ -251,20 +279,40 @@ var gameLoop = function() {
         if (new Date().getTime() - buttonTime < 1000) {
             clearTimeout(buttonTimeout);
 
-            if (mode == 0) say(ouija.innerText);
+            if (speakMode == 0) say(ouija.innerText);
             else say(getSpelling());
 
             buttonTime = new Date().getTime();
         }
         else {
             buttonTimeout = setTimeout(function() {
-                mode += 1;
-                mode = mode > 1 ? 0 : mode;
-                say(mode == 0 ? "normal mode" : "spelling mode");
+                speakMode += 1;
+                speakMode = speakMode > 1 ? 0 : speakMode;
+                say(speakMode == 0 ? "normal mode" : "spelling mode");
             }, 1000);
             buttonTime = new Date().getTime();
         }
     }
+    if (rescueButtonFromSet(buttonSet, 3).value != 0) {
+        var vocals = "aeiou";
+        var vocalIndex = 0;
+        var resultIndex = currentIndex;
+        for (var n = 0; n < vocals.length; n++) {
+            vocalIndex = alphabet.indexOf(vocals[n]);
+            if (currentIndex < vocalIndex) {
+                resultIndex = vocalIndex;
+                break;
+            }
+        }
+        if (resultIndex <= currentIndex)
+        resultIndex = 1;
+        currentIndex = resultIndex;
+        currentText[cursorPosition] = alphabet[currentIndex];
+        ouija.innerText = currentText.join("").toUpperCase();
+    }
+};
+
+var cameraControl = function() {
     if (rescueButtonFromSet(buttonSet, 5).value != 0) {
         say("Timer of 15 seconds set.", function() {
             setTimeout(function() {
@@ -284,72 +332,6 @@ var gameLoop = function() {
     if (rescueButtonFromSet(buttonSet, 1).value != 0) {
         label.click();
     }
-
-    // limit fps
-    var ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#fff";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(fps, 25, 25);
-    document.body.appendChild(canvas);
-
-    buttonSet = [];
-    requestAnimationFrame(gameLoop);
-};
-
-var getClosestCircle = function() {
-    var currentCircle = icons[iconNo];
-    var otherCircles = 
-    icons.filter((o) => { return o.no != iconNo });
-
-    var closestCircle = otherCircles[0];
-
-    var co = Math.abs(currentCircle.position.x-
-    closestCircle.position.x);
-    var ca = Math.abs(currentCircle.position.y-
-    closestCircle.position.y);
-    var distance = Math.sqrt(
-    Math.pow(co, 2) + Math.pow(ca, 2));
-
-    /*
-    console.log(currentCircle.name + " to " + 
-    closestCircle.name + ": " + 
-    co + " " + ca + " " + distance);
-    */
-    
-    for (var n = 1; n < otherCircles.length; n++) {
-        var co = Math.abs(currentCircle.position.x-
-        otherCircles[n].position.x);
-        var ca = Math.abs(currentCircle.position.y-
-        otherCircles[n].position.y);
-        var currentDistance = Math.sqrt(
-        Math.pow(co, 2) + Math.pow(ca, 2));
-
-        /*
-        console.log(currentCircle.name + " to " + 
-        otherCircles[n].name + ": " + 
-        co + " " + ca + " " + currentDistance);
-        */
-
-        if (currentDistance < distance) {
-            closestCircle = otherCircles[n];
-            distance = currentDistance;
-
-            /*
-            console.log(currentCircle.name + " to " + 
-            otherCircles[n].name + ": " + 
-            co + " " + ca + " " + currentDistance);
-            */
-        }
-    };
-
-    return closestCircle;
-};
-
-var parseFloatEx = function(num, decimalPlaces) {
-    return parseFloat(num.toFixed(decimalPlaces));
 };
 
 var render = function(mode="camera") {
@@ -389,6 +371,7 @@ var say = function(text, afterAudio) {;
 
     lastText = text;
     var msg = new SpeechSynthesisUtterance();
+    msg.pitch = 1;
     msg.lang = "en-US";
     //msg.lang = "ru-RU";
     //msg.lang = "pt-BR";
