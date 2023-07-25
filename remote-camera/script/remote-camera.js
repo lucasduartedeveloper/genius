@@ -63,54 +63,22 @@ $(document).ready(function() {
     image.style.zIndex = "3";
     document.body.appendChild(image);
 
-    var names = [
-        "gorila",
-        "giraffe",
-        "panda",
-        "praying mantis",
-        "bee",
-        "hipopotammus",
-        "wolf",
-        "naja"
-    ];
-
-    iconNo = 0;
-    icons = [];
-    for (var n = 0; n < 8; n++) {
-        var rnd = Math.random();
-        icon = document.createElement("img");
-        icon.no = n;
-        icon.name = names[n];
-        var c = {
-            x: (sw/2),
-            y: (sh/2)
-        };
-        var p = {
-            x: (sw/2),
-            y: (sh/2)-((sw/2)-50)
-        };
-        var a = n*(360/8);
-        icon.position = _rotate2d(c, p, -a);
-        icon.style.position = "fixed";
-        icon.src = "img/icon_0"+n+".png?f="+rnd;
-        icon.style.display = "initial";
-        icon.style.background = "orange";
-        icon.style.left = ((icon.position.x-25).toFixed(2))+"px";
-        icon.style.top = ((icon.position.y-25).toFixed(2))+"px";
-        icon.style.width = (50)+"px";
-        icon.style.height = (50)+"px";
-        icon.style.overflowX = "hidden";
-        icon.style.overflowY = "auto";
-        //icon.style.border = "1px solid #fff";
-        icon.style.borderRadius = "50%";
-        icon.style.outline = "none";
-        //image.style.transform = "rotateZ(-90deg)";
-        //image.style.animationDuration = "1s";
-        icon.style.zIndex = "3";
-        document.body.appendChild(icon);
-
-        icons.push(icon);
-    }
+    position = {
+        x: ((sw/2)),
+        y: ((sh/2)+125)
+    };
+    ouija = document.createElement("span");
+    ouija.style.position = "absolute";
+    ouija.innerText = "";
+    ouija.style.fontSize = "50px";
+    ouija.style.lineHeight = "50px";
+    ouija.style.color = "limegreen";
+    ouija.style.left = ((sw/2)-150)+"px";
+    ouija.style.top = ((sh/2)+100)+"px";
+    ouija.style.width = (300)+"px";
+    ouija.style.height = (50)+"px";
+    ouija.style.zIndex = "3";
+    document.body.appendChild(ouija);
 
     label = document.createElement("span");
     label.style.position = "absolute";
@@ -200,7 +168,24 @@ var UrlExists = function(url) {
     icon.style.top = ((sh/2)-25)+"px";
 */
 
+var mode = 0;
+var alphabet = "-abcdefghijklmnopqrstuvwxyz? ";
+var numbers = "0123456789";
+
+var getSpelling = function() {
+    var text = currentText.join(" ");
+    text = text.replace("   ", " space ");
+    return text;
+};
+
+var currentIndex = 0;
+var cursorPosition = 0;
+var currentText = [ "-" ];
+
 var startTime = 0;
+var buttonTime = 0;
+var buttonTimeout = 0;
+
 var gameLoop = function() {
     for (var n = 0; n < buttonSet.length; n++) {
         //console.log("debug: "+buttonSet[n].index+" pressed");
@@ -214,52 +199,71 @@ var gameLoop = function() {
         var speedX = (parseFloatEx(rightStick.value[0], 2)*5);
         var speedY = (parseFloatEx(rightStick.value[1], 2)*5);
 
-        icons[iconNo].position.x += speedX;
-        icons[iconNo].position.y += speedY;
+        position.x += speedX;
+        position.y += speedY;
 
-        /*
-        console.log(speedX);
-        console.log(speedY);
-
-        console.log(icon.x);
-        console.log(icon.y);
-        */
-
-        icons[iconNo].style.left = 
-        ((icons[iconNo].position.x-25).toFixed(2))+"px";
-        icons[iconNo].style.top = 
-        ((icons[iconNo].position.y-25).toFixed(2))+"px";
+        ouija.style.left = ((position.x-150).toFixed(2))+"px";
+        ouija.style.top = ((position.y-25).toFixed(2))+"px";
     }
 
     if (rescueButtonFromSet(buttonSet, 14).value != 0) {
-        iconNo -= 1;
-        iconNo = iconNo < 0 ? 7 : iconNo;
-        for (var n = 0; n < 8; n++) {
-            icons[n].style.border = "0px solid #fff";
-            icons[n].style.zIndex = "3";
+        cursorPosition -= 1;
+        var erased = false;
+        if (cursorPosition < 0) {
+            currentText = [ "-" ];
+            ouija.innerText = currentText.join("").toUpperCase();
+            //say("");
+            erased = true;
         }
-        icons[iconNo].style.border = "2px solid #fff";
-        icons[iconNo].style.zIndex = "5";
+        cursorPosition = cursorPosition < 0 ? 0 : cursorPosition;
+        currentIndex = alphabet.indexOf(currentText[cursorPosition]);
     }
     if (rescueButtonFromSet(buttonSet, 15).value != 0) {
-        iconNo += 1;
-        iconNo = iconNo > 7 ? 0 : iconNo;
-        for (var n = 0; n < 8; n++) {
-            icons[n].style.border = "0px solid #fff";
-            icons[n].style.zIndex = "3";
+        cursorPosition += 1;
+        cursorPosition = cursorPosition > (currentText.length) ?
+        (currentText.length) : cursorPosition;
+        if (cursorPosition > (currentText.length-1)) {
+            currentText.push(alphabet[currentIndex]);
         }
-        icons[iconNo].style.border = "2px solid #fff";
-        icons[iconNo].style.zIndex = "5";
+        //currentIndex = alphabet.indexOf(currentText[cursorPosition]);
+        ouija.innerText = currentText.join("").toUpperCase();
     }
     if (rescueButtonFromSet(buttonSet, 12).value != 0) {
-        var closest = getClosestCircle();
-        iconNo = closest.no;
-        for (var n = 0; n < 8; n++) {
-            icons[n].style.border = "0px solid #fff";
-            icons[n].style.zIndex = "3";
+        currentIndex += 1;
+        currentIndex = currentIndex > (alphabet.length-1) ?
+        (alphabet.length-1) : currentIndex;
+        currentText[cursorPosition] = alphabet[currentIndex];
+        ouija.innerText = currentText.join("").toUpperCase();
+    }
+    if (rescueButtonFromSet(buttonSet, 13).value != 0) {
+        currentIndex -= 1;
+        var removed = false;
+        if (currentIndex < 0) {
+            currentText.splice(cursorPosition, 1);
+            removed = true;
         }
-        icons[iconNo].style.border = "2px solid #fff";
-        icons[iconNo].style.zIndex = "5";
+        currentIndex = currentIndex < 0 ? 0 : currentIndex;
+        if (!removed)
+        currentText[cursorPosition] = alphabet[currentIndex];
+        ouija.innerText = currentText.join("").toUpperCase();
+    }
+    if (rescueButtonFromSet(buttonSet, 4).value != 0) {
+        if (new Date().getTime() - buttonTime < 1000) {
+            clearTimeout(buttonTimeout);
+
+            if (mode == 0) say(ouija.innerText);
+            else say(getSpelling());
+
+            buttonTime = new Date().getTime();
+        }
+        else {
+            buttonTimeout = setTimeout(function() {
+                mode += 1;
+                mode = mode > 1 ? 0 : mode;
+                say(mode == 0 ? "normal mode" : "spelling mode");
+            }, 1000);
+            buttonTime = new Date().getTime();
+        }
     }
     if (rescueButtonFromSet(buttonSet, 5).value != 0) {
         say("Timer of 15 seconds set.", function() {
