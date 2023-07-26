@@ -345,11 +345,11 @@ var cameraControl = function() {
     if (buttonSet.length > 0)
     buttonSequence.push(buttonSet[0]);
 
-    if (rescueButtonFromSet(buttonSequence[0], 4).value =! 0)
+    /*if (rescueButtonFromSet(buttonSequence[0], 4).value =! 0)
     if (rescueButtonFromSet(buttonSequence[1], 4).value =! 0)
     deviceNo = deviceNo == 0 ? (deviceNo+1) : (deviceNo-1);
     else
-    buttonSequence = [];
+    buttonSequence = [];*/
 
     if (rescueButtonFromSet(buttonSet, 5).value != 0) {
         say("Timer of 15 seconds set.", function() {
