@@ -233,6 +233,7 @@ var parseFloatEx = function(num, decimalPlaces) {
     return parseFloat(num.toFixed(decimalPlaces));
 };
 
+var buttonCount = 0;
 var textInputControl = function() {
     if (rescueButtonFromSet(buttonSet, 14).value != 0) {
         cursorPosition -= 1;
@@ -326,6 +327,10 @@ var textInputControl = function() {
         currentIndex = resultIndex;
         currentText[cursorPosition] = alphabet[currentIndex];
         ouija.innerText = currentText.join("").toUpperCase();
+    }
+    if (rescueButtonFromSet(buttonSet, 2).value != 0) {
+        buttonCount += 1;
+        navigator.vibrate(500*buttonCount);
     }
 };
 
