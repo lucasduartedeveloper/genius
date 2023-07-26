@@ -110,6 +110,9 @@ $(document).ready(function() {
     ws.send("PAPER|"+playerId+"|remote-gamepad-attached");
 });
 
+var buttonTime = 0
+var buttonCount = 0;
+
 var logInputs = false;
 var gameLoop = function() {
     var buttonSet = listGamepadButtons();
@@ -123,6 +126,23 @@ var gameLoop = function() {
         if (button.value != 0) {
             aim.x = (sw/2)-185;
             aim.y = (sh/2)-125;
+        }
+        
+        var button = rescueButtonFromSet(buttonSet, 2);
+        if (button.value != 0 && gamepadList[1]) {
+            buttonCount += 1;
+            if (buttonCount % 2 == 1) {
+                buttonTime = new Date().getTime();
+            }
+            else {
+                var time = new Date().getTime() - buttonTime;
+                gamepadList[1].vibrationActuator.playEffect("dual-rumble", {
+                    startDelay: 0,
+                    duration: time,
+                    weakMagnitude: 1.0,
+                    strongMagnitude: 1.0,
+                });
+            }
         }
         
         aim.style.left = ((aim.x)-10)+"px";

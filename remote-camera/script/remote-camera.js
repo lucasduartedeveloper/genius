@@ -186,6 +186,7 @@ var currentText = [ "-" ];
 var startTime = 0;
 var buttonTime = 0;
 var buttonTimeout = 0;
+var buttonSequence = [];
 
 var gameLoop = function() {
     for (var n = 0; n < buttonSet.length; n++) {
@@ -330,11 +331,26 @@ var textInputControl = function() {
     }
     if (rescueButtonFromSet(buttonSet, 2).value != 0) {
         buttonCount += 1;
-        navigator.vibrate(500*buttonCount);
+        if (buttonCount % 2 == 1) {
+            buttonTime = new Date().getTime();
+        }
+        else {
+            var time = new Date().getTime() - buttonTime;
+            navigator.vibrate(time);
+        }
     }
 };
 
 var cameraControl = function() {
+    if (buttonSet.length > 0)
+    buttonSequence.push(buttonSet[0]);
+
+    if (rescueButtonFromSet(buttonSequence[0], 4).value =! 0)
+    if (rescueButtonFromSet(buttonSequence[1], 4).value =! 0)
+    deviceNo = deviceNo == 0 ? (deviceNo+1) : (deviceNo-1);
+    else
+    buttonSequence = [];
+
     if (rescueButtonFromSet(buttonSet, 5).value != 0) {
         say("Timer of 15 seconds set.", function() {
             setTimeout(function() {

@@ -23,6 +23,7 @@ window.addEventListener("gamepaddisconnected", (e) => {
 var buttonsPreviousStates = [];
 var listGamepadButtons = function(index=0) {
      gamepadList = navigator.getGamepads();
+     if (gamepadList[1]) index = 1;
 
      if (!gamepadList[index]) return [];
      var buttonSet = [];
@@ -65,6 +66,16 @@ var listGamepadButtons = function(index=0) {
      }
     } catch(ex) { console.log(ex); }
 
+     if (index == 1) buttonSet = convertButtons(buttonSet);
+     return buttonSet;
+};
+
+var convertButtons = function(buttonSet) {
+     for (var n = 0; n < buttonSet.length; n++) {
+          switch (buttonSet[n].index) {
+               // 0 <-> 0
+          }
+     }
      return buttonSet;
 };
 
