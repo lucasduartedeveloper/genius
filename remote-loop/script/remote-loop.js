@@ -74,7 +74,8 @@ var buttonSet = [];
 var logInputs = false;
 
 var sprite_idle = [
-    "img/boat-sprite-0.png"
+    "img/boat-sprite-0.png",
+    "img/island-sprite.png"
 ];
 
 var position = {
@@ -137,6 +138,11 @@ var gameLoop = function() {
         ctx.translate(-position.x, -position.y);
         ctx.translate(150, 100);
     }
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.lineWidth = 3;
+    ctx.drawImage(sprite_idle[1], 150-75, 100-68, 150, 138);
+    ctx.stroke();
 
     ctx.beginPath();
     ctx.lineWidth = 2;
@@ -320,7 +326,14 @@ var updateRules = function() {
         if (update.x > 275) update.x = 275;
         if (update.y > 175) update.y = 175;
     }
-    position = update;
+
+    var hyp = Math.hyp2(150-update.x, 100-update.y);
+    if (hyp < 50) {
+        update = position;
+    }
+    else {
+        position = update;
+    }
 
     var updateL = { x: position.x-5, y: position.y+15 };
     var updateR = { x: position.x+5, y: position.y+15 };
