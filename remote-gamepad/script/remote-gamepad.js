@@ -94,7 +94,10 @@ $(document).ready(function() {
         else if (msg[0] == "PAPER" &&
             msg[1] != playerId &&
             msg[2] == "remote-camera-data") {
-            image.src = msg[3]
+            image.src = msg[3];
+            var deviceNo = parseInt(msg[4]);
+            image.style.transform = deviceNo == 0 ? 
+            "rotateY(180deg)" : "rotateZ(-90deg)";
         }
     };
 

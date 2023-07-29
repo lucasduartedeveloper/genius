@@ -351,6 +351,12 @@ var cameraControl = function() {
     else
     buttonSequence = [];*/
 
+    if (rescueButtonFromSet(buttonSet, 9).value != 0) {
+        deviceNo = deviceNo == 0 ? (deviceNo+1) : (deviceNo-1);
+        camera.style.transform = deviceNo == 0 ? 
+        "rotateY(180deg)" : "";
+        navigator.vibrate(500);
+    }
     if (rescueButtonFromSet(buttonSet, 5).value != 0) {
         say("Timer of 15 seconds set.", function() {
             setTimeout(function() {
@@ -366,6 +372,8 @@ var cameraControl = function() {
     if (rescueButtonFromSet(buttonSet, 2).value != 0) {
         say("Picture selected.");
         render();
+        image.style.transform = deviceNo == 0 ? 
+        "rotateY(180deg)" : "";
     }
     if (rescueButtonFromSet(buttonSet, 1).value != 0) {
         label.click();
@@ -401,7 +409,7 @@ var render = function(mode="camera") {
     image.src = canvas.toDataURL();
 
     ws.send("PAPER|"+playerId+"|remote-camera-data|"+
-    canvas.toDataURL());
+    canvas.toDataURL()+"|"+deviceNo);
 };
 
 var say = function(text, afterAudio) {;
