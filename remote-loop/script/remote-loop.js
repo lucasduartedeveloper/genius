@@ -128,7 +128,7 @@ var gameLoop = function() {
 
     var co = target.x-position.x;
     var ca = target.y-position.y;
-    var angle = _angle2d(co, ca);
+    var angle = _angle2d(co, ca)-((Math.PI*2)/4);
 
     var ctx = canvas.getContext("2d");
     ctx.fillStyle = "darkblue";
@@ -139,7 +139,7 @@ var gameLoop = function() {
     }
 
     ctx.beginPath();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     ctx.strokeStyle = "rgba(255,255,255,0.3)";
     ctx.moveTo(pathL[0].x, pathL[0].y);
     for (var n = 0; n < pathL.length; n++) {
@@ -196,7 +196,7 @@ var gameLoop = function() {
 
     ctx.beginPath();
     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
     if (follow) {
         var c = { x: 150, y: 100 };
         var p = { x: c.x, y:c.y-25 };
@@ -213,7 +213,7 @@ var gameLoop = function() {
         var r = (1/hyp)*(hyp-25);
         r = r < 0 ? 0 : r;
         ctx.lineTo(v0.x+(v1.x*r), v0.y+(v1.y*r));
-        ctx.stroke();
+        //ctx.stroke();
     }
     else {
         var c = { x: position.x, y: position.y };
@@ -230,17 +230,17 @@ var gameLoop = function() {
         ctx.lineTo(v0.x+(v1.x*r), v0.y+(v1.y*r));
         ctx.stroke();
     }
-    
-    if (follow) {
-        ctx.translate(-(-(target.x-150)-position.x), 
-        -(-(target.y-100)-position.y));
-    }
 
     ctx.beginPath();
     ctx.strokeStyle = "rgba(255, 128, 0, 0.5)";
     ctx.lineWidth = 3;
     ctx.arc(target.x, target.y, 25, 0, (2*Math.PI));
     ctx.stroke();
+
+    if (follow) {
+        ctx.translate(-(-(target.x-150)-position.x), 
+        -(-(target.y-100)-position.y));
+    }
 
     var ctxOut = canvasOut.getContext("2d");
     ctxOut.fillStyle = "#000";
@@ -263,7 +263,9 @@ var gameLoop = function() {
     ctx.font = "15px sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(speed.val.toFixed(2)+" atomns/s", 15, 185);
+    ctx.fillText(speed.x.toFixed(2)+" "+
+    speed.y.toFixed(2)+
+    " px/s", 15, 185);
     document.body.appendChild(canvas);
 
     ctx.fillStyle = "#fff";
@@ -311,7 +313,6 @@ var updateRules = function() {
 
     var c = position;
     var p = { x: c.x, y: c.y-speed };
-    //update = _rotate2d(c, p, -direction);
     update = { x: position.x+speed.x, y: position.y+speed.y };
     if (!follow) {
         if (update.x < 25) update.x = 25;
@@ -325,16 +326,34 @@ var updateRules = function() {
     var updateR = { x: position.x+5, y: position.y+15 };
     updateL = _rotate2d(position, updateL, -direction);
     updateR = _rotate2d(position, updateR, -direction);
-    pathL.push(updateL);
-    pathR.push(updateR);
-    if (pathL.length > 120) pathL.splice(0, pathL.length-120);
-    if (pathR.length > 120) pathR.splice(0, pathR.length-120);
+
+    pathL.push(updateL); //.splice(0, 0, updateL);
+    pathR.push(updateR); //.splice(0, 0, updateR);
+    pathL[0].center = update;
+    pathR[0].center = update;
+
+    if (pathL.length > 120) pathL.splice(0, (pathL.length-120));
+    //pathL.splice(120, (pathL.length-120));
+    if (pathR.length > 120) pathR.splice(0, (pathR.length-120));
+    //pathR.splice(120, (pathR.length-120));
+
+    for (var n = ((pathL.length+pathR.length)/2)-1; n < 0; n++) {
+        var aL = 90;
+        var pL = _rotate2d(pathL[n].center, pathL[n], aL);
+        pathL[n].x = pL.x;
+        pathL[n].y = pL.y;
+
+        var aR = -90;
+        var pR = _rotate2d(pathR[n].center, pathR[n], aR);
+        pathR[n].x = pR.x;
+        pathR[n].y = pR.y;
+    }
 
     var co = target.x-position.x;
     var ca = target.y-position.y;
     var hyp = Math.sqrt(Math.pow(co, 2)+Math.pow(ca,2));
 
-    if (hyp < 10) throwCircle();
+    if (hyp < 10) throwCircles();
     buttonSet = [];
 };
 
@@ -375,6 +394,21 @@ var _angle2d = function(co, ca) {
     console.log("r: "+a);*/
 
     return isNaN(a) ? 0 : a;
+};
+
+var test_angle2d = function(count=8) {
+    for (var n = 0; n < count; n++) {
+        var c = { x: 0, y: 0 };
+        var p = { x: 0, y: -10 };
+        var v = _rotate2d(c, p, n*(360/count));
+
+        var a = _angle2d(v.x, v.y);
+        var deg = (180/Math.PI)*a;
+        console.log(
+        "x: "+v.x.toFixed(2)+
+        ", y: "+v.y.toFixed(2)+
+        ", "+deg.toFixed(2)+"°");
+    }
 };
 
 Math.hyp = function(co, ca) {
