@@ -36,7 +36,21 @@ $(document).ready(function() {
     canvasOut.style.width = (100)+"px";
     canvasOut.style.height = (50)+"px";
     canvasOut.style.zIndex = "3";
+    canvasOut.onclick = function() {
+        grayscaleScenario = !grayscaleScenario;
+    };
     document.body.appendChild(canvasOut);
+
+    canvasSignal = document.createElement("canvas");
+    canvasSignal.style.position = "absolute";
+    canvasSignal.width = 50;
+    canvasSignal.height = 150;
+    canvasSignal.style.left = ((sw/2)-150)+"px";
+    canvasSignal.style.top = ((sh/2)-250)+"px";
+    canvasSignal.style.width = (50)+"px";
+    canvasSignal.style.height = (150)+"px";
+    canvasSignal.style.zIndex = "3";
+    document.body.appendChild(canvasSignal);
 
     $("*").not("i").css("font-family", "Khand");
 
@@ -130,6 +144,12 @@ var frameLine = 0;
 var follow = true;
 var renderTime = 0;
 var logicTime = 0;
+
+var avgRenderTime = 1000/60;
+var avgLogicTime = 1000/30;
+
+var grayscaleScenario = true;
+
 var gameLoop = function() {
     updateRules();
 
@@ -160,6 +180,7 @@ var gameLoop = function() {
         pixels[n + 1] = lightness;
         pixels[n + 2] = lightness;
     }
+    if (grayscaleScenario)
     ctx.putImageData(imgData, 0, 0);
 
     ctx.beginPath();
@@ -281,19 +302,42 @@ var gameLoop = function() {
     ctxOut.fillText(((100/1)*beschleuniger).toFixed(2)+" %", 25, 35);
 
     // limit fps
-    var fps = (1000/(new Date().getTime() - renderTime)).toFixed(0);
+    avgRenderTime += (new Date().getTime() - renderTime);
+    avgRenderTime /= 2;
+    var fps = (1000/(avgRenderTime)).toFixed(0);
     ctx.fillStyle = "#fff";
     ctx.font = "20px sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillText(fps, 15, 15);
 
-    var lps = (1000/(new Date().getTime() - logicTime)).toFixed(0);
+    avgLogicTime += (new Date().getTime() - logicTime);
+    avgLogicTime /= 2;
+    var lps = (1000/(avgLogicTime)).toFixed(0);
     ctx.fillStyle = "#fff";
     ctx.font = "20px sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillText(lps, 50, 15);
+
+    var ctxSignal = canvasSignal.getContext("2d");
+    ctxSignal.fillStyle = "#000";
+    ctxSignal.fillRect(0, 0, 50, 150);
+    ctxSignal.beginPath();
+    ctxSignal.strokeStyle = "lightblue";
+    ctxSignal.lineWidth = 2;
+    for (var n = 0; n < fps; n++) {
+        ctxSignal.moveTo(2, 148-(n*4));
+        ctxSignal.lineTo(24, 148-(n*4));
+        ctxSignal.stroke();
+    }
+    ctxSignal.beginPath();
+    ctxSignal.strokeStyle = "purple";
+    for (var n = 0; n < lps; n++) {
+        ctxSignal.moveTo(27, 148-(n*4));
+        ctxSignal.lineTo(48, 148-(n*4));
+        ctxSignal.stroke();
+    }
 
     ctx.fillStyle = "#fff";
     ctx.font = "15px sans-serif";
@@ -450,7 +494,7 @@ var updateRules = function() {
     if (hyp < 10) throwCircles();
     buttonSet = [];
 
-    createButtonRequest(7);
+    createButtonRequest();
     logicTime = new Date().getTime();
 };
 
@@ -470,8 +514,7 @@ var createButtonRequest = function(index) {
         index: index
     };
     buttonRequestBuffer.push(obj);
-    ws.send("PAPER|"+playerId+
-    "|remote-gamepad-get|"+obj.identifier+"|7");
+    ws.send("PAPER|"+playerId+"|remote-gamepad-get|"+obj.identifier);
 };
 
 var endButtonRequest = function(identifier) {
