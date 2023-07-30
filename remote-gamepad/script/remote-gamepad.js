@@ -99,6 +99,17 @@ $(document).ready(function() {
             image.style.transform = deviceNo == 0 ? 
             "rotateY(180deg)" : "rotateZ(-90deg)";
         }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-gamepad-get") {
+            if (!clientUpdated)
+            clientUpdated = true;
+
+            var identifier = msg[3];
+            var index = parseInt(msg[4]);
+            ws.send("PAPER|"+playerId+"|remote-gamepad-seq|"+
+            identifier+"|"+JSON.stringify(buttonSet));
+        }
     };
 
     $("*").not("i").css("font-family", "Khand");
@@ -113,12 +124,14 @@ $(document).ready(function() {
     ws.send("PAPER|"+playerId+"|remote-gamepad-attached");
 });
 
+var clientUpdated = false;
 var buttonTime = 0
 var buttonCount = 0;
 
+var buttonSet = [];
 var logInputs = false;
 var gameLoop = function() {
-    var buttonSet = listGamepadButtons();
+    buttonSet = listGamepadButtons();
 
     if (buttonSet.length > 0) {
         var button = rescueButtonFromSet(buttonSet, 99);
@@ -158,6 +171,7 @@ var gameLoop = function() {
             }
         }
 
+        if (!clientUpdated)
         ws.send("PAPER|"+playerId+"|remote-gamepad|"+
         JSON.stringify(buttonSet));
     }
