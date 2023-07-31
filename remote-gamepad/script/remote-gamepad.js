@@ -131,7 +131,7 @@ var buttonCount = 0;
 var buttonSet = [];
 var logInputs = false;
 var gameLoop = function() {
-    buttonSet = listGamepadButtons();
+    buttonSet = listGamepadButtons(0, !clientUpdated);
 
     if (buttonSet.length > 0) {
         var button = rescueButtonFromSet(buttonSet, 99);
@@ -143,7 +143,7 @@ var gameLoop = function() {
             aim.x = (sw/2)-185;
             aim.y = (sh/2)-125;
         }
-        
+
         var button = rescueButtonFromSet(buttonSet, 2);
         if (button.value != 0 && gamepadList[1]) {
             buttonCount += 1;

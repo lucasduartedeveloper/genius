@@ -21,7 +21,7 @@ window.addEventListener("gamepaddisconnected", (e) => {
 });
 
 var buttonsPreviousStates = [];
-var listGamepadButtons = function(index=0) {
+var listGamepadButtons = function(index=0, changes=true) {
      gamepadList = navigator.getGamepads();
      if (gamepadList[1]) index = 1;
 
@@ -46,10 +46,10 @@ var listGamepadButtons = function(index=0) {
 
      for (var n = 0; n < gamepadList[index].buttons.length; n++) {
           var button = gamepadList[index].buttons[n];
-          if (button.value != 0 && 
+          if (button.value != 0 || (!changes ||
               (buttonsPreviousStates.length == 0 || 
               (buttonsPreviousStates.length > 0 && 
-              button.value != buttonsPreviousStates[n].value))) {
+              button.value != buttonsPreviousStates[n].value)))) {
               //console.log("Button "+n+" pressed");
               var obj = {
                    index: n,

@@ -52,6 +52,30 @@ $(document).ready(function() {
     canvasSignal.style.zIndex = "3";
     document.body.appendChild(canvasSignal);
 
+    gamepad = document.createElement("canvas");
+    gamepad.style.position = "absolute";
+    gamepad.width = 250;
+    gamepad.height = 150;
+    gamepad.style.left = ((sw/2)-100)+"px";
+    gamepad.style.top = ((sh/2)-250)+"px";
+    gamepad.style.width = (250)+"px";
+    gamepad.style.height = (150)+"px";
+    gamepad.style.zIndex = "3";
+    document.body.appendChild(gamepad);
+
+    pausedLabel = document.createElement("span");
+    pausedLabel.style.position = "absolute";
+    pausedLabel.style.display = "none";
+    pausedLabel.innerText = "PAUSED";
+    pausedLabel.style.color = "#fff";
+    pausedLabel.style.fontSize = "25px";
+    pausedLabel.style.left = ((sw/2)-100)+"px";
+    pausedLabel.style.top = ((sh/2)-50)+"px";
+    pausedLabel.style.width = (200)+"px";
+    pausedLabel.style.height = (100)+"px";
+    pausedLabel.style.zIndex = "5";
+    document.body.appendChild(pausedLabel);
+
     $("*").not("i").css("font-family", "Khand");
 
     $(".result-icon").css({
@@ -75,8 +99,7 @@ $(document).ready(function() {
             var identifier = msg[3];
             endButtonRequest(identifier);
             buttonSet = JSON.parse(msg[4]);
-            //if (buttonSet.length > 0)
-            //console.log("gamepad: "+buttonSet[0].value);
+            gamepadState();
         }
     };
 
@@ -93,7 +116,8 @@ var logInputs = false;
 
 var sprite_idle = [
     "img/boat-sprite-0.png",
-    "img/island-sprite.png"
+    "img/island-sprite.png",
+    "img/gamepad-description.png"
 ];
 
 var position = {
@@ -127,14 +151,17 @@ var loadImages = function(callback) {
 
 var throwCircles = function() {
     targets = [];
-    var rnd = 1+Math.floor(Math.random()*10);
+    var qt = 1+Math.floor(Math.random()*5);
 
-    targetNo = Math.floor(Math.random()*rnd);
+    targetNo = Math.floor(Math.random()*qt);
 
-    for (var n = 0; n < rnd; n++) {
-        var rndX = 25+Math.floor(Math.random()*250);
-        var rndY = 25+Math.floor(Math.random()*100);
-        var obj = { x: rndX, y: rndY };
+    for (var n = 0; n < qt; n++) {
+        var rnd = 100+Math.floor(Math.random()*300);
+        var c = { x: 150, y: 100 };
+        var p = { x: c.x, y: c.y-rnd };
+        var a = Math.floor(Math.random()*360);
+        var v = _rotate2d(c, p, a);
+        var obj = { x: v.x, y: v.y, color: "rgba(255, 255, 255, 0.5)" };
         targets.push(obj);
     }
     target = targets[targetNo];
@@ -142,15 +169,25 @@ var throwCircles = function() {
 
 var frameLine = 0;
 var follow = true;
+
 var renderTime = 0;
 var logicTime = 0;
+var inputTime = 0;
 
 var avgRenderTime = 1000/60;
 var avgLogicTime = 1000/30;
+var avgInputTime = 1000/30;
 
+var pausePressed = false;
+var gamePaused = false;
 var grayscaleScenario = true;
 
 var gameLoop = function() {
+    if (gamePaused) {
+        createButtonRequest();
+        requestAnimationFrame(gameLoop);
+        return;
+    }
     updateRules();
 
     var co = target.x-position.x;
@@ -239,52 +276,32 @@ var gameLoop = function() {
         ctx.translate(position.x, position.y);
     }
 
+    for (var n = 0; n < targets.length; n++) {
     ctx.beginPath();
     ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
     ctx.lineWidth = 2;
     if (follow) {
-        var c = { x: 150, y: 100 };
-        var p = { x: c.x, y:c.y-25 };
-        var v0 = _rotate2d(c, p, -direction);
-        ctx.moveTo(v0.x, v0.y);
+        ctx.translate(-150, -100);
+        ctx.translate(targets[n].x-position.x, targets[n].y-position.y);
+        ctx.translate(150, 100);
 
-        ctx.translate(-(target.x-150)-position.x, 
-        -(target.y-100)-position.y);
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(255, 128, 0, 0.5)";
+        ctx.lineWidth = 3;
+        ctx.arc(150, 100, 25, 0, (2*Math.PI));
+        ctx.stroke();
 
-        var v1 = { x: target.x-v0.x, y: target.y-v0.y };
-        var co = Math.abs(v1.x);
-        var ca = Math.abs(v1.y);
-        var hyp = Math.hyp(co, ca);
-        var r = (1/hyp)*(hyp-25);
-        r = r < 0 ? 0 : r;
-        ctx.lineTo(v0.x+(v1.x*r), v0.y+(v1.y*r));
-        //ctx.stroke();
+        ctx.translate(-150, -100);
+        ctx.translate(-(targets[n].x-position.x), -(targets[n].y-position.y));
+        ctx.translate(150, 100);
     }
     else {
-        var c = { x: position.x, y: position.y };
-        var p = { x: c.x, y: c.y-25 };
-        var v0 = _rotate2d(c, p, -direction);
-        ctx.moveTo(v0.x, v0.y);
-
-        var v1 = { x: target.x-v0.x, y: target.y-v0.y };
-        var co = Math.abs(v1.x);
-        var ca = Math.abs(v1.y);
-        var hyp = Math.hyp(co, ca);
-        var r = (1/hyp)*(hyp-25);
-        r = r < 0 ? 0 : r;
-        ctx.lineTo(v0.x+(v1.x*r), v0.y+(v1.y*r));
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(255, 128, 0, 0.5)";
+        ctx.lineWidth = 3;
+        ctx.arc(targets[n].x, targets[n].y, 25, 0, (2*Math.PI));
         ctx.stroke();
     }
-
-    ctx.beginPath();
-    ctx.strokeStyle = "rgba(255, 128, 0, 0.5)";
-    ctx.lineWidth = 3;
-    ctx.arc(target.x, target.y, 25, 0, (2*Math.PI));
-    ctx.stroke();
-
-    if (follow) {
-        ctx.translate(-(-(target.x-150)-position.x), 
-        -(-(target.y-100)-position.y));
     }
 
     var ctxOut = canvasOut.getContext("2d");
@@ -311,7 +328,7 @@ var gameLoop = function() {
     ctx.textBaseline = "top";
     ctx.fillText(fps, 15, 15);
 
-    avgLogicTime += (new Date().getTime() - logicTime);
+    avgLogicTime += (new Date().getTime() - inputTime);
     avgLogicTime /= 2;
     var lps = (1000/(avgLogicTime)).toFixed(0);
     ctx.fillStyle = "#fff";
@@ -322,7 +339,7 @@ var gameLoop = function() {
 
     var ctxSignal = canvasSignal.getContext("2d");
     ctxSignal.fillStyle = "#000";
-    ctxSignal.fillRect(0, 0, 50, 150);
+    ctxSignal.fillRect(0, 0, 25, 150);
     ctxSignal.beginPath();
     ctxSignal.strokeStyle = "lightblue";
     ctxSignal.lineWidth = 2;
@@ -331,8 +348,13 @@ var gameLoop = function() {
         ctxSignal.lineTo(24, 148-(n*4));
         ctxSignal.stroke();
     }
+
+    var ctxSignal = canvasSignal.getContext("2d");
+    ctxSignal.fillStyle = "#000";
+    ctxSignal.fillRect(25, 0, 25, 150);
     ctxSignal.beginPath();
-    ctxSignal.strokeStyle = "purple";
+    ctxSignal.strokeStyle = "limegreen";
+    ctxSignal.lineWidth = 2;
     for (var n = 0; n < lps; n++) {
         ctxSignal.moveTo(27, 148-(n*4));
         ctxSignal.lineTo(48, 148-(n*4));
@@ -355,12 +377,6 @@ var gameLoop = function() {
     ctx.textBaseline = "middle";
     ctx.fillText(weight+" kg", 15, 155);
 
-    ctx.fillStyle = "#fff";
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillText(((180/Math.PI)*angle).toFixed(2)+" °", 285, 185);
-    document.body.appendChild(canvas);
-
     frameLine += (300+200+300+200)/60;
     frameLine = frameLine > (300+200+300+200) ? 0 : frameLine;
 
@@ -382,9 +398,149 @@ var gameLoop = function() {
     //console.log(topLine, rightLine, bottomLine, leftLine);
     ctx.stroke();
 
-    buttonSet = [];
+    //buttonSet = [];
     renderTime = new Date().getTime();
     requestAnimationFrame(gameLoop);
+};
+
+var gamepadState = function() {
+    var ctx = gamepad.getContext("2d");
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, 250, 150);
+    ctx.drawImage(sprite_idle[2], 25, 12.5, 200, 125);
+
+    var h_line = [ 10, 20, 47, 58, 70, 62, 44, 59, 73, 76, 89 ];
+    var v_line = [ 55, 65, 75, 107, 142, 126, 170, 184, 199, 96, 154 ];
+
+    for (var n = 0; n < h_line.length; n++) {
+         ctx.beginPath();
+         ctx.strokeStyle = "gray";
+         ctx.lineWidth = 1;
+         ctx.moveTo(0, h_line[n]);
+         ctx.lineTo(250, h_line[n]);
+         //ctx.stroke();
+    }
+
+    for (var n = 0; n < v_line.length; n++) {
+         ctx.beginPath();
+         ctx.strokeStyle = "darkgray";
+         ctx.lineWidth = 1;
+         ctx.moveTo(v_line[n], 0);
+         ctx.lineTo(v_line[n], 150);
+         //ctx.stroke();
+    }
+
+    var colors = [
+         "blue", "darkorange", "gold", "purple", "limegreen"
+    ];
+
+    var ctxSignal = gamepad.getContext("2d");
+    ctxSignal.fillStyle = "#000";
+    ctxSignal.fillRect(112.5, 0, 25, 30);
+    avgInputTime += (new Date().getTime() - inputTime);
+    avgInputTime /= 2;
+    var ips = (1000/(avgInputTime)).toFixed(0);
+    ctxSignal.beginPath();
+    ctxSignal.strokeStyle = "purple";
+    ctxSignal.lineWidth = 2;
+    for (var n = 0; n < ips; n++) {
+        ctxSignal.moveTo(114.5, 28-(n*4));
+        ctxSignal.lineTo(135.5, 28-(n*4));
+        ctxSignal.stroke();
+    }
+
+    var objs = readButtons();
+    if (objs.length == 0 || objs[0].index != 9) {
+        pausePressed = false;
+    }
+
+    for (var n = 0; n < objs.length; n++) {
+    var button = { x: v_line[9], y: h_line[10] };
+    switch (objs[n].index) {
+         case 8:
+              button = { x: v_line[3], y: h_line[5] };
+              break;
+         case 9:
+              button = { x: v_line[4], y: h_line[5] };
+              if (!pausePressed) {
+                  pausePressed = true;
+                  gamePaused = !gamePaused;
+                  if (gamePaused) {
+                      pausedLabel.style.display = "initial";
+                  }
+                  else {
+                      pausedLabel.style.display = "none";
+                  }
+              }
+              break;
+         case 7:
+              button = { x: v_line[7], y: h_line[0] };
+              break;
+         case 6:
+              button = { x: v_line[1], y: h_line[0] };
+              break;
+         case 4:
+              button = { x: v_line[1], y: h_line[1] };
+              break;
+         case 5:
+              button = { x: v_line[7], y: h_line[1] };
+              break;
+         case 14:
+              button = { x: v_line[0], y: h_line[3] };
+              break;
+         case 12:
+              button = { x: v_line[1], y: h_line[2] };
+              break;
+         case 15:
+              button = { x: v_line[2], y: h_line[3] };
+              break;
+         case 13:
+              button = { x: v_line[1], y: h_line[4] };
+              break;
+         case 2:
+              button = { x: v_line[6], y: h_line[7] };
+              break;
+         case 3:
+              button = { x: v_line[7], y: h_line[6] };
+              break;
+         case 1:
+              button = { x: v_line[8], y: h_line[7] };
+              break;
+         case 0:
+              button = { x: v_line[7], y: h_line[8] };
+              break;
+         case 99:
+              button = { x: v_line[9], y: h_line[10] };
+              button.x += objs[n].value[0]*5;
+              button.y += objs[n].value[1]*5;
+              break;
+         case 98:
+              button = { x: v_line[10], y: h_line[10] };
+              button.x += objs[n].value[0]*5;
+              button.y += objs[n].value[1]*5;
+              break;
+    }
+
+    ctx.beginPath();
+    ctx.strokeStyle = colors[n];
+    ctx.lineWidth = 2;
+    ctx.arc(button.x, button.y, 5, 0, (Math.PI*2));
+    ctx.stroke();
+    }
+
+    inputTime = new Date().getTime();
+};
+
+var readButtons = function() {
+    var activeButtons = buttonSet.filter((o) => { 
+        return o.pressed;
+    });
+    var index = activeButtons.length > 0 ?
+    activeButtons[0].index : 99;
+    var obj = activeButtons.length > 0 ?
+    activeButtons[0] : false;
+    //rescueButtonFromSet(99);
+    return activeButtons;
 };
 
 var controlModes = [
@@ -392,22 +548,21 @@ var controlModes = [
     "advanced"
 ];
 var controlMode = "basic";
+var frameCount = 0;
+
+var viewToggled = false;
 
 var beschleuniger = 0;
 var vibrateTime = 0;
 var pathL = [];
 var pathR = [];
 var updateRules = function() {
-    if (buttonRequestBuffer.length > 0 ||
-        (1000/(new Date().getTime() - logicTime)) > 30) {
-        return;
-    }
     // 0123456789
     // 9876543210
 
     var button = rescueButtonFromSet(buttonSet, 98);
     if (button.value != 0) {
-        direction += -button.value[0]*5;
+        direction += -button.value[0]*10;
         direction = direction < -180 ? 180 : direction;
         direction = direction > 180 ? -180 : direction;
     }
@@ -416,8 +571,9 @@ var updateRules = function() {
     beschleuniger = button.value;
 
     if (controlMode == "basic") {
-        if (speed.mono > 25) return;
         speed.mono += (button.value/3);
+        speed.mono = speed.mono < 0 ? 0 : speed.mono;
+        speed.mono = speed.mono > 25 ? 25 : speed.mono;
     }
     else {;
         var hyp = Math.hyp2(update.x, update.y);
@@ -433,8 +589,12 @@ var updateRules = function() {
     }
 
     var button = rescueButtonFromSet(buttonSet, 4);
-    if (button.value != 0) {
+    if (button.value != 0 && !viewToggled) {
         follow = !follow;
+        viewToggled = true;
+    }
+    else if (button.value == 0) {
+        viewToggled = false;
     }
 
     if (controlMode == "basic") {
@@ -445,16 +605,11 @@ var updateRules = function() {
     else {
         update = { x: position.x+speed.x, y: position.y+speed.y };
     }
-    if (!follow) {
-        if (update.x < 25) update.x = 25;
-        if (update.y < 25) update.y = 25;
-        if (update.x > 275) update.x = 275;
-        if (update.y > 175) update.y = 175;
-    }
 
     var hyp = Math.hyp2(150-update.x, 100-update.y);
     if (hyp < 50) {
         update = position;
+        speed.mono = 0;
     }
     else {
         position = update;
@@ -465,34 +620,37 @@ var updateRules = function() {
     updateL = _rotate2d(position, updateL, -direction);
     updateR = _rotate2d(position, updateR, -direction);
 
+    updateL.c = { ...update };
+    updateR.c = { ...update };
     pathL.push(updateL); //.splice(0, 0, updateL);
     pathR.push(updateR); //.splice(0, 0, updateR);
-    pathL[0].center = update;
-    pathR[0].center = update;
+    //pathL[0].center = update;
+    //pathR[0].center = update;
 
-    if (pathL.length > 120) pathL.splice(0, (pathL.length-120));
+    if (pathL.length > 20) pathL.splice(0, (pathL.length-20));
     //pathL.splice(120, (pathL.length-120));
-    if (pathR.length > 120) pathR.splice(0, (pathR.length-120));
+    if (pathR.length > 20) pathR.splice(0, (pathR.length-20));
     //pathR.splice(120, (pathR.length-120));
 
-    for (var n = ((pathL.length+pathR.length)/2)-1; n < 0; n++) {
-        var aL = 90;
-        var pL = _rotate2d(pathL[n].center, pathL[n], aL);
+    for (var n = ((pathL.length+pathR.length)/2)-1; n >= 0; n--) {
+        var aL = -curve(frameCount+(20-n), 8);
+        var pL = _rotate2d(pathL[n].c, pathL[n], aL);
         pathL[n].x = pL.x;
         pathL[n].y = pL.y;
 
-        var aR = -90;
-        var pR = _rotate2d(pathR[n].center, pathR[n], aR);
+        var aR = curve(frameCount+(20-n), 8);
+        var pR = _rotate2d(pathR[n].c, pathR[n], aR);
         pathR[n].x = pR.x;
         pathR[n].y = pR.y;
     }
+    frameCount += 1;
 
     var co = target.x-position.x;
     var ca = target.y-position.y;
     var hyp = Math.sqrt(Math.pow(co, 2)+Math.pow(ca,2));
 
     if (hyp < 10) throwCircles();
-    buttonSet = [];
+    //buttonSet = [];
 
     createButtonRequest();
     logicTime = new Date().getTime();
@@ -509,6 +667,7 @@ var getUniqueIdentifier = function() {
 
 var buttonRequestBuffer = [];
 var createButtonRequest = function(index) {
+    if (buttonRequestBuffer.length > 0) return;
     var obj = {
         identifier: getUniqueIdentifier(),
         index: index
