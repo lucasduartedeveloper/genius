@@ -21,7 +21,7 @@ $(document).ready(function() {
     canvas.width = 300;
     canvas.height = 200;
     canvas.style.left = ((sw/2)-150)+"px";
-    canvas.style.top = ((sh/2)-100)+"px";
+    canvas.style.top = ((sh/2)-50)+"px";
     canvas.style.width = (300)+"px";
     canvas.style.height = (200)+"px";
     canvas.style.zIndex = "3";
@@ -32,7 +32,7 @@ $(document).ready(function() {
     canvasOut.width = 100;
     canvasOut.height = 50;
     canvasOut.style.left = ((sw/2)-50)+"px";
-    canvasOut.style.top = ((sh/2)+100)+"px";
+    canvasOut.style.top = ((sh/2)+150)+"px";
     canvasOut.style.width = (100)+"px";
     canvasOut.style.height = (50)+"px";
     canvasOut.style.zIndex = "3";
@@ -41,27 +41,27 @@ $(document).ready(function() {
     };
     document.body.appendChild(canvasOut);
 
-    canvasSignal = document.createElement("canvas");
-    canvasSignal.style.position = "absolute";
-    canvasSignal.width = 50;
-    canvasSignal.height = 150;
-    canvasSignal.style.left = ((sw/2)-150)+"px";
-    canvasSignal.style.top = ((sh/2)-250)+"px";
-    canvasSignal.style.width = (50)+"px";
-    canvasSignal.style.height = (150)+"px";
-    canvasSignal.style.zIndex = "3";
-    document.body.appendChild(canvasSignal);
-
     gamepad = document.createElement("canvas");
     gamepad.style.position = "absolute";
-    gamepad.width = 250;
-    gamepad.height = 150;
-    gamepad.style.left = ((sw/2)-100)+"px";
+    gamepad.width = 300;
+    gamepad.height = 200;
+    gamepad.style.left = ((sw/2)-150)+"px";
     gamepad.style.top = ((sh/2)-250)+"px";
-    gamepad.style.width = (250)+"px";
-    gamepad.style.height = (150)+"px";
+    gamepad.style.width = (300)+"px";
+    gamepad.style.height = (200)+"px";
     gamepad.style.zIndex = "3";
     document.body.appendChild(gamepad);
+
+    canvasSetup = document.createElement("canvas");
+    canvasSetup.style.position = "absolute";
+    canvasSetup.width = 20;
+    canvasSetup.height = 200;
+    canvasSetup.style.left = (0)+"px";
+    canvasSetup.style.top = ((sh/2)-50)+"px";
+    canvasSetup.style.width = (20)+"px";
+    canvasSetup.style.height = (200)+"px";
+    canvasSetup.style.zIndex = "3";
+    document.body.appendChild(canvasSetup);
 
     pausedLabel = document.createElement("span");
     pausedLabel.style.position = "absolute";
@@ -90,7 +90,6 @@ $(document).ready(function() {
             msg[1] != playerId &&
             msg[2] == "remote-gamepad-attached") {
             remoteGamepad = true;
-            //label.innerText = "RECEIVING INPUT";
             say("Gamepad attached.");
         }
         else if (msg[0] == "PAPER" &&
@@ -318,48 +317,12 @@ var gameLoop = function() {
     ctxOut.fillStyle = "#fff";
     ctxOut.fillText(((100/1)*beschleuniger).toFixed(2)+" %", 25, 35);
 
-    // limit fps
-    avgRenderTime += (new Date().getTime() - renderTime);
-    avgRenderTime /= 2;
-    var fps = (1000/(avgRenderTime)).toFixed(0);
+    // draw FPS
     ctx.fillStyle = "#fff";
     ctx.font = "20px sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillText(fps, 15, 15);
-
-    avgLogicTime += (new Date().getTime() - inputTime);
-    avgLogicTime /= 2;
-    var lps = (1000/(avgLogicTime)).toFixed(0);
-    ctx.fillStyle = "#fff";
-    ctx.font = "20px sans-serif";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillText(lps, 50, 15);
-
-    var ctxSignal = canvasSignal.getContext("2d");
-    ctxSignal.fillStyle = "#000";
-    ctxSignal.fillRect(0, 0, 25, 150);
-    ctxSignal.beginPath();
-    ctxSignal.strokeStyle = "lightblue";
-    ctxSignal.lineWidth = 2;
-    for (var n = 0; n < fps; n++) {
-        ctxSignal.moveTo(2, 148-(n*4));
-        ctxSignal.lineTo(24, 148-(n*4));
-        ctxSignal.stroke();
-    }
-
-    var ctxSignal = canvasSignal.getContext("2d");
-    ctxSignal.fillStyle = "#000";
-    ctxSignal.fillRect(25, 0, 25, 150);
-    ctxSignal.beginPath();
-    ctxSignal.strokeStyle = "limegreen";
-    ctxSignal.lineWidth = 2;
-    for (var n = 0; n < lps; n++) {
-        ctxSignal.moveTo(27, 148-(n*4));
-        ctxSignal.lineTo(48, 148-(n*4));
-        ctxSignal.stroke();
-    }
 
     ctx.fillStyle = "#fff";
     ctx.font = "15px sans-serif";
@@ -395,29 +358,39 @@ var gameLoop = function() {
     var leftLine = Math.clip((1/200)*(frameLine-800), 1)*200;
     if (leftLine > 0)
     ctx.lineTo(0, 200-leftLine);
-    //console.log(topLine, rightLine, bottomLine, leftLine);
     ctx.stroke();
 
-    //buttonSet = [];
-    renderTime = new Date().getTime();
+    drawSetup("render");
     requestAnimationFrame(gameLoop);
+};
+
+var scale = function(arr, value, borderOut, borderIn) {
+    for (var n = 0; n < arr.length; n++) {
+        arr[n] -= borderOut;
+        arr[n] *= value;
+        arr[n] += borderIn;
+    };
+    return arr;
 };
 
 var gamepadState = function() {
     var ctx = gamepad.getContext("2d");
     ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, 250, 150);
-    ctx.drawImage(sprite_idle[2], 25, 12.5, 200, 125);
+    ctx.fillRect(0, 0, 300, 200);
+    ctx.drawImage(sprite_idle[2], 25, 21.8, 250, 156.25);
 
-    var h_line = [ 10, 20, 47, 58, 70, 62, 44, 59, 73, 76, 89 ];
-    var v_line = [ 55, 65, 75, 107, 142, 126, 170, 184, 199, 96, 154 ];
+    var r = 250/200;
+    var h_line = scale(
+       [ 10, 20, 47, 58, 70, 62, 44, 59, 73, 76, 89 ], r, 12.5, 21.8);
+    var v_line = scale(
+       [ 55, 65, 75, 107, 142, 126, 170, 184, 199, 96, 154 ], r, 25, 25);
 
     for (var n = 0; n < h_line.length; n++) {
          ctx.beginPath();
          ctx.strokeStyle = "gray";
          ctx.lineWidth = 1;
          ctx.moveTo(0, h_line[n]);
-         ctx.lineTo(250, h_line[n]);
+         ctx.lineTo(300, h_line[n]);
          //ctx.stroke();
     }
 
@@ -426,7 +399,7 @@ var gamepadState = function() {
          ctx.strokeStyle = "darkgray";
          ctx.lineWidth = 1;
          ctx.moveTo(v_line[n], 0);
-         ctx.lineTo(v_line[n], 150);
+         ctx.lineTo(v_line[n], 200);
          //ctx.stroke();
     }
 
@@ -436,16 +409,13 @@ var gamepadState = function() {
 
     var ctxSignal = gamepad.getContext("2d");
     ctxSignal.fillStyle = "#000";
-    ctxSignal.fillRect(112.5, 0, 25, 30);
-    avgInputTime += (new Date().getTime() - inputTime);
-    avgInputTime /= 2;
-    var ips = (1000/(avgInputTime)).toFixed(0);
+    ctxSignal.fillRect(137.5, 0, 25, 45);
     ctxSignal.beginPath();
     ctxSignal.strokeStyle = "purple";
     ctxSignal.lineWidth = 2;
     for (var n = 0; n < ips; n++) {
-        ctxSignal.moveTo(114.5, 28-(n*4));
-        ctxSignal.lineTo(135.5, 28-(n*4));
+        ctxSignal.moveTo(139.5, 43-(n*4));
+        ctxSignal.lineTo(160.5, 43-(n*4));
         ctxSignal.stroke();
     }
 
@@ -528,7 +498,7 @@ var gamepadState = function() {
     ctx.stroke();
     }
 
-    inputTime = new Date().getTime();
+    drawSetup("input");
 };
 
 var readButtons = function() {
@@ -653,7 +623,71 @@ var updateRules = function() {
     //buttonSet = [];
 
     createButtonRequest();
-    logicTime = new Date().getTime();
+    /*console.log("logic updated: "+
+    ((new Date().getTime() - logicTime).toFixed(0))+" ms");*/
+
+    drawSetup("logic");
+};
+
+var fps = 60;
+var lps = 60;
+var ips = 60;
+
+var renderStack = 0;
+var logicStack = 0;
+var inputStack = 0;
+
+var drawSetup = function(type) {
+    var ctxSetup = canvasSetup.getContext("2d");
+    ctxSetup.fillStyle = "#000";
+
+    var height = renderStack-1;
+
+    ctxSetup.beginPath();
+    ctxSetup.lineWidth = 2;
+    switch (type) {
+        case "render":
+            renderStack += 1;
+            ctxSetup.strokeStyle = "limegreen";
+            ctxSetup.moveTo(2, 198-((renderStack*2)*4));
+            ctxSetup.lineTo(18, 198-((renderStack*2)*4));
+
+            avgRenderTime += (new Date().getTime() - renderTime);
+            avgRenderTime /= 2;
+            fps = (1000/(avgRenderTime)).toFixed(0);
+            renderTime = new Date().getTime();
+            break;
+        case "logic":
+            logicStack += 1;
+            ctxSetup.strokeStyle = "blue";
+            ctxSetup.moveTo(2, 198-(((height*2)-1)*4));
+            ctxSetup.lineTo(9.5, 198-(((height*2)-1)*4));
+
+            avgLogicTime += (new Date().getTime() - logicTime);
+            avgLogicTime /= 2;
+            lps = (1000/(avgLogicTime)).toFixed(0);
+            logicTime = new Date().getTime();
+            break;
+        case "input":
+            inputStack += 1;
+            ctxSetup.strokeStyle = "red";
+            ctxSetup.moveTo(10.5, 198-(((height*2)-1)*4));
+            ctxSetup.lineTo(18, 198-(((height*2)-1)*4));
+
+            avgInputTime += (new Date().getTime() - inputTime);
+            avgInputTime /= 2;
+            ips = (1000/(avgInputTime)).toFixed(0);
+            inputTime = new Date().getTime();
+            break;
+    }
+    ctxSetup.stroke();
+
+    if (renderStack == 25) { // ((200-4)/4)/2
+        ctxSetup.fillRect(0, 0, 20, 500);
+        renderStack = 0;
+        logicStack = 0;
+        inputStack = 0;
+    }
 };
 
 var requestCount = 0;
