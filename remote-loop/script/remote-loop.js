@@ -29,11 +29,11 @@ $(document).ready(function() {
 
     canvasOut = document.createElement("canvas");
     canvasOut.style.position = "absolute";
-    canvasOut.width = 100;
+    canvasOut.width = 150;
     canvasOut.height = 50;
     canvasOut.style.left = ((sw/2)-50)+"px";
     canvasOut.style.top = ((sh/2)+150)+"px";
-    canvasOut.style.width = (100)+"px";
+    canvasOut.style.width = (150)+"px";
     canvasOut.style.height = (50)+"px";
     canvasOut.style.zIndex = "3";
     canvasOut.onclick = function() {
@@ -54,11 +54,11 @@ $(document).ready(function() {
 
     canvasSetup = document.createElement("canvas");
     canvasSetup.style.position = "absolute";
-    canvasSetup.width = 20;
+    canvasSetup.width = 28;
     canvasSetup.height = 200;
     canvasSetup.style.left = (0)+"px";
     canvasSetup.style.top = ((sh/2)-50)+"px";
-    canvasSetup.style.width = (20)+"px";
+    canvasSetup.style.width = (28)+"px";
     canvasSetup.style.height = (200)+"px";
     canvasSetup.style.zIndex = "3";
     document.body.appendChild(canvasSetup);
@@ -119,6 +119,9 @@ var sprite_idle = [
     "img/gamepad-description.png"
 ];
 
+var last_position = {
+    x: 12.5, y: 175
+};
 var position = {
     x: 12.5, y: 175
 };
@@ -148,6 +151,7 @@ var loadImages = function(callback) {
     }
 };
 
+var weight = 0;
 var throwCircles = function() {
     targets = [];
     var qt = 1+Math.floor(Math.random()*5);
@@ -179,7 +183,7 @@ var avgInputTime = 1000/30;
 
 var pausePressed = false;
 var gamePaused = false;
-var grayscaleScenario = true;
+var grayscaleScenario = false;
 
 var gameLoop = function() {
     if (gamePaused) {
@@ -194,7 +198,7 @@ var gameLoop = function() {
     var angle = _angle2d(co, ca)-((Math.PI*2)/4);
 
     var ctx = canvas.getContext("2d");
-    ctx.fillStyle = "darkblue";
+    ctx.fillStyle = "#16324a";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     if (follow) {
         ctx.translate(-position.x, -position.y);
@@ -305,17 +309,31 @@ var gameLoop = function() {
 
     var ctxOut = canvasOut.getContext("2d");
     ctxOut.fillStyle = "#000";
-    ctxOut.fillRect(0, 0, 100, 50);
-    ctxOut.drawImage(sprite_idle[0], 62.5, 0, 25, 50);
+    ctxOut.fillRect(0, 0, 150, 50);
+    ctxOut.drawImage(sprite_idle[0], 102.5, 0, 25, 50);
+
     ctxOut.beginPath();
     ctxOut.strokeStyle = "rgba(255, 255, 0, 0.5)";
     ctxOut.lineWidth = 5;
-    ctxOut.arc(25, 25, 15, -((Math.PI*2)/3)-((Math.PI*2)/6), 
-    -((Math.PI*2)/3)+(beschleuniger*((Math.PI*2)/3)));
+    var startAngle = -(((Math.PI*2)/3)+((Math.PI*2)/12));
+    var endAngle = 
+    -(((Math.PI*2)/3)+((Math.PI*2)/12))+(acc*((Math.PI*2)/3))
+    ctxOut.arc(25, 25, 15, startAngle, endAngle);
     ctxOut.stroke();
     ctxOut.textAlign = "center";
     ctxOut.fillStyle = "#fff";
-    ctxOut.fillText(((100/1)*beschleuniger).toFixed(2)+" %", 25, 35);
+    ctxOut.fillText(((100/1)*acc).toFixed(2)+" %", 25, 35);
+
+    ctxOut.beginPath();
+    ctxOut.strokeStyle = "rgba(255, 255, 0, 0.5)";
+    ctxOut.lineWidth = 5;
+    var startAngle = -((Math.PI*2)/12);
+    var endAngle = -((Math.PI*2)/12)-(brake*((Math.PI*2)/3));
+    ctxOut.arc(75, 25, 15, startAngle, endAngle, true);
+    ctxOut.stroke();
+    ctxOut.textAlign = "center";
+    ctxOut.fillStyle = "#fff";
+    ctxOut.fillText(((100/1)*brake).toFixed(2)+" %", 75, 35);
 
     // draw FPS
     ctx.fillStyle = "#fff";
@@ -324,21 +342,55 @@ var gameLoop = function() {
     ctx.textBaseline = "top";
     ctx.fillText(fps, 15, 15);
 
+    var relative_position = { ...position };
+    relative_position.x -= 150;
+    relative_position.y -= 100;
+    ctx.fillStyle = "#fff";
+    ctx.font = "10px sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "top";
+    ctx.fillText("x: "+relative_position.x.toFixed(2)+" "+
+    "y: "+relative_position.y.toFixed(2), 285, 15);
+    document.body.appendChild(canvas);
+
+    // actual distance - previous distance
+    var relative_speed = 0;
+    var last_relative_position = { ...last_position };
+    last_relative_position.x -= 150;
+    last_relative_position.y -= 100;
+
+    var last_distance = 
+    Math.hyp2(last_relative_position.x, last_relative_position.y);
+    var distance = 
+    Math.hyp2(relative_position.x, relative_position.y);
+
+    relative_speed = (distance - last_distance).toFixed(2);
     ctx.fillStyle = "#fff";
     ctx.font = "15px sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(speed.x.toFixed(2)+" "+
-    speed.y.toFixed(2)+
-    " px/s", 15, 185);
+    ctx.fillText(relative_speed+" px/s", 15, 185);
     document.body.appendChild(canvas);
 
-    var weight = 10;
+    ctxOut.beginPath();
+    ctxOut.fillStyle = "#fff";
+    ctxOut.lineWidth = 2;
+    var startAngle = 0;
+    var endAngle = (Math.PI*2);
+    ctxOut.arc(115, 25, 2, startAngle, endAngle);
+    ctxOut.fill();
+    var dn = Math.normalize(relative_position, -15);
+    ctxOut.beginPath();
+    ctxOut.strokeStyle = "#fff";
+    ctxOut.moveTo(115, 25);
+    ctxOut.lineTo(115+dn.x, 25+dn.y);
+    ctxOut.stroke();
+
     ctx.fillStyle = "#fff";
     ctx.font = "20px sans-serif";
     ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText(weight+" kg", 15, 155);
+    ctx.fillText(weight.toFixed(3)+" kg", 15, 155);
 
     frameLine += (300+200+300+200)/60;
     frameLine = frameLine > (300+200+300+200) ? 0 : frameLine;
@@ -522,8 +574,9 @@ var frameCount = 0;
 
 var viewToggled = false;
 
-var beschleuniger = 0;
-var vibrateTime = 0;
+var acc = 0;
+var brake = 0;
+
 var pathL = [];
 var pathR = [];
 var updateRules = function() {
@@ -532,16 +585,20 @@ var updateRules = function() {
 
     var button = rescueButtonFromSet(buttonSet, 98);
     if (button.value != 0) {
-        direction += -button.value[0]*10;
+        direction += -button.value[0]*5;
         direction = direction < -180 ? 180 : direction;
         direction = direction > 180 ? -180 : direction;
     }
 
     var button = rescueButtonFromSet(buttonSet, 7);
-    beschleuniger = button.value;
+    acc = button.value;
+
+    var button = rescueButtonFromSet(buttonSet, 6);
+    brake = button.value;
 
     if (controlMode == "basic") {
-        speed.mono += (button.value/3);
+        speed.mono += (acc/3);
+        speed.mono -= (brake/3);
         speed.mono = speed.mono < 0 ? 0 : speed.mono;
         speed.mono = speed.mono > 25 ? 25 : speed.mono;
     }
@@ -551,7 +608,7 @@ var updateRules = function() {
 
         var hyp = Math.hyp2(speed.x, speed.y);
         var c = { x: 0, y: 0 };
-        var p = { x: 0, y: -((beschleuniger/5)-(hyp/10)) };
+        var p = { x: 0, y: -((acc/5)-(hyp/10)) };
         var v = _rotate2d(c, p, -direction);
         var update = { x: speed.x + v.x, y: speed.y + v.y };
         //var speed = _rotate2d(c, speed, direction);
@@ -582,6 +639,7 @@ var updateRules = function() {
         speed.mono = 0;
     }
     else {
+        last_position = position;
         position = update;
     }
 
@@ -619,8 +677,11 @@ var updateRules = function() {
     var ca = target.y-position.y;
     var hyp = Math.sqrt(Math.pow(co, 2)+Math.pow(ca,2));
 
-    if (hyp < 10) throwCircles();
-    //buttonSet = [];
+    if (hyp < 10) {
+        var rnd = Math.random()*5;
+        weight += rnd;
+        throwCircles();
+    }
 
     createButtonRequest();
     /*console.log("logic updated: "+
@@ -641,7 +702,7 @@ var drawSetup = function(type) {
     var ctxSetup = canvasSetup.getContext("2d");
     ctxSetup.fillStyle = "#000";
 
-    var height = renderStack-1;
+    var height = renderStack;
 
     ctxSetup.beginPath();
     ctxSetup.lineWidth = 2;
@@ -649,8 +710,8 @@ var drawSetup = function(type) {
         case "render":
             renderStack += 1;
             ctxSetup.strokeStyle = "limegreen";
-            ctxSetup.moveTo(2, 198-((renderStack*2)*4));
-            ctxSetup.lineTo(18, 198-((renderStack*2)*4));
+            ctxSetup.moveTo(2, 198-(((renderStack*2)-1)*4));
+            ctxSetup.lineTo(23, 198-(((renderStack*2)-1)*4));
 
             avgRenderTime += (new Date().getTime() - renderTime);
             avgRenderTime /= 2;
@@ -660,8 +721,8 @@ var drawSetup = function(type) {
         case "logic":
             logicStack += 1;
             ctxSetup.strokeStyle = "blue";
-            ctxSetup.moveTo(2, 198-(((height*2)-1)*4));
-            ctxSetup.lineTo(9.5, 198-(((height*2)-1)*4));
+            ctxSetup.moveTo(2, 198-((height*2)*4));
+            ctxSetup.lineTo(12, 198-((height*2)*4));
 
             avgLogicTime += (new Date().getTime() - logicTime);
             avgLogicTime /= 2;
@@ -671,8 +732,8 @@ var drawSetup = function(type) {
         case "input":
             inputStack += 1;
             ctxSetup.strokeStyle = "red";
-            ctxSetup.moveTo(10.5, 198-(((height*2)-1)*4));
-            ctxSetup.lineTo(18, 198-(((height*2)-1)*4));
+            ctxSetup.moveTo(13, 198-((height*2)*4));
+            ctxSetup.lineTo(23, 198-((height*2)*4));
 
             avgInputTime += (new Date().getTime() - inputTime);
             avgInputTime /= 2;
@@ -682,11 +743,21 @@ var drawSetup = function(type) {
     }
     ctxSetup.stroke();
 
-    if (renderStack == 25) { // ((200-4)/4)/2
-        ctxSetup.fillRect(0, 0, 20, 500);
+    if (renderStack > 25) { // ((200-4)/4)/2
+        ctxSetup.fillStyle = "#000";
+        ctxSetup.fillRect(0, 0, 28, 200);
         renderStack = 0;
         logicStack = 0;
         inputStack = 0;
+    }
+
+    ctxSetup.fillStyle = "#000";
+    ctxSetup.fillRect(23, 0, 25, 200);
+    for (var n = 0; n < 50; n++) {
+        ctxSetup.beginPath();
+        ctxSetup.fillStyle = "#fff";
+        ctxSetup.arc(25, 198-(n*4), 1, 0, (Math.PI*2));
+        ctxSetup.fill();
     }
 };
 

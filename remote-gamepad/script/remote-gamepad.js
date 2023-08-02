@@ -6,6 +6,7 @@ var sw = window.innerWidth;
 var sh = window.innerHeight;
 
 var playerId = new Date().getTime();
+var local = false;
 
 // Botão de gravação
 $(document).ready(function() {

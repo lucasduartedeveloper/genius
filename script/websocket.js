@@ -2,6 +2,8 @@ var host_old = "wss://mapa-ws.herokuapp.com/";
 var host_ext = "ws://179.172.228.139:8090/";
 var host_stunnel = "ws://192.168.15.5:8090/";
 var host = "wss://websocket-sv.onrender.com/";
+var local_host = "ws://192.168.15.6:3000";
+
 var wsh = null;
 
 var messagesWaiting = [];
@@ -10,7 +12,15 @@ var messagesReceived = [];
 
 var ws = {
       start: function () {
-           wsh = new WebSocket(host);
+           var local = false;
+           var queryString = window.location.search;
+           var urlParams = new URLSearchParams(queryString);
+           if (urlParams.has("local"))
+           local = (urlParams.get("local") == "true");
+
+           if (local) wsh = new WebSocket(local_host);
+           else wsh = new WebSocket(host);
+
            wsh.onopen = function (e) {
                 $("#server-info").html("CONNECTED&nbsp;"+
                 "<i class=\"fa-solid fa-lock\"></i>");
