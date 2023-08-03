@@ -32,8 +32,9 @@ $script = [
     8 => "/genius/script/request-pin.js",
     9 => "/genius/script/ai-network.js",
     10 => "/genius/script/gamepad-helper.js",
-    11 => "script/plugin/screen-mode.js",
-    12 => "script/nes-emulator.js"
+    11 => "script/math-helper.js",
+    12 => "script/plugin/screen-mode.js",
+    13 => "script/nes-emulator.js"
 ];
 
 $module = [];

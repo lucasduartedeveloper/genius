@@ -334,15 +334,25 @@ var gamepadState = function() {
               nesButton(1, activeButtons[n], "down");
               break;
          case 99:
-              button = { x: v_line[9], y: h_line[10] };
-              button.x += activeButtons[n].value[0]*5;
-              button.y += activeButtons[n].value[1]*5;
+              var button = { x: v_line[9], y: h_line[10] };
+              var button_position = { 
+                  x: activeButtons[n].value[0],
+                  y: activeButtons[n].value[1]
+              };
+              button_position = Math.normalize(button_position);
+              button.x += button_position.x*10;
+              button.y += button_position.y*10;
               nesButton(1, activeButtons[n], "down");
               break;
          case 98:
               button = { x: v_line[10], y: h_line[10] };
-              button.x += activeButtons[n].value[0]*5;
-              button.y += activeButtons[n].value[1]*5;
+              var button_position = { 
+                  x: activeButtons[n].value[0],
+                  y: activeButtons[n].value[1]
+              };
+              button_position = Math.normalize(button_position);
+              button.x += button_position.x*10;
+              button.y += button_position.y*10;
               nesButton(1, activeButtons[n], "down");
               break;
     }
