@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html >
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+<title>Geometry Dash</title>
+<link href="//funhtml5games.com/geomdash/style.css" rel="stylesheet" type="text/css">
+</head>
+<body onload="init();">
+<div id="container">
+	<div id="pause_button" onclick="audio_toggle();"></div>
+	<div id="back_button" onclick="menu();"></div>
+	<div id="frontpage" id="frontpage">
+		<div id="header"><SCRIPT language="Javascript">var cpmstar_rnd=Math.round(Math.random()*999999);var cpmstar_pid=71339;document.writeln("<SCR"+"IPT language='Javascript' src='//server.cpmstar.com/view.aspx?poolid="+cpmstar_pid+"&script=1&rnd="+cpmstar_rnd+"'></SCR"+"IPT>");</SCRIPT></div>
+		<div id="frontpage_text">
+			<img src="//funhtml5games.com/geomdash/images/logo.png" style="width:460px;">
+			<br>
+			<span onclick="change_level(-1);" style="cursor:pointer;"><</span> LEVEL <span id="level_number">1</span> <span onclick="change_level(1);" style="cursor:pointer;">></span>
+			<div onclick="start_game();" style="cursor:pointer;margin-top:14px;"><img src="images/playbutton.png" style="width:50px;"></div>
+			<div id="instructions" style="margin-top:0px;">
+				Jump using mouse button, space bar or W key
+			</div>
+			<a href="//funhtml5games.com/" target="_BLANK"><span id="moreGames">Play More Games</span></a>
+		</div>
+		<img src="//funhtml5games.com/geomdash/images/trap2.png" id="trap_sprite" style="width:1px;">
+		<img src="//funhtml5games.com/geomdash/images/spike.png" id="spike_sprite" style="width:1px;">
+		<img src="//funhtml5games.com/geomdash/images/block.png" id="block_sprite" style="width:1px;">
+		<img src="//funhtml5games.com/geomdash/images/geomdashmain.png" id="main_sprite" style="width:1px;">
+	</div>
+	<div id="level_complete">
+		<div id="lc_attempts" style="position:absolute;top:122px;left:280px;">1</div>
+		<div id="lc_jumps" style="position:absolute;top:150px;left:280px;">2</div>
+		<div id="lc_time" style="position:absolute;top:180px;left:280px;">3</div>
+		<div id="lc_retry" style="position:absolute;top:273px;left:77px;width:68px;height:68px;cursor:pointer;" onclick="retry();"></div>
+		<div id="lc_menu"style="position:absolute;top:273px;left:306px;width:68px;height:68px;cursor:pointer;" onclick="menu();"></div>
+	</div>
+	<div id="preload_div"><div style="width:300px;height:250px;margin-left:170px;margin-top:30px;"><SCRIPT language="Javascript">var cpmstar_rnd=Math.round(Math.random()*999999);var cpmstar_pid=71337;document.writeln("<SCR"+"IPT language='Javascript' src='//server.cpmstar.com/view.aspx?poolid="+cpmstar_pid+"&script=1&rnd="+cpmstar_rnd+"'></SCR"+"IPT>");</SCRIPT></div><br><span id="preload_continue" onclick="preload_hide();">Loading...</span><script src="//funhtml5games.com/preload.js"></script></div>
+</div>
+ <script src="//funhtml5games.com/geomdash/geomdash.js"></script>
+
+ <script src="../ga.js"></script>
+  </body>
+</html>

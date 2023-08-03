@@ -50,6 +50,23 @@ $(document).ready(function() {
     canvasSetup.style.zIndex = "3";
     document.body.appendChild(canvasSetup);
 
+    frameSkipLabel = document.createElement("span");
+    frameSkipLabel.style.position = "absolute";
+    frameSkipLabel.innerText = "frameskip: 0x";
+    frameSkipLabel.style.color = "#fff";
+    frameSkipLabel.style.fontSize = "20px";
+    frameSkipLabel.style.lineHeight = "20px";
+    frameSkipLabel.style.left = ((sw/2)-50)+"px";
+    frameSkipLabel.style.top = ((sh/2)+150)+"px";
+    frameSkipLabel.style.width = (100)+"px";
+    frameSkipLabel.style.height = (25)+"px";
+    frameSkipLabel.style.zIndex = "3";
+    frameSkipLabel.onclick = function() {
+         frameSkip = (frameSkip+1) < 10 ? (frameSkip+1) : 0;
+         frameSkipLabel.innerText = "frameskip: "+frameSkip+"x";
+    };
+    document.body.appendChild(frameSkipLabel);
+
     fileButton = document.createElement("span");
     fileButton.style.position = "absolute";
     fileButton.style.color = "#fff";
@@ -111,6 +128,7 @@ $(document).ready(function() {
         }
     };
 
+    initScreenModes(canvas);
     loadImages(function() {
         nes_init();
         gameLoop();
@@ -120,6 +138,12 @@ $(document).ready(function() {
 
 var romNo = 0;
 var romList = [
+    { name: "Mega Man",
+      address: "rom/Mega Man (USA).nes" },
+    { name: "Pin Ball",
+      address: "rom/Pinball (World).nes" },
+    { name: "Ice Climber",
+      address: "rom/Ice Climber (USA, Europe).nes" },
     { name: "Porter", 
       address: "rom/Porter (Asia) (Unl).nes" },
     { name: "Bomberman 2", 
@@ -174,12 +198,23 @@ var pausePressed = false;
 var gamePaused = false;
 var grayscaleScenario = false;
 
+var frameCount = 0;
+var frameSkip = 0;
 var gameLoop = function() {
     createButtonRequest();
 
-    image.data.set(framebuffer_u8);
-    var ctx = canvas.getContext("2d");
-    ctx.putImageData(image, 0, 0);
+    if (frameCount % 2 == 0) {
+         image.data.set(framebuffer_u8);
+         var ctx = canvas.getContext("2d");
+         ctx.putImageData(image, 0, 0);
+    }
+    else {
+         if (nes.fpsFrameCount > 0)
+         for (var n = 0; n < frameSkip; n++) {
+              nes.frame();
+         }
+    }
+    frameCount += 1;
 
     drawSetup("logic");
     drawSetup("render");
@@ -308,6 +343,7 @@ var gamepadState = function() {
               button = { x: v_line[10], y: h_line[10] };
               button.x += activeButtons[n].value[0]*5;
               button.y += activeButtons[n].value[1]*5;
+              nesButton(1, activeButtons[n], "down");
               break;
     }
 
@@ -323,7 +359,7 @@ var gamepadState = function() {
         var released = true;
         for (var k = 0; k < activeButtons.length; k++) {
              if (last_activeButtons[m].index == 
-             activeButtons[m].index)
+             activeButtons[k].index)
              released = false;
         }
         if (released)
@@ -341,10 +377,16 @@ var nesButton = function(player, button, action) {
               nesIndex = jsnes.Controller.BUTTON_SELECT;
               break;
          case 9:
+              if (nes.fpsFrameCount > 0)
               nesIndex = jsnes.Controller.BUTTON_START;
+              else if (action == "up")
+              nes_load_url(romList[romNo].address);
               break;
          case 7:
-              // not available
+              if (action == "up")
+              canvas.requestFullscreen();
+              else
+              document.exitFullscreen();
               break;
          case 6:
               // not available
@@ -356,16 +398,40 @@ var nesButton = function(player, button, action) {
               // not available
               break;
          case 14:
-              nesIndex = jsnes.Controller.BUTTON_LEFT;
+              nesIndex = selectX([
+                   jsnes.Controller.BUTTON_RIGHT,
+                   jsnes.Controller.BUTTON_LEFT
+              ]);
               break;
          case 12:
-              nesIndex = jsnes.Controller.BUTTON_UP;
+              if (nes.fpsFrameCount > 0) {
+                   nesIndex = selectY([
+                       jsnes.Controller.BUTTON_DOWN,
+                       jsnes.Controller.BUTTON_UP
+                   ]);
+              }
+              else if (action == "up") {
+                   romNo = (romNo-1) < 0 ? 0 : (romNo-1);
+                   fileButton.innerText = romList[romNo].name;
+              }
               break;
          case 15:
-              nesIndex = jsnes.Controller.BUTTON_RIGHT;
+              nesIndex = selectX([
+                   jsnes.Controller.BUTTON_LEFT,
+                   jsnes.Controller.BUTTON_RIGHT
+              ]);
               break;
          case 13:
-              nesIndex = jsnes.Controller.BUTTON_DOWN;
+              if (nes.fpsFrameCount > 0) {
+                   nesIndex = selectY([
+                       jsnes.Controller.BUTTON_UP,
+                       jsnes.Controller.BUTTON_DOWN
+                   ]);
+              }
+              else if (action == "up") {
+                   romNo = (romNo+1) < romList.length ? (romNo+1) : 0;
+                   fileButton.innerText = romList[romNo].name;
+              }
               break;
          case 2:
               nesIndex = jsnes.Controller.BUTTON_A;
@@ -381,27 +447,69 @@ var nesButton = function(player, button, action) {
               break;
          case 99:
               if (button.value[0] < -0.3)
-              nesIndex = jsnes.Controller.BUTTON_LEFT;
+              nesIndex = selectX([
+                   jsnes.Controller.BUTTON_RIGHT,
+                   jsnes.Controller.BUTTON_LEFT
+              ]);
               else 
               nes.buttonUp(player, jsnes.Controller.BUTTON_RIGHT);
 
               if (button.value[0] > 0.3)
-              nesIndex = jsnes.Controller.BUTTON_RIGHT;
+              nesIndex = selectX([
+                   jsnes.Controller.BUTTON_LEFT,
+                   jsnes.Controller.BUTTON_RIGHT
+              ]);
               else 
               nes.buttonUp(player, jsnes.Controller.BUTTON_LEFT);
 
               if (button.value[1] < -0.3)
-              nesIndex = jsnes.Controller.BUTTON_UP;
+              nesIndex = selectY([
+                   jsnes.Controller.BUTTON_DOWN,
+                   jsnes.Controller.BUTTON_UP
+              ]);
               else 
               nes.buttonUp(player, jsnes.Controller.BUTTON_DOWN);
 
               if (button.value[1] > 0.3)
-              nesIndex = jsnes.Controller.BUTTON_DOWN;
+              nesIndex = selectY([
+                   jsnes.Controller.BUTTON_UP,
+                   jsnes.Controller.BUTTON_DOWN
+              ]);
               else 
               nes.buttonUp(player, jsnes.Controller.BUTTON_UP);
               break;
          case 98:
-              // not available
+              if (button.value[0] < -0.3)
+              nesIndex = selectX([
+                   jsnes.Controller.BUTTON_RIGHT,
+                   jsnes.Controller.BUTTON_LEFT
+              ]);
+              else 
+              nes.buttonUp(player, jsnes.Controller.BUTTON_RIGHT);
+
+              if (button.value[0] > 0.3)
+              nesIndex = selectX([
+                   jsnes.Controller.BUTTON_LEFT,
+                   jsnes.Controller.BUTTON_RIGHT
+              ]);
+              else 
+              nes.buttonUp(player, jsnes.Controller.BUTTON_LEFT);
+
+              if (button.value[1] < -0.3)
+              nesIndex = selectY([
+                   jsnes.Controller.BUTTON_DOWN,
+                   jsnes.Controller.BUTTON_UP
+              ]);
+              else 
+              nes.buttonUp(player, jsnes.Controller.BUTTON_DOWN);
+
+              if (button.value[1] > 0.3)
+              nesIndex = selectY([
+                   jsnes.Controller.BUTTON_UP,
+                   jsnes.Controller.BUTTON_DOWN
+              ]);
+              else 
+              nes.buttonUp(player, jsnes.Controller.BUTTON_UP);
               break;
     }
     //console.log("button "+button+" "+action);
@@ -539,7 +647,8 @@ var nes = new jsnes.NES({
         audio_samples_L[audio_write_cursor] = l;
         audio_samples_R[audio_write_cursor] = r;
         audio_write_cursor = (audio_write_cursor + 1) & SAMPLE_MASK;
-    }
+    },
+    emulateSound: true
 });
 
 var audio_remain = function() {
