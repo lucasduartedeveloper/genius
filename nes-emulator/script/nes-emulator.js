@@ -138,6 +138,8 @@ $(document).ready(function() {
 
 var romNo = 0;
 var romList = [
+    { name: "3D Block",
+      address: "rom/3D Block [p2].nes" },
     { name: "Mega Man",
       address: "rom/Mega Man (USA).nes" },
     { name: "Pin Ball",
