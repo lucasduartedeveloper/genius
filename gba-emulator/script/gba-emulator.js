@@ -299,89 +299,24 @@ var gamepadState = function() {
 
     // buttonDown
     for (var n = 0; n < activeButtons.length; n++) {
-    var button = { x: v_line[9], y: h_line[10] };
-    switch (activeButtons[n].index) {
-         case 8:
-              button = { x: v_line[3], y: h_line[5] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 9:
-              button = { x: v_line[4], y: h_line[5] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 7:
-              button = { x: v_line[7], y: h_line[0] };
-              break;
-         case 6:
-              button = { x: v_line[1], y: h_line[0] };
-              break;
-         case 4:
-              button = { x: v_line[1], y: h_line[1] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 5:
-              button = { x: v_line[7], y: h_line[1] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 14:
-              button = { x: v_line[0], y: h_line[3] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 12:
-              button = { x: v_line[1], y: h_line[2] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 15:
-              button = { x: v_line[2], y: h_line[3] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 13:
-              button = { x: v_line[1], y: h_line[4] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 2:
-              button = { x: v_line[6], y: h_line[7] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 3:
-              button = { x: v_line[7], y: h_line[6] };
-              break;
-         case 1:
-              button = { x: v_line[8], y: h_line[7] };
-              break;
-         case 0:
-              button = { x: v_line[7], y: h_line[8] };
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 99:
-              var button = { x: v_line[9], y: h_line[10] };
-              var button_position = { 
-                  x: activeButtons[n].value[0],
-                  y: activeButtons[n].value[1]
-              };
-              button_position = Math.normalize(button_position);
-              button.x += button_position.x*10;
-              button.y += button_position.y*10;
-              gbaButton(1, activeButtons[n], "down");
-              break;
-         case 98:
-              button = { x: v_line[10], y: h_line[10] };
-              var button_position = { 
-                  x: activeButtons[n].value[0],
-                  y: activeButtons[n].value[1]
-              };
-              button_position = Math.normalize(button_position);
-              button.x += button_position.x*10;
-              button.y += button_position.y*10;
-              gbaButton(1, activeButtons[n], "down");
-              break;
-    }
-
-    ctx.beginPath();
-    ctx.strokeStyle = colors[n];
-    ctx.lineWidth = 2;
-    ctx.arc(button.x, button.y, 5, 0, (Math.PI*2));
-    ctx.stroke();
+        var continued = false;
+        for (var k = 0; k < last_activeButtons.length; k++) {
+             if (last_activeButtons[k].index == 
+                  activeButtons[n].index && 
+                  (last_activeButtons[k].value[0] == 
+                  activeButtons[k].value[0] && 
+                  last_activeButtons[k].value[1] == 
+                  activeButtons[k].value[1]))
+                  continued = true;
+        }
+        var action = continued ? "none" : "down";
+        var button = 
+        gbaButton(1, activeButtons, n, action);
+        ctx.beginPath();
+        ctx.strokeStyle = colors[n];
+        ctx.lineWidth = 2;
+        ctx.arc(button.x, button.y, 5, 0, (Math.PI*2));
+        ctx.stroke();
     }
 
     // buttonUp
@@ -393,47 +328,62 @@ var gamepadState = function() {
              released = false;
         }
         if (released)
-        gbaButton(1, last_activeButtons[m], "up");
+        gbaButton(1, last_activeButtons, m, "up");
     }
     last_activeButtons = activeButtons;
 
     drawSetup("input");
 };
 
-var gbaButton = function(player, button, action) {
+var gbaButton = function(player, activeButtons, n, action) {
+    var r = 250/200;
+    var h_line = scale(
+       [ 10, 20, 47, 58, 70, 62, 44, 59, 73, 76, 89 ], r, 12.5, 21.8);
+    var v_line = scale(
+       [ 55, 65, 75, 107, 142, 126, 170, 184, 199, 96, 154 ], r, 25, 25);
+
     var gbaIndex = -1;
-    switch (button.index) {
+    var button = { x: v_line[9], y: h_line[10] };
+    switch (activeButtons[n].index) {
         case 8:
+              button = { x: v_line[3], y: h_line[5] };
               gbaIndex = gba.Controller.BUTTON_SELECT;
               break;
          case 9:
+              button = { x: v_line[4], y: h_line[5] };
               if (IodineGUI.isPlaying)
               gbaIndex = gba.Controller.BUTTON_START;
               else if (action == "up")
               IodineGUI.Iodine.play();
               break;
          case 7:
+              button = { x: v_line[7], y: h_line[0] };
               if (action == "up")
               canvas.requestFullscreen();
               else
               document.exitFullscreen();
               break;
          case 6:
+              button = { x: v_line[1], y: h_line[0] };
               // not available
               break;
          case 4:
+              button = { x: v_line[1], y: h_line[1] };
               gbaIndex = gba.Controller.BUTTON_LEFT_SHOULDER;
               break;
          case 5:
+              button = { x: v_line[7], y: h_line[1] };
               gbaIndex = gba.Controller.BUTTON_RIGHT_SHOULDER;
               break;
          case 14:
+              button = { x: v_line[0], y: h_line[3] };
               gbaIndex = selectX([
                    gba.Controller.BUTTON_RIGHT,
                    gba.Controller.BUTTON_LEFT
               ]);
               break;
          case 12:
+              button = { x: v_line[1], y: h_line[2] };
               if (IodineGUI.isPlaying) {
                    gbaIndex = selectY([
                        gba.Controller.BUTTON_DOWN,
@@ -449,12 +399,14 @@ var gbaButton = function(player, button, action) {
               }
               break;
          case 15:
+              button = { x: v_line[2], y: h_line[3] };
               gbaIndex = selectX([
                    gba.Controller.BUTTON_LEFT,
                    gba.Controller.BUTTON_RIGHT
               ]);
               break;
          case 13:
+              button = { x: v_line[1], y: h_line[4] };
               if (IodineGUI.isPlaying) {
                    gbaIndex = selectY([
                        gba.Controller.BUTTON_UP,
@@ -470,90 +422,115 @@ var gbaButton = function(player, button, action) {
               }
               break;
          case 2:
+              button = { x: v_line[6], y: h_line[7] };
               gbaIndex = gba.Controller.BUTTON_A;
               break;
          case 3:
+              button = { x: v_line[7], y: h_line[6] };
               // not available
               break;
          case 1:
+              button = { x: v_line[8], y: h_line[7] };
               // not available
               break;
          case 0:
+              button = { x: v_line[7], y: h_line[8] };
               gbaIndex = gba.Controller.BUTTON_B;
               break;
          case 99:
-              if (button.value[0] < -0.3)
+              var button = { x: v_line[9], y: h_line[10] };
+              var button_position = { 
+                  x: activeButtons[n].value[0],
+                  y: activeButtons[n].value[1]
+              };
+              button_position = Math.normalize(button_position);
+              button.x += button_position.x*10;
+              button.y += button_position.y*10;
+
+              if (activeButtons[n].value[0] < 0)
               gbaIndex = selectX([
                    gba.Controller.BUTTON_RIGHT,
                    gba.Controller.BUTTON_LEFT
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_RIGHT);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_LEFT);
 
-              if (button.value[0] > 0.3)
+              if (activeButtons[n].value[0] > 0)
               gbaIndex = selectX([
                    gba.Controller.BUTTON_LEFT,
                    gba.Controller.BUTTON_RIGHT
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_LEFT);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_RIGHT);
 
-              if (button.value[1] < -0.3)
+              if (activeButtons[n].value[1] < 0)
               gbaIndex = selectY([
                    gba.Controller.BUTTON_DOWN,
                    gba.Controller.BUTTON_UP
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_DOWN);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_UP);
 
-              if (button.value[1] > 0.3)
+              if (activeButtons[n].value[1] > 0)
               gbaIndex = selectY([
                    gba.Controller.BUTTON_UP,
                    gba.Controller.BUTTON_DOWN
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_UP);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_DOWN);
               break;
          case 98:
-              if (button.value[0] < -0.3)
+              button = { x: v_line[10], y: h_line[10] };
+              var button_position = { 
+                  x: activeButtons[n].value[0],
+                  y: activeButtons[n].value[1]
+              };
+              button_position = Math.normalize(button_position);
+              button.x += button_position.x*10;
+              button.y += button_position.y*10;
+
+              if (activeButtons[n].value[0] < 0)
               gbaIndex = selectX([
                    gba.Controller.BUTTON_RIGHT,
                    gba.Controller.BUTTON_LEFT
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_RIGHT);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_LEFT);
 
-              if (button.value[0] > 0.3)
+              if (activeButtons[n].value[0] > 0)
               gbaIndex = selectX([
                    gba.Controller.BUTTON_LEFT,
                    gba.Controller.BUTTON_RIGHT
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_LEFT);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_RIGHT);
 
-              if (button.value[1] < -0.3)
+              if (activeButtons[n].value[1] < 0)
               gbaIndex = selectY([
                    gba.Controller.BUTTON_DOWN,
                    gba.Controller.BUTTON_UP
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_DOWN);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_UP);
 
-              if (button.value[1] > 0.3)
+              if (activeButtons[n].value[1] > 0)
               gbaIndex = selectY([
                    gba.Controller.BUTTON_UP,
                    gba.Controller.BUTTON_DOWN
               ]);
               else 
-              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_UP);
+              IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_DOWN);
               break;
     }
-    if (gbaIndex == -1) return;
-    //console.log("button "+gbaIndex+" "+action);
+    if (gbaIndex == -1 || action == "none") return button;
+    console.log("button "+gbaIndex+" "+action);
+
     if (action == "down")
     IodineGUI.Iodine.keyDown(gbaIndex);
-    else
+    else if (action == "up")
     IodineGUI.Iodine.keyUp(gbaIndex);
+
+    return button;
 };
 
 var gba = {
