@@ -38,17 +38,6 @@ $(document).ready(function() {
     iframe.src = "html5/geomdash/";
     document.body.appendChild(iframe);
 
-    gamepad = document.createElement("canvas");
-    gamepad.style.position = "absolute";
-    gamepad.width = 300;
-    gamepad.height = 200;
-    gamepad.style.left = ((sw/2)-150)+"px";
-    gamepad.style.top = ((sh/2)-250)+"px";
-    gamepad.style.width = (300)+"px";
-    gamepad.style.height = (200)+"px";
-    gamepad.style.zIndex = "3";
-    document.body.appendChild(gamepad);
-
     canvasSetup = document.createElement("canvas");
     canvasSetup.style.position = "absolute";
     canvasSetup.width = 28;
@@ -91,6 +80,39 @@ $(document).ready(function() {
     fileButton.pointerDownTime = 0;
     document.body.appendChild(fileButton);
 
+    topLayer = document.createElement("div");
+    topLayer.style.position = "absolute";
+    topLayer.style.backgroundColor = "black";
+    topLayer.style.left = (0)+"px";
+    topLayer.style.top = (0)+"px";
+    topLayer.style.width = (sw)+"px";
+    topLayer.style.height = (sh)+"px";
+    topLayer.style.zIndex = "3";
+    document.body.appendChild(topLayer);
+
+    nextLayer = document.createElement("div");
+    nextLayer.style.position = "absolute";
+    nextLayer.style.backgroundColor = "black";
+    nextLayer.style.left = ((sw/2)-50)+"px";
+    nextLayer.style.top = ((sh/2)+100)+"px";
+    nextLayer.style.width = (100)+"px";
+    nextLayer.style.height = (100)+"px";
+    nextLayer.style.borderRadius = "50%";
+    nextLayer.style.zIndex = "3";
+    //document.body.appendChild(nextLayer);
+
+    gamepad = document.createElement("canvas");
+    gamepad.style.position = "absolute";
+    gamepad.width = 300;
+    gamepad.height = 200;
+    gamepad.style.left = ((sw/2)-150)+"px";
+    gamepad.style.top = ((sh/2)-250)+"px";
+    gamepad.style.width = (300)+"px";
+    gamepad.style.height = (200)+"px";
+    gamepad.style.filter = "invert(100%)";
+    gamepad.style.zIndex = "3";
+    document.body.appendChild(gamepad);
+
     fileInput = document.createElement("input");
     fileInput.style.display = "none";
     fileInput.type = "file";
@@ -130,6 +152,11 @@ $(document).ready(function() {
         ws.send("PAPER|"+playerId+"|remote-gamepad-attach");
     });
 });
+
+var backgroundNo = 0;
+var background_colors = [
+    "black", "white", "green", "yellow", "orange", "red", "purple", "blue"
+];
 
 var remoteGamepad = false;
 var buttonSet = [];
@@ -188,7 +215,7 @@ var scale = function(arr, value, borderOut, borderIn) {
 var gamepadState = function() {
     var ctx = gamepad.getContext("2d");
     ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, 300, 200);
+    ctx.clearRect(0, 0, 300, 200);
     ctx.drawImage(sprite_idle[0], 25, 21.8, 250, 156.25);
 
     var colors = [
@@ -197,7 +224,7 @@ var gamepadState = function() {
 
     var ctxSignal = gamepad.getContext("2d");
     ctxSignal.fillStyle = "#000";
-    ctxSignal.fillRect(137.5, 0, 25, 45);
+    ctxSignal.clearRect(137.5, 0, 25, 45);
     ctxSignal.beginPath();
     ctxSignal.strokeStyle = "purple";
     ctxSignal.lineWidth = 2;
@@ -335,6 +362,20 @@ var gamepadButton =
               break;
          case 2:
               button = { x: v_line[6], y: h_line[7] };
+              if (action == "down") {
+                   backgroundNo = (backgroundNo+1) < 
+                   (background_colors.length-1) ? 
+                   (backgroundNo+1) : 0;
+                   topLayer.style.backgroundColor = 
+                   background_colors[backgroundNo];
+
+                   var nextColor = (backgroundNo+1) < 
+                   (background_colors.length-1) ? 
+                   (backgroundNo+1) : 0;
+                   nextLayer.style.backgroundColor = 
+                   background_colors[nextColor];
+              }
+
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(11));
               iframe.contentWindow.dash.touching = 
@@ -501,7 +542,9 @@ var endButtonRequest = function(identifier) {
     });
 };
 
-var muted = true;
+var muted = false;
+var remote = false;
+
 var speaking = false;
 var lastText = "";
 var afterAudio_callback = false;

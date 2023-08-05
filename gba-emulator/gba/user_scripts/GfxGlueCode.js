@@ -64,6 +64,8 @@ GfxGlueCode.prototype.attachGfxPostCallback = function (gfxPostCallback) {
         this.gfxPostCallback = gfxPostCallback;
     }
 }
+
+var frameCount = 0;
 GfxGlueCode.prototype.vsync = function () {
     if (this.graphicsFound) {
         if (typeof this.gfxCallback == "function") {
@@ -71,7 +73,13 @@ GfxGlueCode.prototype.vsync = function () {
             this.gfxCallback();
         }
         //Draw a frame, if ready:
-        this.requestDraw();
+        if (frameSkip == 0) {
+            this.requestDraw();
+        }
+        else if (frameSkip > 0 && frameCount % frameSkip == 0) {
+            this.requestDraw();
+        }
+        frameCount += 1;
     }
 }
 GfxGlueCode.prototype.initializeBuffers = function () {

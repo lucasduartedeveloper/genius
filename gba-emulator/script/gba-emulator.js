@@ -26,6 +26,9 @@ $(document).ready(function() {
     canvas.style.width = (300)+"px";
     canvas.style.height = (200)+"px";
     canvas.style.zIndex = "3";
+    canvas.ondblclick = function() {
+         toggleFullscreen();
+    };
     document.body.appendChild(canvas);
 
     gamepad = document.createElement("canvas");
@@ -50,6 +53,7 @@ $(document).ready(function() {
     canvasSetup.style.zIndex = "3";
     document.body.appendChild(canvasSetup);
 
+    frameSkip = 0;
     frameSkipLabel = document.createElement("span");
     frameSkipLabel.style.position = "absolute";
     frameSkipLabel.innerText = "frameskip: 0x";
@@ -64,6 +68,7 @@ $(document).ready(function() {
     frameSkipLabel.onclick = function() {
          frameSkip = (frameSkip+1) < 10 ? (frameSkip+1) : 0;
          frameSkipLabel.innerText = "frameskip: "+frameSkip+"x";
+         //IodineGUI.Iodine.setSpeed((1000/30)/frameSkip);
     };
     document.body.appendChild(frameSkipLabel);
 
@@ -147,12 +152,34 @@ $(document).ready(function() {
     });
 });
 
+var toggleFullscreen = function() {
+    if (!document.fullscreenElement) {
+        canvas.requestFullscreen();
+    } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+    }
+};
+
 var romNo = 0;
 var romList = [
     { name: "Aladdin",
       address: "rom/aladdin.gba" },
     { name: "Findet Nemo",
-      address: "rom/findet_nemo.gba" }
+      address: "rom/findet_nemo.gba" },
+    { name: "Bible Game",
+      address: "rom/bible_game.gba" },
+    { name: "Legend Of Zelda",
+      address: "rom/legend_of_zelda.gba" },
+    { name: "Gauntlet",
+      address: "rom/gauntlet.gba" },
+    { name: "Baldur's Gate",
+      address: "rom/baldurs_gate.gba" },
+    { name: "Bomber Man",
+      address: "rom/bomber_man.gba" },
+    { name: "Bomber Man Tournament",
+      address: "rom/bomber_man_tournament.gba" },
+    { name: "Worms",
+      address: "rom/worms.gba" },
 ];
 
 var gba_init = function() {
@@ -168,6 +195,7 @@ var gba_init = function() {
         }
     });
     calculateTiming();
+    gba_downloadFile("rom/gba_bios.bin", attachBIOS);
 
     var Mixer = new GlueCodeMixer(null);
     IodineGUI.mixerInput = new GlueCodeMixerInput(Mixer);
@@ -358,10 +386,9 @@ var gbaButton = function(player, activeButtons, n, action) {
               break;
          case 7:
               button = { x: v_line[7], y: h_line[0] };
-              if (action == "up")
-              canvas.requestFullscreen();
-              else
-              document.exitFullscreen();
+              if (action == "up") {
+                  IodineGUI.Iodine.stop();
+              }
               break;
          case 6:
               button = { x: v_line[1], y: h_line[0] };
@@ -392,7 +419,6 @@ var gbaButton = function(player, activeButtons, n, action) {
               }
               else if (action == "up") {
                    romNo = (romNo-1) < 0 ? 0 : (romNo-1);
-                   gba_downloadFile("rom/gba_bios.bin", attachBIOS);
                    gba_downloadFile(
                    romList[romNo].address, attachROM);
                    fileButton.innerText = romList[romNo].name;
@@ -415,7 +441,6 @@ var gbaButton = function(player, activeButtons, n, action) {
               }
               else if (action == "up") {
                    romNo = (romNo+1) < romList.length ? (romNo+1) : 0;
-                   gba_downloadFile("rom/gba_bios.bin", attachBIOS);
                    gba_downloadFile(
                    romList[romNo].address, attachROM);
                    fileButton.innerText = romList[romNo].name;
@@ -447,6 +472,9 @@ var gbaButton = function(player, activeButtons, n, action) {
               button.x += button_position.x*10;
               button.y += button_position.y*10;
 
+              var pos_x = Math.abs(button_position.x);
+              var pos_y = Math.abs(button_position.y);
+
               if (activeButtons[n].value[0] < 0)
               gbaIndex = selectX([
                    gba.Controller.BUTTON_RIGHT,
@@ -462,6 +490,8 @@ var gbaButton = function(player, activeButtons, n, action) {
               ]);
               else 
               IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_RIGHT);
+
+              if (pos_x > pos_y) break;
 
               if (activeButtons[n].value[1] < 0)
               gbaIndex = selectY([
@@ -489,6 +519,9 @@ var gbaButton = function(player, activeButtons, n, action) {
               button.x += button_position.x*10;
               button.y += button_position.y*10;
 
+              var pos_x = Math.abs(button_position.x);
+              var pos_y = Math.abs(button_position.y);
+
               if (activeButtons[n].value[0] < 0)
               gbaIndex = selectX([
                    gba.Controller.BUTTON_RIGHT,
@@ -504,6 +537,8 @@ var gbaButton = function(player, activeButtons, n, action) {
               ]);
               else 
               IodineGUI.Iodine.keyUp(gba.Controller.BUTTON_RIGHT);
+
+              if (pos_x > pos_y) break;
 
               if (activeButtons[n].value[1] < 0)
               gbaIndex = selectY([
@@ -523,7 +558,7 @@ var gbaButton = function(player, activeButtons, n, action) {
               break;
     }
     if (gbaIndex == -1 || action == "none") return button;
-    console.log("button "+gbaIndex+" "+action);
+    //console.log("button "+gbaIndex+" "+action);
 
     if (action == "down")
     IodineGUI.Iodine.keyDown(gbaIndex);
