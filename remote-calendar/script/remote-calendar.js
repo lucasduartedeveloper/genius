@@ -130,7 +130,7 @@ $(document).ready(function() {
         span.style.flex = 1;
         span.style.backgroundColor = "#fff";
         span.style.color = "#000";
-        span.innerText = "GITHUB";
+        span.innerText = "ENERGY";
         span.style.fontSize = "15px";
         span.style.lineHeight = "17px";
         //span.style.width = (100)+"px";
