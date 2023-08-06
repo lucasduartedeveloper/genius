@@ -61,8 +61,8 @@ $(document).ready(function() {
     frameSkipLabel.style.height = (25)+"px";
     frameSkipLabel.style.zIndex = "3";
     frameSkipLabel.onclick = function() {
-         frameSkip = (frameSkip+1) < 10 ? (frameSkip+1) : 0;
-         frameSkipLabel.innerText = "frameskip: "+frameSkip+"x";
+        frameSkip = (frameSkip+1) < 10 ? (frameSkip+1) : 0;
+        frameSkipLabel.innerText = "frameskip: "+frameSkip+"x";
     };
     document.body.appendChild(frameSkipLabel);
 
@@ -89,6 +89,61 @@ $(document).ready(function() {
     topLayer.style.height = (sh)+"px";
     topLayer.style.zIndex = "3";
     document.body.appendChild(topLayer);
+
+    var transform = [
+        "", "rotateY(180deg)", "rotateX(180deg)", 
+        "rotateY(180deg) rotateX(180deg)"
+    ];
+
+    text = [];
+    batteryCap = document.createElement("span");
+    batteryCap.style.position = "absolute";
+    batteryCap.style.backgroundColor = "#fff";
+    batteryCap.style.left = ((sw/2)-10)+"px";
+    batteryCap.style.top = (((sh/2)+90))+"px";
+    batteryCap.style.width = (20)+"px";
+    batteryCap.style.height = (10)+"px";
+    batteryCap.style.borderRadius = "5px 5px 0px 0px";
+    batteryCap.style.border = "2px solid #fff";
+    batteryCap.style.zIndex = "3";
+    document.body.appendChild(batteryCap);
+
+    battery = document.createElement("div");
+    battery.style.position = "absolute";
+    battery.style.display = "flex";
+    battery.style.flexDirection = "column";
+    battery.style.flexWrap = "row";
+    battery.style.justifyContent = "flex-end";
+    battery.style.alignContent = "stretch";
+    battery.style.alignItems = "stretch";
+    battery.style.padding = "2px";
+    battery.style.left = ((sw/2)-30)+"px";
+    battery.style.top = (((sh/2)+100))+"px";
+    battery.style.width = (60)+"px";
+    battery.style.height = (100)+"px";
+    battery.style.borderRadius = "5px";
+    battery.style.border = "2px solid #fff";
+    battery.style.zIndex = "3";
+    document.body.appendChild(battery);
+    for (var n = 0; n < 5; n++) {
+        var span = document.createElement("div");
+        span.style.flex = 1;
+        span.style.backgroundColor = "#fff";
+        span.style.color = "#000";
+        span.innerText = "GITHUB";
+        span.style.fontSize = "15px";
+        span.style.lineHeight = "17px";
+        //span.style.width = (100)+"px";
+        span.style.height = (15)+"px";
+        span.style.transform = transform[n];
+        span.style.borderRadius = "3px";
+        span.style.border = "2px solid #000";
+        span.style.zIndex = "3";
+        span.onclick = function() {
+            this.remove();
+        };
+        battery.appendChild(span);
+    }
 
     nextLayer = document.createElement("div");
     nextLayer.style.position = "absolute";
