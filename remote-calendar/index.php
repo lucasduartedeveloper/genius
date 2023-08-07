@@ -32,7 +32,8 @@ $script = [
     8 => "/genius/script/request-pin.js",
     9 => "/genius/script/ai-network.js",
     10 => "/genius/script/gamepad-helper.js",
-    11 => "script/remote-calendar.js"
+    11 => "script/math-helper.js",
+    12 => "script/remote-calendar.js"
 ];
 
 $module = [];

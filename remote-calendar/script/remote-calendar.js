@@ -19,13 +19,14 @@ $(document).ready(function() {
 
     canvas = document.createElement("canvas");
     canvas.style.position = "absolute";
-    canvas.width = 256;
-    canvas.height = 240;
+    canvas.width = 300;
+    canvas.height = 300;
     canvas.style.left = ((sw/2)-150)+"px";
     canvas.style.top = ((sh/2)-50)+"px";
     canvas.style.width = (300)+"px";
-    canvas.style.height = (200)+"px";
-    canvas.style.zIndex = "3";
+    canvas.style.height = (300)+"px";
+    canvas.style.transform = "scale(0.7)";
+    canvas.style.zIndex = "5";
     document.body.appendChild(canvas);
 
     iframe = document.createElement("iframe");
@@ -36,7 +37,7 @@ $(document).ready(function() {
     iframe.style.height = (200)+"px";
     iframe.style.zIndex = "3";
     iframe.src = "html5/geomdash/";
-    document.body.appendChild(iframe);
+    //document.body.appendChild(iframe);
 
     canvasSetup = document.createElement("canvas");
     canvasSetup.style.position = "absolute";
@@ -90,23 +91,29 @@ $(document).ready(function() {
     topLayer.style.zIndex = "3";
     document.body.appendChild(topLayer);
 
-    var transform = [
-        "", "rotateY(180deg)", "rotateX(180deg)", 
-        "rotateY(180deg) rotateX(180deg)"
-    ];
+    batteryContainer = document.createElement("div");
+    batteryContainer.style.position = "absolute";
+    batteryContainer.style.left = ((sw/2)-30)+"px";
+    batteryContainer.style.top = (((sh/2)+200))+"px";
+    batteryContainer.style.width = (60)+"px";
+    batteryContainer.style.height = (110)+"px";
+    batteryContainer.style.zIndex = "3";
+    batteryContainer.style.transform = 
+    "rotateZ(-90deg) scale(0.5)";
+    document.body.appendChild(batteryContainer);
 
     text = [];
     batteryCap = document.createElement("span");
     batteryCap.style.position = "absolute";
     batteryCap.style.backgroundColor = "#fff";
-    batteryCap.style.left = ((sw/2)-10)+"px";
-    batteryCap.style.top = (((sh/2)+90))+"px";
+    batteryCap.style.left = (20)+"px";
+    batteryCap.style.top = (0)+"px";
     batteryCap.style.width = (20)+"px";
     batteryCap.style.height = (10)+"px";
     batteryCap.style.borderRadius = "5px 5px 0px 0px";
     batteryCap.style.border = "2px solid #fff";
     batteryCap.style.zIndex = "3";
-    document.body.appendChild(batteryCap);
+    batteryContainer.appendChild(batteryCap);
 
     battery = document.createElement("div");
     battery.style.position = "absolute";
@@ -117,44 +124,14 @@ $(document).ready(function() {
     battery.style.alignContent = "stretch";
     battery.style.alignItems = "stretch";
     battery.style.padding = "2px";
-    battery.style.left = ((sw/2)-30)+"px";
-    battery.style.top = (((sh/2)+100))+"px";
+    battery.style.left = (0)+"px";
+    battery.style.top = (10)+"px";
     battery.style.width = (60)+"px";
     battery.style.height = (100)+"px";
     battery.style.borderRadius = "5px";
     battery.style.border = "2px solid #fff";
     battery.style.zIndex = "3";
-    document.body.appendChild(battery);
-    for (var n = 0; n < 5; n++) {
-        var span = document.createElement("div");
-        span.style.flex = 1;
-        span.style.backgroundColor = "#fff";
-        span.style.color = "#000";
-        span.innerText = "ENERGY";
-        span.style.fontSize = "15px";
-        span.style.lineHeight = "17px";
-        //span.style.width = (100)+"px";
-        span.style.height = (15)+"px";
-        span.style.transform = transform[n];
-        span.style.borderRadius = "3px";
-        span.style.border = "2px solid #000";
-        span.style.zIndex = "3";
-        span.onclick = function() {
-            this.remove();
-        };
-        battery.appendChild(span);
-    }
-
-    nextLayer = document.createElement("div");
-    nextLayer.style.position = "absolute";
-    nextLayer.style.backgroundColor = "black";
-    nextLayer.style.left = ((sw/2)-50)+"px";
-    nextLayer.style.top = ((sh/2)+100)+"px";
-    nextLayer.style.width = (100)+"px";
-    nextLayer.style.height = (100)+"px";
-    nextLayer.style.borderRadius = "50%";
-    nextLayer.style.zIndex = "3";
-    //document.body.appendChild(nextLayer);
+    batteryContainer.appendChild(battery);
 
     gamepad = document.createElement("canvas");
     gamepad.style.position = "absolute";
@@ -164,7 +141,7 @@ $(document).ready(function() {
     gamepad.style.top = ((sh/2)-250)+"px";
     gamepad.style.width = (300)+"px";
     gamepad.style.height = (200)+"px";
-    gamepad.style.filter = "invert(100%)";
+    //gamepad.style.filter = "invert(100%)";
     gamepad.style.zIndex = "3";
     document.body.appendChild(gamepad);
 
@@ -200,9 +177,15 @@ $(document).ready(function() {
             buttonSet = JSON.parse(msg[4]);
             gamepadState();
         }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-gamepad-battery") {
+            batteryLevel = parseInt(msg[3]);
+        }
     };
 
     loadImages(function() {
+        loadMaze();
         gameLoop();
         ws.send("PAPER|"+playerId+"|remote-gamepad-attach");
     });
@@ -218,7 +201,9 @@ var buttonSet = [];
 var logInputs = false;
 
 var sprite_idle = [
-    "img/gamepad-description.png",
+    "img/gamepad-hd.png",
+    "img/star-icon.png"
+    //"img/gamepad-description.png",
     //"img/stand-position-0.png"
 ];
 
@@ -250,12 +235,100 @@ var pausePressed = false;
 var gamePaused = false;
 var grayscaleScenario = false;
 
+var position = { x: 10, y: 20 };
 var gameLoop = function() {
      createButtonRequest();
+     var ctx = canvas.getContext("2d");
+     ctx.fillStyle = "#000";
+     ctx.clearRect(0, 0, 300, 300);
+     var blockSize = (300/21);
+
+     ctx.fillStyle = "#fff";
+     for (var y = 0; y < 21; y++) {
+          for (var x = 0; x < 21; x++) {
+               var n = (y*21)+x;
+               if (maze[n] == 1) {
+                    var format = getBlockFormat(x, y);
+                    for (var k = 0; k < format.length; k++) {
+                    ctx.fillRect((x+(1/3))*blockSize, (y+(1/3))*blockSize,
+                    blockSize/3, blockSize/3);
+                    switch (format[k]) {
+                         case 1:
+                         ctx.fillRect(x*blockSize, (y+(1/3))*blockSize,
+                         blockSize/2, blockSize/3);
+                         break;
+                         case 2:
+                         ctx.fillRect((x+(1/3))*blockSize, y*blockSize,
+                         blockSize/3, blockSize/2);
+                         break;
+                         case 4:
+                         ctx.fillRect((x+(1/2))*blockSize, 
+                         (y+(1/3))*blockSize,
+                         blockSize/2, blockSize/3);
+                         break;
+                         case 8:
+                         ctx.fillRect((x+(1/3))*blockSize, 
+                         (y+(1/2))*blockSize,
+                         blockSize/3, blockSize/2);
+                         break;
+                    }
+                    }
+               }
+               else if (maze[n]==2) {
+                    ctx.drawImage(sprite_idle[1], 
+                    x*blockSize, y*blockSize,
+                    blockSize, blockSize);
+               }
+          };
+     };
+
+     ctx.fillStyle = "orange";
+     ctx.fillRect(position.x*blockSize, position.y*blockSize,
+               blockSize, blockSize);
 
      drawSetup("logic");
      drawSetup("render");
      requestAnimationFrame(gameLoop);
+};
+
+var getBlockFormat = function(x, y) {
+     var n = [
+         (y*21)+(x-1), ((y-1)*21)+x, (y*21)+(x+1), ((y+1)*21)+x
+     ];
+
+     var left = (x > 0) && maze[n[0]] == 1 ? 1 : 0;
+     var top = (y > 0) && maze[n[1]] == 1 ? 2 : 0;
+     var right = (x < 20) && maze[n[2]] == 1 ? 4 : 0;
+     var bottom = (y < 20) && maze[n[3]] == 1 ? 8 : 0;
+
+     return [ left, top, right, bottom ];
+};
+
+var direction = { x: 0, y: 0 };
+var move = function(x, y) {
+     direction = { x: x, y: y };
+     var p = { x: position.x+x, y: position.y+y };
+     var n = (p.y*21)+p.x;
+     var notBlocked = n > 0 && n < (21*21) && maze[n] != 1;
+     if (maze[n] == 2) maze[n] = 0;
+     if (notBlocked) {
+         position.x = p.x;
+         position.y = p.y;
+         if (p.x == 0) { position.x = 20; }
+         if (p.y == 0) { position.y = 20; }
+         if (p.x == 20) { position.x = 0; }
+         if (p.y == 20) { position.y = 0; }
+     }
+}
+
+var build = function(item=1) {
+     var p = { x: position.x+direction.x, y: position.y+direction.y };
+     var n = (p.y*21)+p.x;
+     var notOutside = n > 0 && n < (21*21);
+     if (notOutside) {
+          maze[n] = maze[n] == 0 ? item : 0;
+     }
+    saveMaze();
 };
 
 var scale = function(arr, value, borderOut, borderIn) {
@@ -267,14 +340,22 @@ var scale = function(arr, value, borderOut, borderIn) {
     return arr;
 };
 
+last_batteryLevel = 5;
+batteryLevel = 5;
 var gamepadState = function() {
     var ctx = gamepad.getContext("2d");
     ctx.fillStyle = "#000";
     ctx.clearRect(0, 0, 300, 200);
-    ctx.drawImage(sprite_idle[0], 25, 21.8, 250, 156.25);
+    //ctx.drawImage(sprite_idle[0], 25, 21.8, 250, 156.25);
+    ctx.drawImage(sprite_idle[0], 25, 22.5, 250, 155);
+
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(avgInputTime.toFixed(0)+" ms", 150, 175);
 
     var colors = [
-         "blue", "darkorange", "gold", "purple", "limegreen"
+         "white", "darkorange", "gold", "purple", "limegreen"
     ];
 
     var ctxSignal = gamepad.getContext("2d");
@@ -323,6 +404,33 @@ var gamepadState = function() {
     }
     last_activeButtons = activeButtons;
 
+    var transform = [
+        "", "rotateY(180deg)", "rotateX(180deg)", 
+        "rotateY(180deg) rotateX(180deg)"
+    ];
+    last_batteryLevel = battery.children.length;
+    for (var n = 0; n < last_batteryLevel; n++) {
+        battery.children[0].remove();
+    }
+    for (var n = 0; n < batteryLevel; n++) {
+        var span = document.createElement("div");
+        span.style.flex = 1;
+        span.style.backgroundColor = "#fff";
+        span.style.color = "#000";
+        //span.style.fontWeight = "900";
+        //span.innerText = "ENERGY";
+        span.style.fontSize = "15px";
+        span.style.lineHeight = "17px";
+        span.style.maxHeight = ((100-8)/5)+"px";
+        span.style.transform = transform[n];
+        span.style.borderRadius = "3px";
+        span.style.border = "2px solid #000";
+        span.style.zIndex = "3";
+        span.onclick = function() {
+            this.remove();
+        };
+        battery.appendChild(span);
+    }
     drawSetup("input");
 };
 
@@ -399,25 +507,33 @@ var gamepadButton =
               button = { x: v_line[0], y: h_line[3] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(3));
+              if (action == "up")
+              move(-1, 0);
               break;
          case 12:
               button = { x: v_line[1], y: h_line[2] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(4));
+              if (action == "up")
+              move(0, -1);
               break;
          case 15:
               button = { x: v_line[2], y: h_line[3] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(5));
+              if (action == "up")
+              move(1, 0);
               break;
          case 13:
               button = { x: v_line[1], y: h_line[4] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(6));
+              if (action == "up")
+              move(0, 1);
               break;
          case 2:
               button = { x: v_line[6], y: h_line[7] };
-              if (action == "down") {
+              /*if (action == "down") {
                    backgroundNo = (backgroundNo+1) < 
                    (background_colors.length-1) ? 
                    (backgroundNo+1) : 0;
@@ -430,16 +546,20 @@ var gamepadButton =
                    nextLayer.style.backgroundColor = 
                    background_colors[nextColor];
               }
+              iframe.contentWindow.dash.touching = 
+              action == "down";*/
 
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(11));
-              iframe.contentWindow.dash.touching = 
-              action == "down";
+              if (action == "up")
+              build();
               break;
          case 3:
               button = { x: v_line[7], y: h_line[6] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(12));
+              if (action == "up")
+              build(2);
               break;
          case 1:
               button = { x: v_line[8], y: h_line[7] };
@@ -453,9 +573,19 @@ var gamepadButton =
               break;
          case 99:
               var text = gamepadInfo(0)+gamepadInfo(15);
-              button = { x: v_line[9], y: h_line[10] };
-              button.x += activeButtons[n].value[0]*5;
-              button.y += activeButtons[n].value[1]*5;
+
+              var button = { x: v_line[9], y: h_line[10] };
+              var button_position = { 
+                  x: activeButtons[n].value[0],
+                  y: activeButtons[n].value[1]
+              };
+              button_position = Math.normalize(button_position);
+              button.x += button_position.x*10;
+              button.y += button_position.y*10;
+
+              var pos_x = Math.abs(button_position.x);
+              var pos_y = Math.abs(button_position.y);
+
               var abs_x = Math.abs(activeButtons[n].value[0]);
               var abs_y = Math.abs(activeButtons[n].value[1]);
               if (abs_x > abs_y && activeButtons[n].value[0] < 0)
@@ -471,9 +601,19 @@ var gamepadButton =
               break;
          case 98:
               var text = gamepadInfo(0)+gamepadInfo(16);
-              button = { x: v_line[10], y: h_line[10] };
-              button.x += activeButtons[n].value[0]*5;
-              button.y += activeButtons[n].value[1]*5;
+
+              var button = { x: v_line[10], y: h_line[10] };
+              var button_position = { 
+                  x: activeButtons[n].value[0],
+                  y: activeButtons[n].value[1]
+              };
+              button_position = Math.normalize(button_position);
+              button.x += button_position.x*10;
+              button.y += button_position.y*10;
+
+              var pos_x = Math.abs(button_position.x);
+              var pos_y = Math.abs(button_position.y);
+
               var abs_x = Math.abs(activeButtons[n].value[0]);
               var abs_y = Math.abs(activeButtons[n].value[1]);
               if (abs_x > abs_y && activeButtons[n].value[0] < 0)
@@ -497,6 +637,47 @@ var readButtons = function() {
         return o.pressed;
     });
     return activeButtons;
+};
+
+var mazeNo = 0;
+var maze_base = [
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+];
+var maze = maze_base;
+
+var saveMaze = function() {
+    localStorage.setItem("maze_"+mazeNo, maze.join(","));
+};
+
+var loadMaze = function() {
+    if (localStorage.getItem("maze_"+mazeNo)) {
+        maze = localStorage.getItem("maze_"+mazeNo).split(",");
+        for (var n = 0; n < maze.length; n++)
+        maze[n] = parseInt(maze[n]);
+    }
+   else {
+       maze = maze_base;
+   }
 };
 
 var fps = 60;
@@ -579,6 +760,7 @@ var getUniqueIdentifier = function() {
     return requestIdentifier;
 };
 
+var requestTimeout = 0;
 var buttonRequestBuffer = [];
 var createButtonRequest = function(index) {
     if (buttonRequestBuffer.length > 0) return;
@@ -588,6 +770,10 @@ var createButtonRequest = function(index) {
     };
     buttonRequestBuffer.push(obj);
     ws.send("PAPER|"+playerId+"|remote-gamepad-get|"+obj.identifier);
+    setTimeout(function() {
+        requestTimeout += 1;
+        buttonRequestBuffer = [];
+    }, 1000);
 };
 
 var endButtonRequest = function(identifier) {

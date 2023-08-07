@@ -131,18 +131,27 @@ var buttonCount = 0;
 
 var buttonSet = [];
 var logInputs = false;
+
+var aimLocked = true;
+var aimTime = 0;
+
 var gameLoop = function() {
     buttonSet = listGamepadButtons(0, !clientUpdated);
 
     if (buttonSet.length > 0) {
         var button = rescueButtonFromSet(buttonSet, 99);
-        aim.x += button.value[0]*3;
-        aim.y += button.value[1]*3;
+        if (!aimLocked) {
+            aim.x += button.value[0]*3;
+            aim.y += button.value[1]*3;
+        }
 
         var button = rescueButtonFromSet(buttonSet, 4);
         if (button.value != 0) {
             aim.x = (sw/2)-185;
             aim.y = (sh/2)-125;
+            if (new Date().getTime() - aimTime < 3000)
+            aimLocked = !aimLocked;
+            aimTime = new Date().getTime();
         }
 
         var button = rescueButtonFromSet(buttonSet, 2);

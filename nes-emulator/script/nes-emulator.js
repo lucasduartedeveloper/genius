@@ -159,7 +159,9 @@ var romList = [
     { name: "Tetris", 
       address: "rom/Tetris (U) [!].nes" },
     { name: "Battle City", 
-      address: "rom/BattleCity (Japan).nes" }
+      address: "rom/BattleCity (Japan).nes" },
+    { name: "Excite Bike",
+      address: "rom/Excitebike (Japan, USA).nes" }
 ];
 
 var remoteGamepad = false;
