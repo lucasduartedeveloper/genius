@@ -203,7 +203,9 @@ var logInputs = false;
 var sprite_idle = [
     "img/gamepad-hd.png",
     "img/star-icon.png",
-    "img/bluetooth-icon.png"
+    "img/bluetooth-icon.png",
+    "img/saw-icon.png",
+    "img/bluetooth-icon2.png"
     //"img/gamepad-description.png",
     //"img/stand-position-0.png"
 ];
@@ -320,6 +322,16 @@ var gameLoop = function() {
                     ctx.fillText("BACK", 
                     (x+(1/2))*blockSize, (y+(1/2))*blockSize);
                }
+               else if (maze[n]==5) {
+                    ctx.drawImage(sprite_idle[3], 
+                    x*blockSize, y*blockSize,
+                    blockSize, blockSize);
+               }
+               else if (maze[n]==6) {
+                    ctx.drawImage(sprite_idle[4], 
+                    x*blockSize, y*blockSize,
+                    blockSize, blockSize);
+               }
           };
      };
 
@@ -367,14 +379,14 @@ var move = function(x, y) {
      if (maze[n] == 2) maze[n] = 0;
      if (maze[n] == 3) { 
          mazeNo += 1;
-         var back = mapReturn(loadMaze("wait"), "back");
+         var back = mapReturn(loadMaze("wait").maze, "back");
          p.x = back.x;
          p.y = back.y;
          loadMaze();
      }
-     if (maze[n] == 4) { 
+     else if (maze[n] == 4) { 
          mazeNo -= 1;
-         var exit = mapReturn(loadMaze("wait"), "exit");
+         var exit = mapReturn(loadMaze("wait").maze, "exit");
          p.x = exit.x;
          p.y = exit.y;
          loadMaze();
@@ -384,8 +396,6 @@ var move = function(x, y) {
          position.y = p.y;
      }
 }
-
-// 25 
 
 var mapReturn = function(data, type) {
      var result = { ...position };
@@ -401,8 +411,31 @@ var mapReturn = function(data, type) {
                result.y = y;
           }
      }
-     console.log(result);
      return result;
+};
+
+var colorReturn = function() {
+     var startNo = mazeNo;
+     while (true) {
+          var data = loadMaze("wait");
+          if (data.reset) {
+               mazeNo = startNo;
+               break;
+          }
+          for (var n = 0; n < data.maze.length; n++) {
+               var x = (n % 21);
+               var y = Math.floor((n / 21));
+               if (data.maze[n] == 6) {
+                    position.x = x;
+                    position.y = y;
+                    loadMaze();
+                    maze[n] = 0;
+                    saveMaze();
+                    break;
+               }
+          }
+          mazeNo += 1;
+     }
 };
 
 var build = function(item=1) {
@@ -562,6 +595,8 @@ var gamepadButton =
               button = { x: v_line[3], y: h_line[5] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(1));
+              if (action == "up")
+              colorReturn();
               break;
          case 9:
               button = { x: v_line[4], y: h_line[5] };
@@ -577,6 +612,8 @@ var gamepadButton =
               button = { x: v_line[1], y: h_line[0] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(7));
+              if (action == "up")
+              build(6);
               break;
          case 4:
               button = { x: v_line[1], y: h_line[1] };
@@ -654,6 +691,8 @@ var gamepadButton =
               button = { x: v_line[8], y: h_line[7] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(13));
+              if (action == "up")
+              build(5);
               break;
          case 0:
               button = { x: v_line[7], y: h_line[8] };
@@ -769,16 +808,18 @@ var saveMaze = function() {
 
 var loadMaze = function(action="enter") {
     var result = [ ...maze ];
+    var reset = true;
     if (localStorage.getItem("maze_"+mazeNo)) {
         var data = localStorage.getItem("maze_"+mazeNo).split(",");
         for (var n = 0; n < result.length; n++)
         result[n] = parseInt(data[n]);
+        reset = false;
     }
     else {
         result = maze_base;
     }
     if (action=="enter") maze = result;
-    return result;
+    return { reset: reset, maze: result };
 };
 
 var fps = 60;
