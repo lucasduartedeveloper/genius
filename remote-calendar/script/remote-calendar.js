@@ -209,7 +209,9 @@ var sprite_idle = [
     "img/arrow-icon-left.png",
     "img/arrow-icon-up.png",
     "img/arrow-icon-right.png",
-    "img/arrow-icon-down.png"
+    "img/arrow-icon-down.png",
+    "img/bluetooth-icon3.png",
+    "img/water-drop-icon.png"
     //"img/gamepad-description.png",
     //"img/stand-position-0.png"
 ];
@@ -364,9 +366,91 @@ var gameLoop = function() {
           position.x*blockSize, position.y*blockSize,
           blockSize, blockSize);
 
+     ctx.fillStyle = "yellow";
+     updateBot();
+     for (var n = 0; n < bot.length; n++) {
+          if (mazeNo != bot[n].mazeNo) continue;
+          ctx.drawImage(sprite_idle[9], 
+               bot[n].position.x*blockSize, 
+               bot[n].position.y*blockSize,
+               blockSize, blockSize);
+     }
+
      drawSetup("logic");
      drawSetup("render");
      requestAnimationFrame(gameLoop);
+};
+
+var bot = [];
+var updateBot = function() {
+     if (!elapsedTime("update-bot", 200)) return;
+     for (var n = 0; n < bot.length; n++) {
+          if (mazeNo != bot[n].mazeNo) continue;
+          var direction = { 
+              x: (Math.floor(Math.random()*3)-1),
+              y: (Math.floor(Math.random()*3)-1)
+          };
+          var p = { ...bot[n].position };
+          p.x += direction.x;
+          p.y += direction.y;
+          var m = (p.y*21)+p.x;
+          var notBlocked = m > 0 && m < (21*21) && maze[m] != 1;
+          if (notBlocked) {
+              bot[n].position.x = p.x;
+              bot[n].position.y = p.y;
+          }
+     }
+     resetTimer("update-bot");
+};
+
+var timeArray = [];
+var elapsedTime = function(id, ms) {
+    var currentTime = new Date().getTime();
+    var timeObj = timeArray.filter((o) => { return o.id == id; } )[0];
+    if (!timeObj) {
+        timeObj = {
+            id: id,
+            time: currentTime
+        }
+        timeArray.push(timeObj);
+        return true;
+    }
+    var result = currentTime - timeObj.time;
+    //console.log(result, (result > ms));
+    return (result > ms);
+};
+
+var resetTimer = function(id) {
+    var currentTime = new Date().getTime();
+    var timeObj = timeArray.filter((o) => { return o.id == id; } )[0];
+    var timer = currentTime - timeObj.time;
+    //console.log(id+" in "+timer+" ms");
+    timeObj.time = currentTime;
+};
+
+var spawnBot = function(id, map) {
+     var result = {
+          id: id,
+          position: createPosition(map),
+          direction: { x: 0, y: 0 },
+          mazeNo: mazeNo
+     };
+     bot.push(result);
+};
+
+var createPosition = function(map) {
+     var data = loadMaze("wait", map).maze;
+     var empty_tiles = [];
+     for (var n = 0; n < data.length; n++) {
+         if (data[n] != 1)
+         empty_tiles.push(n);
+     }
+     var rnd = Math.floor(Math.random()*empty_tiles.length);
+     var n = empty_tiles[rnd];
+     var x = (n % 21);
+     var y = Math.floor((n / 21));
+     var result = { x: x, y: y };
+     return result;
 };
 
 var getBlockForm = function(x, y) {
@@ -407,6 +491,7 @@ var move = function(x, y) {
          p.x = back.x;
          p.y = back.y;
          loadMaze();
+         spawnBot(0, mazeNo-1);
      }
      else if (maze[n] == 4) { 
          mazeNo -= 1;
@@ -843,11 +928,11 @@ var saveMaze = function() {
     localStorage.setItem("maze_"+mazeNo, maze.join(","));
 };
 
-var loadMaze = function(action="enter") {
+var loadMaze = function(action="enter", no=mazeNo) {
     var result = [ ...maze ];
     var reset = true;
-    if (localStorage.getItem("maze_"+mazeNo)) {
-        var data = localStorage.getItem("maze_"+mazeNo).split(",");
+    if (localStorage.getItem("maze_"+no)) {
+        var data = localStorage.getItem("maze_"+no).split(",");
         for (var n = 0; n < result.length; n++)
         result[n] = parseInt(data[n]);
         reset = false;
