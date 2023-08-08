@@ -202,7 +202,8 @@ var logInputs = false;
 
 var sprite_idle = [
     "img/gamepad-hd.png",
-    "img/star-icon.png"
+    "img/star-icon.png",
+    "img/bluetooth-icon.png"
     //"img/gamepad-description.png",
     //"img/stand-position-0.png"
 ];
@@ -235,41 +236,61 @@ var pausePressed = false;
 var gamePaused = false;
 var grayscaleScenario = false;
 
+var viewAngle = 0;
 var position = { x: 10, y: 20 };
 var gameLoop = function() {
      createButtonRequest();
+     var blockSize = (300/21);
      var ctx = canvas.getContext("2d");
      ctx.fillStyle = "#000";
      ctx.clearRect(0, 0, 300, 300);
-     var blockSize = (300/21);
+     ctx.fillRect((blockSize/3), (blockSize/3), 
+     300-((blockSize/3)*2), 300-((blockSize/3)*2));
 
-     ctx.fillStyle = "#fff";
      for (var y = 0; y < 21; y++) {
           for (var x = 0; x < 21; x++) {
+               ctx.fillStyle = "rgba(255,255,255,0.3)";
                var n = (y*21)+x;
                if (maze[n] == 1) {
-                    var format = getBlockFormat(x, y);
-                    for (var k = 0; k < format.length; k++) {
-                    ctx.fillRect((x+(1/3))*blockSize, (y+(1/3))*blockSize,
-                    blockSize/3, blockSize/3);
-                    switch (format[k]) {
+                    var shadowForm = []; //getShadowForm(x, y);
+                    for (var k = 0; k < shadowForm.length; k++) {
+                    switch (shadowForm[k]) {
                          case 1:
-                         ctx.fillRect(x*blockSize, (y+(1/3))*blockSize,
-                         blockSize/2, blockSize/3);
+                         ctx.fillRect((x+(1/2))*blockSize, y*blockSize,
+                         blockSize/2, blockSize/2);
                          break;
                          case 2:
-                         ctx.fillRect((x+(1/3))*blockSize, y*blockSize,
-                         blockSize/3, blockSize/2);
+                         ctx.fillRect(x*blockSize, (y+(1/2))*blockSize,
+                         blockSize/2, blockSize/2);
                          break;
                          case 4:
                          ctx.fillRect((x+(1/2))*blockSize, 
+                         (y+(1/2))*blockSize,
+                         blockSize/2, blockSize/2);
+                         break;
+                    }
+                    }
+                    ctx.fillStyle = "#fff";
+                    var blockForm = getBlockForm(x, y);
+                    for (var k = 0; k < blockForm.length; k++) {
+                    switch (blockForm[k]) {
+                         case 1:
+                         ctx.fillRect(x*blockSize, (y+(1/3))*blockSize,
+                         (blockSize/3)*2, blockSize/3);
+                         break;
+                         case 2:
+                         ctx.fillRect((x+(1/3))*blockSize, y*blockSize,
+                         blockSize/3, (blockSize/3)*2);
+                         break;
+                         case 4:
+                         ctx.fillRect((x+(1/3))*blockSize, 
                          (y+(1/3))*blockSize,
-                         blockSize/2, blockSize/3);
+                         (blockSize/3)*2, blockSize/3);
                          break;
                          case 8:
                          ctx.fillRect((x+(1/3))*blockSize, 
-                         (y+(1/2))*blockSize,
-                         blockSize/3, blockSize/2);
+                         (y+(1/3))*blockSize,
+                         blockSize/3, (blockSize/3)*2);
                          break;
                     }
                     }
@@ -282,16 +303,17 @@ var gameLoop = function() {
           };
      };
 
-     ctx.fillStyle = "orange";
-     ctx.fillRect(position.x*blockSize, position.y*blockSize,
-               blockSize, blockSize);
+     ctx.fillStyle = "#000";
+     ctx.drawImage(sprite_idle[2],
+          position.x*blockSize, position.y*blockSize,
+          blockSize, blockSize);
 
      drawSetup("logic");
      drawSetup("render");
      requestAnimationFrame(gameLoop);
 };
 
-var getBlockFormat = function(x, y) {
+var getBlockForm = function(x, y) {
      var n = [
          (y*21)+(x-1), ((y-1)*21)+x, (y*21)+(x+1), ((y+1)*21)+x
      ];
@@ -302,6 +324,18 @@ var getBlockFormat = function(x, y) {
      var bottom = (y < 20) && maze[n[3]] == 1 ? 8 : 0;
 
      return [ left, top, right, bottom ];
+};
+
+var getShadowForm = function(x, y) {
+     var n = [
+         (y*21)+(x-1), ((y-1)*21)+x, (y*21)+(x+1), ((y+1)*21)+x
+     ];
+
+     var topRight = (x < 20) && maze[n[1]] == 1? 1 : 0;
+     var left = (x > 0) && maze[n[0]] == 1 ? 2 : 0;
+     var right = (x < 20) && maze[n[2]] == 1 ? 4 : 0;
+
+     return [ topRight, left, 4 ];
 };
 
 var direction = { x: 0, y: 0 };
@@ -598,6 +632,15 @@ var gamepadButton =
               text += gamepadInfo(20);
               if (action == "up")
               say(text);
+
+              if (abs_x > abs_y && activeButtons[n].value[0] < 0)
+              move(-1, 0);
+              else if (abs_x > abs_y && activeButtons[n].value[0] > 0)
+              move(1, 0);
+              if (abs_y > abs_x && activeButtons[n].value[1] < 0)
+              move(0, -1);
+              else if (abs_y > abs_x && activeButtons[n].value[1] > 0)
+              move(0, 1);
               break;
          case 98:
               var text = gamepadInfo(0)+gamepadInfo(16);
