@@ -22,10 +22,10 @@ $(document).ready(function() {
     canvas.width = 300;
     canvas.height = 300;
     canvas.style.left = ((sw/2)-150)+"px";
-    canvas.style.top = ((sh/2)-50)+"px";
+    canvas.style.top = ((sh/2)-70)+"px";
     canvas.style.width = (300)+"px";
     canvas.style.height = (300)+"px";
-    canvas.style.transform = "scale(0.7)";
+    canvas.style.transform = "scale(0.8)";
     canvas.style.zIndex = "5";
     document.body.appendChild(canvas);
 
@@ -272,25 +272,29 @@ var gameLoop = function() {
                     }
                     ctx.fillStyle = "#fff";
                     var blockForm = getBlockForm(x, y);
+                    ctx.beginPath();
+                    ctx.arc((x+(1/2))*blockSize, (y+(1/2))*blockSize,
+                    blockSize/6, 0, (Math.PI*2));
+                    ctx.fill();
                     for (var k = 0; k < blockForm.length; k++) {
                     switch (blockForm[k]) {
                          case 1:
                          ctx.fillRect(x*blockSize, (y+(1/3))*blockSize,
-                         (blockSize/3)*2, blockSize/3);
+                         blockSize/2, blockSize/3);
                          break;
                          case 2:
                          ctx.fillRect((x+(1/3))*blockSize, y*blockSize,
-                         blockSize/3, (blockSize/3)*2);
+                         blockSize/3, blockSize/2);
                          break;
                          case 4:
-                         ctx.fillRect((x+(1/3))*blockSize, 
+                         ctx.fillRect((x+(1/2))*blockSize, 
                          (y+(1/3))*blockSize,
-                         (blockSize/3)*2, blockSize/3);
+                         blockSize/2, blockSize/3);
                          break;
                          case 8:
                          ctx.fillRect((x+(1/3))*blockSize, 
-                         (y+(1/3))*blockSize,
-                         blockSize/3, (blockSize/3)*2);
+                         (y+(1/2))*blockSize,
+                         blockSize/3, blockSize/2);
                          break;
                     }
                     }
@@ -299,6 +303,22 @@ var gameLoop = function() {
                     ctx.drawImage(sprite_idle[1], 
                     x*blockSize, y*blockSize,
                     blockSize, blockSize);
+               }
+               else if (maze[n]==3) {
+                    ctx.fillStyle = "limegreen";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "8px sans-serif";
+                    ctx.fillText("EXIT", 
+                    (x+(1/2))*blockSize, (y+(1/2))*blockSize);
+               }
+               else if (maze[n]==4) {
+                    ctx.fillStyle = "pink";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "8px sans-serif";
+                    ctx.fillText("BACK", 
+                    (x+(1/2))*blockSize, (y+(1/2))*blockSize);
                }
           };
      };
@@ -345,21 +365,52 @@ var move = function(x, y) {
      var n = (p.y*21)+p.x;
      var notBlocked = n > 0 && n < (21*21) && maze[n] != 1;
      if (maze[n] == 2) maze[n] = 0;
+     if (maze[n] == 3) { 
+         mazeNo += 1;
+         var back = mapReturn(loadMaze("wait"), "back");
+         p.x = back.x;
+         p.y = back.y;
+         loadMaze();
+     }
+     if (maze[n] == 4) { 
+         mazeNo -= 1;
+         var exit = mapReturn(loadMaze("wait"), "exit");
+         p.x = exit.x;
+         p.y = exit.y;
+         loadMaze();
+     }
      if (notBlocked) {
          position.x = p.x;
          position.y = p.y;
-         if (p.x == 0) { position.x = 20; }
-         if (p.y == 0) { position.y = 20; }
-         if (p.x == 20) { position.x = 0; }
-         if (p.y == 20) { position.y = 0; }
      }
 }
+
+// 25 
+
+var mapReturn = function(data, type) {
+     var result = { ...position };
+     for (var n = 0; n < data.length; n++) {
+          var x = (n % 21);
+          var y = Math.floor((n / 21));
+          if (type == "back" && data[n] == 4) {
+               result.x = x;
+               result.y = y;
+          }
+          else if (type == "exit" && data[n] == 3) {
+               result.x = x;
+               result.y = y;
+          }
+     }
+     console.log(result);
+     return result;
+};
 
 var build = function(item=1) {
      var p = { x: position.x+direction.x, y: position.y+direction.y };
      var n = (p.y*21)+p.x;
      var notOutside = n > 0 && n < (21*21);
      if (notOutside) {
+          if (mazeNo == 0 && item == 4) return;
           maze[n] = maze[n] == 0 ? item : 0;
      }
     saveMaze();
@@ -531,11 +582,15 @@ var gamepadButton =
               button = { x: v_line[1], y: h_line[1] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(9));
+              if (action == "up")
+              build(3);
               break;
          case 5:
               button = { x: v_line[7], y: h_line[1] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(10));
+              if (action == "up")
+              build(4);
               break;
          case 14:
               button = { x: v_line[0], y: h_line[3] };
@@ -712,15 +767,18 @@ var saveMaze = function() {
     localStorage.setItem("maze_"+mazeNo, maze.join(","));
 };
 
-var loadMaze = function() {
+var loadMaze = function(action="enter") {
+    var result = [ ...maze ];
     if (localStorage.getItem("maze_"+mazeNo)) {
-        maze = localStorage.getItem("maze_"+mazeNo).split(",");
-        for (var n = 0; n < maze.length; n++)
-        maze[n] = parseInt(maze[n]);
+        var data = localStorage.getItem("maze_"+mazeNo).split(",");
+        for (var n = 0; n < result.length; n++)
+        result[n] = parseInt(data[n]);
     }
-   else {
-       maze = maze_base;
-   }
+    else {
+        result = maze_base;
+    }
+    if (action=="enter") maze = result;
+    return result;
 };
 
 var fps = 60;
