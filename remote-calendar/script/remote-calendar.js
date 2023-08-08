@@ -133,6 +133,7 @@ $(document).ready(function() {
     battery.style.zIndex = "3";
     batteryContainer.appendChild(battery);
 
+    var player2 = false;
     gamepad = document.createElement("canvas");
     gamepad.style.position = "absolute";
     gamepad.width = 300;
@@ -143,6 +144,13 @@ $(document).ready(function() {
     gamepad.style.height = (200)+"px";
     //gamepad.style.filter = "invert(100%)";
     gamepad.style.zIndex = "3";
+    gamepad.onclick = function() {
+        player2 = !player2;
+        if (player2) {
+            gamepad.style.transform = player2 ?
+            "rotateZ(-180deg)" : "";
+        }
+    };
     document.body.appendChild(gamepad);
 
     fileInput = document.createElement("input");
@@ -211,6 +219,10 @@ var sprite_idle = [
     "img/arrow-icon-right.png",
     "img/arrow-icon-down.png",
     "img/bluetooth-icon3.png",
+    "img/cat-icon3.png",
+    "img/cat-icon2.png",
+    "img/cat-icon4.png",
+    "img/human-icon.png",
     "img/water-drop-icon.png"
     //"img/gamepad-description.png",
     //"img/stand-position-0.png"
@@ -334,9 +346,10 @@ var gameLoop = function() {
                     blockSize, blockSize);
                }
                else if (maze[n]==6) {
-                    ctx.drawImage(sprite_idle[4], 
-                    x*blockSize, y*blockSize,
-                    blockSize, blockSize);
+                    ctx.drawImage(sprite_idle[10], 
+                        (x-(1/3))*blockSize, 
+                        (y-(1/3))*blockSize,
+                        blockSize*(1+(1/1.5)), blockSize*(1+(1/1.5)));
                }
                else if (maze[n]==20) {
                     ctx.drawImage(sprite_idle[5], 
@@ -362,23 +375,41 @@ var gameLoop = function() {
      };
 
      ctx.fillStyle = "#000";
-     ctx.drawImage(sprite_idle[2],
-          position.x*blockSize, position.y*blockSize,
-          blockSize, blockSize);
+     layer.push([ sprite_idle[13], 
+         (position.x-(1/3))*blockSize, (position.y-(1/3))*blockSize,
+         blockSize*(1+(1/1.5)), blockSize*(1+(1/1.5)) ]);
 
      ctx.fillStyle = "yellow";
      updateBot();
      for (var n = 0; n < bot.length; n++) {
           if (mazeNo != bot[n].mazeNo) continue;
-          ctx.drawImage(sprite_idle[9], 
-               bot[n].position.x*blockSize, 
-               bot[n].position.y*blockSize,
-               blockSize, blockSize);
+          layer.push([ sprite_idle[12], 
+               (bot[n].position.x-(1/3))*blockSize, 
+               (bot[n].position.y-(1/3))*blockSize,
+               blockSize*(1+(1/1.5)), blockSize*(1+(1/1.5)) ]);
      }
+
+     drawLayer(ctx);
 
      drawSetup("logic");
      drawSetup("render");
      requestAnimationFrame(gameLoop);
+};
+
+var layer = [];
+var drawLayer = function(ctx) {
+     var order = layer.sort(compareFn);
+     for (var n = 0; n < order.length; n++) {
+         ctx.drawImage(order[n][0],
+             order[n][1], order[n][2], order[n][3], order[n][4]);
+     }
+     layer = [];
+};
+
+var compareFn = function(a, b) {
+    if (a[2] < b[2]) return -1;
+    if (a[2] > b[2]) return 1;
+    return 0;
 };
 
 var bot = [];
@@ -386,21 +417,36 @@ var updateBot = function() {
      if (!elapsedTime("update-bot", 200)) return;
      for (var n = 0; n < bot.length; n++) {
           if (mazeNo != bot[n].mazeNo) continue;
+          var rnd = Math.floor(Math.random()*2);
+          var x = (Math.floor(Math.random()*3)-1);
+          var y = (Math.floor(Math.random()*3)-1);
           var direction = { 
-              x: (Math.floor(Math.random()*3)-1),
-              y: (Math.floor(Math.random()*3)-1)
+              x: rnd == 0 ? x : 0,
+              y: rnd == 1 ? y : 0
           };
           var p = { ...bot[n].position };
           p.x += direction.x;
           p.y += direction.y;
           var m = (p.y*21)+p.x;
-          var notBlocked = m > 0 && m < (21*21) && maze[m] != 1;
+          var notBlocked = 
+              m > 0 && m < (21*21) && maze[m] != 1 &&
+              p.x != position.x && p.y != position.x;
           if (notBlocked) {
               bot[n].position.x = p.x;
               bot[n].position.y = p.y;
           }
      }
      resetTimer("update-bot");
+};
+
+var collidesWithBot = function(pos) {
+     for (var n = 0; n < bot.length; n++) {
+          if (mazeNo == bot[n].mazeNo &&
+          pos.x == bot[n].position.x && 
+          pos.y == bot[n].position.y)
+          return true;
+     }
+     return false;
 };
 
 var timeArray = [];
@@ -506,7 +552,7 @@ var move = function(x, y) {
          if (maze[n] == 22) direction = { x: 1, y: 0 };
          if (maze[n] == 23) direction = { x: 0, y: 1 };
      }
-     if (notBlocked) {
+     if (notBlocked && !collidesWithBot(p)) {
          position.x = p.x;
          position.y = p.y;
      }
