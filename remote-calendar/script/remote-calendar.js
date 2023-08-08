@@ -433,7 +433,7 @@ var spawnBot = function(id, map) {
           id: id,
           position: createPosition(map),
           direction: { x: 0, y: 0 },
-          mazeNo: mazeNo
+          mazeNo: map
      };
      bot.push(result);
 };
