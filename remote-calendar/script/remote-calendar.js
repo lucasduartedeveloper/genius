@@ -205,7 +205,11 @@ var sprite_idle = [
     "img/star-icon.png",
     "img/bluetooth-icon.png",
     "img/saw-icon.png",
-    "img/bluetooth-icon2.png"
+    "img/bluetooth-icon2.png",
+    "img/arrow-icon-left.png",
+    "img/arrow-icon-up.png",
+    "img/arrow-icon-right.png",
+    "img/arrow-icon-down.png"
     //"img/gamepad-description.png",
     //"img/stand-position-0.png"
 ];
@@ -332,6 +336,26 @@ var gameLoop = function() {
                     x*blockSize, y*blockSize,
                     blockSize, blockSize);
                }
+               else if (maze[n]==20) {
+                    ctx.drawImage(sprite_idle[5], 
+                    x*blockSize, y*blockSize,
+                    blockSize, blockSize);
+               }
+               else if (maze[n]==21) {
+                    ctx.drawImage(sprite_idle[6], 
+                    x*blockSize, y*blockSize,
+                    blockSize, blockSize);
+               }
+               else if (maze[n]==22) {
+                    ctx.drawImage(sprite_idle[7], 
+                    x*blockSize, y*blockSize,
+                    blockSize, blockSize);
+               }
+               else if (maze[n]==23) {
+                    ctx.drawImage(sprite_idle[8], 
+                    x*blockSize, y*blockSize,
+                    blockSize, blockSize);
+               }
           };
      };
 
@@ -391,6 +415,12 @@ var move = function(x, y) {
          p.y = exit.y;
          loadMaze();
      }
+     else if (maze[n] >= 20 && maze[n] <= 23) { 
+         if (maze[n] == 20) direction = { x: -1, y: 0 };
+         if (maze[n] == 21) direction = { x: 0, y: -1 };
+         if (maze[n] == 22) direction = { x: 1, y: 0 };
+         if (maze[n] == 23) direction = { x: 0, y: 1 };
+     }
      if (notBlocked) {
          position.x = p.x;
          position.y = p.y;
@@ -444,6 +474,11 @@ var build = function(item=1) {
      var notOutside = n > 0 && n < (21*21);
      if (notOutside) {
           if (mazeNo == 0 && item == 4) return;
+          if (item == 20) {
+               if (direction.y < 0) item = 21;
+               if (direction.x > 0) item = 22;
+               if (direction.y > 0) item = 23;
+          }
           maze[n] = maze[n] == 0 ? item : 0;
      }
     saveMaze();
@@ -607,6 +642,8 @@ var gamepadButton =
               button = { x: v_line[7], y: h_line[0] };
               if (action == "up")
               say(gamepadInfo(0)+gamepadInfo(8));
+              if (action == "up")
+              build(20);
               break;
          case 6:
               button = { x: v_line[1], y: h_line[0] };
