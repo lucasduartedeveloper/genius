@@ -146,10 +146,8 @@ $(document).ready(function() {
     gamepad.style.zIndex = "3";
     gamepad.onclick = function() {
         player2 = !player2;
-        if (player2) {
-            gamepad.style.transform = player2 ?
-            "rotateZ(-180deg)" : "";
-        }
+        gamepad.style.transform = player2 ?
+        "rotateZ(-180deg)" : "initial";
     };
     document.body.appendChild(gamepad);
 
