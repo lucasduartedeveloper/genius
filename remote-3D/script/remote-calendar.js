@@ -373,7 +373,7 @@ var gameLoop = function() {
      };
 
      ctx.fillStyle = "#000";
-     layer.push([ sprite_idle[12], 
+     layer.push([ sprite_idle[13], 
          (position.x-(1/3))*blockSize, (position.y-(1/3))*blockSize,
          blockSize*(1+(1/1.5)), blockSize*(1+(1/1.5)) ]);
 

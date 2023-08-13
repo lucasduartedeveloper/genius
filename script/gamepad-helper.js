@@ -82,7 +82,8 @@ var convertButtons = function(buttonSet) {
 var rescueButtonFromSet = function(buttonSet, index) {
      var button = buttonSet.filter((b) => { return b.index == index; })[0];
      if (button) return button;
-     else return (index < 90) ? { value: 0 } : { value: [ 0, 0 ] };
+     else return (index < 90) ? { value: 0 } : 
+     { index: index, value: [ 0, 0 ], pressed: false };
 };
 
 var isMobile = function() {

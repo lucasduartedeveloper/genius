@@ -31,9 +31,10 @@ $(document).ready(function() {
     image.style.overflow = "hidden";
     image.style.borderRadius = "0%";
     image.style.outline = "none";
-    image.style.transform = "rotateZ(-90deg)";
+    //image.style.transform = "rotateZ(-90deg)";
     //image.style.animationDuration = "1s";
     image.style.zIndex = "3";
+    image.src = "img/background.png";
     document.body.appendChild(image);
 
     aimBox = document.createElement("div");
