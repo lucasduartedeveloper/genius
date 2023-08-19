@@ -942,12 +942,11 @@ var loadOBJ = function(path, callback) {
 };
 
 var routes = [
-    { from: 1, to: 2, moves: [ 1, 0, 3, 2 ] },
-    { from: 1, to: 3, moves: [ 2, 2, 3, 3, 0, 1, 0, 1 ] },
-    { from: 1, to: 4, moves: [ 2, 2, 3, 3, 0, 0, 0, 1, 2, 1 ] },
+    { from: 1, to: 3, moves: [ 3, 2, 1, 0, 1, 2, 3, 0 ] },
     { from: 1, to: 5, moves: [ 3, 0, 1, 2 ] },
-    { from: 2, to: 3, moves: [ 1, 2, 3, 0 ] },
-    { from: 2, to: 4, moves: [ 3, 2, 1, 0 ] },
+    { from: 2, to: 3, moves: [ 3, 0, 1, 2 ] },
+    { from: 3, to: 5, moves: [ 2, 3, 0, 1 ] },
+    { from: 6, to: 4, moves: [ 1, 2, 3, 0 ] }
 ];
 
 var bot = {
