@@ -391,7 +391,7 @@ var load3D = function() {
         var material = 
         new THREE.MeshStandardMaterial( { 
             color: 0x000000,
-            opacity: 0.8,
+            opacity: 1,
             transparent: true
         } );
         object.castShadow = true;
@@ -772,6 +772,11 @@ var dicesToTable = function() {
     "<td colspan=\"4\" " + 
     "style=\"text-align:center;\" onclick=\"createDice();\">New Dice"+
     "</td>" + "</tr>";
+    html += "<tr>" +
+    "<td colspan=\"4\" " + 
+    "style=\"text-align:center;\" onclick=\"startBot();\">"+
+    (bot.isSolving ? "Stop Bot" : "Start Bot")+
+    "</td>" + "</tr>";
 
     diceList.innerHTML = html + "</table>";
 
@@ -934,6 +939,62 @@ var loadOBJ = function(path, callback) {
             console.log( 'An error happened' );
         }
     );
+};
+
+var routes = [
+    { from: 1, to: 2, moves: [ 1, 0, 3, 2 ] },
+    { from: 1, to: 3, moves: [ 2, 2, 3, 3, 0, 1, 0, 1 ] },
+    { from: 1, to: 4, moves: [ 2, 2, 3, 3, 0, 0, 0, 1, 2, 1 ] },
+    { from: 1, to: 5, moves: [ 3, 0, 1, 2 ] },
+    { from: 2, to: 3, moves: [ 1, 2, 3, 0 ] },
+    { from: 2, to: 4, moves: [ 3, 2, 1, 0 ] },
+];
+
+var bot = {
+    isSolving: false,
+    destination: { x: 2, y: 2 },
+    number: 6
+};
+var botInterval = 0;
+var startBot = function() {
+    if (bot.isSolving) { 
+        stopBot();
+        return;
+    }
+    bot.isSolving = true;
+    botInterval = setInterval(function() {
+        var gridX = dices[0].grid.x;
+        var gridY = dices[0].grid.y;
+
+        var hor = gridX-bot.destination.x;
+        var ver = gridY-bot.destination.y;
+
+        var from = -1;
+        if (gridX != bot.destination.x &&
+            Math.abs(hor) <= Math.abs(ver) || 
+            Math.abs(ver) == 0) {
+            if (hor < 0) from = 0;
+            else from = 2;
+        }
+        else if (gridY != bot.destination.y) {
+            if (ver < 0) from = 1;
+            else from = 3;
+        }
+
+        var rnd = Math.floor(Math.random()*4);
+        dices[0].beginRoll(from);
+
+        if (gridX == bot.destination.x &&
+        gridY == bot.destination.y &&
+        getDiceValue(dices[0].object) == bot.number) {
+            stopBot();
+        }
+    }, 1000);
+};
+
+var stopBot = function() {
+    bot.isSolving = false;
+    clearInterval(botInterval);
 };
 
 var traceBack = function() {
