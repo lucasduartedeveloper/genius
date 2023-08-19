@@ -83,7 +83,7 @@ var load3D = function() {
     renderer.setSize(500, 500);
     document.body.appendChild( renderer.domElement ); 
 
-    renderer.enable3d = 0;
+    renderer.enable3d = 1;
     renderer.domElement.style.position = "absolute";
     renderer.domElement.style.left = ((sw/2)-(変数/2))+"px";
     renderer.domElement.style.top = ((sh/2)-(変数/2))+"px";
@@ -314,12 +314,13 @@ var load3D = function() {
     var wireframe = new THREE.LineSegments( geo, mat );
     //plane.add( wireframe );
 
-    const defaultEffect = 21; // Anaglyph RC half-colors
+    const defaultEffect = 0; // Single view left
+    //const defaultEffect = 21; // Anaglyph RC half-colors
 
     stereofx = new StereoscopicEffects(renderer, defaultEffect);
     stereofx.setSize(変数, 変数);
 
-    const modes = StereoscopicEffects.effectsListForm();
+    modes = StereoscopicEffects.effectsListForm();
     modes.value = defaultEffect;
     modes.style.position = 'absolute';
     modes.style.background = "#fff";
@@ -681,6 +682,8 @@ var updateRoll = function(dice) {
     else if (dice.rollingFrom == 2) dice.rollPoint.rotateZ(a);
     else if (dice.rollingFrom == 3) dice.rollPoint.rotateX(-a);
 
+    updateBody(dice.object);
+
     dice.rollFrame += 1;
     if (dice.rollFrame == 15) endRoll(dice);
 };
@@ -709,11 +712,6 @@ var endRoll = function(dice) {
     );
     scene.remove(dice.rollPoint);
 
-    updateBody(dice.object);
-    dice.object.userData.pausePhysics = false;
-    dice.rollFrame = 0;
-    dice.isRolling = false;
-
     var gridX = 
     Math.round((dice.object.position.x+(2*1.1))/1.1);
     var gridY = 
@@ -724,6 +722,11 @@ var endRoll = function(dice) {
 
     dice.object.position.x = (gridX*1.1)-(2*1.1);
     dice.object.position.z = (gridY*1.1)-(2*1.1);
+
+    updateBody(dice.object);
+    dice.object.userData.pausePhysics = false;
+    dice.rollFrame = 0;
+    dice.isRolling = false;
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
