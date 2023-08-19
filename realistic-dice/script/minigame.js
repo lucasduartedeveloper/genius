@@ -714,11 +714,18 @@ var endRoll = function(obj) {
     dices[0].rollFrame = 0;
     dices[0].isRolling = false;
 
-    if (dices[0].position.x == 0 &&
-         dices[0].position.z == 0) {
-        speaking = false;
-        say(getDiceValue(dices[0].object));
+    if (Math.abs(dices[0].object.position.x) < 0.1 &&
+         Math.abs(dices[0].object.position.z) < 0.1) {
+        _say(getDiceValue(dices[0].object));
     }
+};
+
+var language = "en-US";
+var _say = function(text) {
+     var msg = new SpeechSynthesisUtterance();
+     msg.lang = language;
+     msg.text = text;
+     window.speechSynthesis.speak(msg);
 };
 
 var dicesToTable = function() {
@@ -827,6 +834,17 @@ var run = function() {
             if (gamepad) {
                 var from = -1;
                 axes = gamepad.axes;
+                console.log(axes);
+
+                if (Math.abs(axes[2]) > 0.5 || 
+                    Math.abs(axes[3]) > 0.5) {
+                    language = "pt-BR";
+                    axes[0] = axes[2];
+                    axes[1] = axes[3];
+                }
+                else {
+                    language = "en-US";
+                }
 
                 if (axes[0] > 0.5) from = 0;
                 else if (axes[1] > 0.5) from = 1;
