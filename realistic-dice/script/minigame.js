@@ -507,6 +507,7 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         object: obj,
         position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0 },
+        grid: { x: 0, y: 0 },
         movedTime: 0,
         restingTime: 0,
         jumped: false,
@@ -576,7 +577,6 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
     dice.beginRoll = function(from) {
         if (dice.isRolling) return;
         this.rollPoint.rotation.set(0, 0, 0);
-        console.log(this.rollingFrom);
         beginRoll(this, from);
     };
 
@@ -645,7 +645,7 @@ var setDiceValue = function(obj, value) {
     updateBody(obj);
 };
 
-var beginRoll = function(obj, from) {
+var beginRoll = function(dice, from) {
     var offsetX = 0;
     var offsetY = 0.55;
     var offsetZ = 0;
@@ -655,22 +655,22 @@ var beginRoll = function(obj, from) {
     else if (from == 2) { offsetX = 0.55; offsetZ = 0; }
     else if (from == 3) { offsetX = 0; offsetZ = 0.55; }
 
-    var point = dices[0].rollPoint;
-    point.position.x = dices[0].object.position.x - offsetX;
-    point.position.y = dices[0].object.position.y - offsetY;
-    point.position.z = dices[0].object.position.z - offsetZ;
+    var point = dice.rollPoint;
+    point.position.x = dice.object.position.x - offsetX;
+    point.position.y = dice.object.position.y - offsetY;
+    point.position.z = dice.object.position.z - offsetZ;
 
     scene.add(point);
 
-    dices[0].object.userData.pausePhysics = true;
-    point.add(dices[0].object);
+    dice.object.userData.pausePhysics = true;
+    point.add(dice.object);
 
-    dices[0].object.position.x = offsetX;
-    dices[0].object.position.y = offsetY;
-    dices[0].object.position.z = offsetZ;
+    dice.object.position.x = offsetX;
+    dice.object.position.y = offsetY;
+    dice.object.position.z = offsetZ;
 
-    dices[0].rollingFrom = from;
-    dices[0].isRolling = true;
+    dice.rollingFrom = from;
+    dice.isRolling = true;
 };
 
 var updateRoll = function(dice) {
@@ -685,38 +685,49 @@ var updateRoll = function(dice) {
     if (dice.rollFrame == 15) endRoll(dice);
 };
 
-var endRoll = function(obj) {
+var endRoll = function(dice) {
     var worldPosition = new THREE.Vector3();
-    dices[0].object.getWorldPosition(worldPosition);
+    dice.object.getWorldPosition(worldPosition);
 
     var worldQuaternion = new THREE.Quaternion();
-    dices[0].object.getWorldQuaternion(worldQuaternion);
+    dice.object.getWorldQuaternion(worldQuaternion);
 
     var worldRotation = new THREE.Euler();
     worldRotation.setFromQuaternion(
     worldQuaternion, "XYZ");
 
-    scene.add(dices[0].object);
-    dices[0].object.position.set(
+    scene.add(dice.object);
+    dice.object.position.set(
         worldPosition.x,
         worldPosition.y,
         worldPosition.z
     );
-    dices[0].object.rotation.set(
+    dice.object.rotation.set(
         worldRotation.x,
         worldRotation.y,
         worldRotation.z
     );
-    scene.remove(dices[0].rollPoint);
+    scene.remove(dice.rollPoint);
 
-    updateBody(dices[0].object);
-    dices[0].object.userData.pausePhysics = false;
-    dices[0].rollFrame = 0;
-    dices[0].isRolling = false;
+    updateBody(dice.object);
+    dice.object.userData.pausePhysics = false;
+    dice.rollFrame = 0;
+    dice.isRolling = false;
 
-    if (Math.abs(dices[0].object.position.x) < 0.1 &&
-         Math.abs(dices[0].object.position.z) < 0.1) {
-        _say(getDiceValue(dices[0].object));
+    var gridX = 
+    Math.round((dice.object.position.x+(2*1.1))/1.1);
+    var gridY = 
+    Math.round((dice.object.position.z+(2*1.1))/1.1);
+
+    dice.grid.x = gridX;
+    dice.grid.y = gridY;
+
+    dice.object.position.x = (gridX*1.1)-(2*1.1);
+    dice.object.position.z = (gridY*1.1)-(2*1.1);
+
+    if (dice.object.position.x == 0 &&
+         dice.object.position.z == 0) {
+        _say(getDiceValue(dice.object));
     }
 };
 
@@ -833,9 +844,7 @@ var run = function() {
 
             if (gamepad) {
                 var from = -1;
-                axes = gamepad.axes;
-                console.log(axes);
-
+                var axes = gamepad.axes;
                 if (Math.abs(axes[2]) > 0.5 || 
                     Math.abs(axes[3]) > 0.5) {
                     language = "pt-BR";
@@ -844,6 +853,17 @@ var run = function() {
                 }
                 else {
                     language = "en-US";
+                }
+
+                var buttons = gamepad.buttons;
+                for (var k = 0; k < buttons.length; k++) {
+                    var index = gamepadButtons.indexOf(k);
+                    if (k == 3 && buttons[k].pressed && index == -1) {
+                         traceBack();
+                         buttons = buttons.splice(index, 1);
+                    }
+                    if (buttons[k].pressed && index == -1)
+                    gamepadButtons.push(k);
                 }
 
                 if (axes[0] > 0.5) from = 0;
@@ -865,6 +885,8 @@ var run = function() {
         //jump();
     }, 5000);
 };
+
+var gamepadButtons = [];
 
 var getDiceValue = function(obj) {
     var brainObj = obj;
@@ -909,6 +931,50 @@ var loadOBJ = function(path, callback) {
             console.log( 'An error happened' );
         }
     );
+};
+
+var traceBack = function() {
+    var gridX = dices[0].grid.x;
+    var gridY = dices[0].grid.y;
+
+    var hor = 2-gridX;
+    var ver = 2-gridY;
+
+    var text = "";
+    if (Math.abs(hor) <= Math.abs(ver)) {
+        var amt = Math.abs(hor);
+        var mov = amt > 1 ? "rolls" : "roll";
+        if (hor < 0) 
+        text += amt + " " + mov + " to the left";
+        else if (hor > 0) 
+        text += amt + " " + mov + " to the right";
+
+        var amt = Math.abs(ver);
+        if (amt > 0) text += " and ";
+        var mov = amt > 1 ? "rolls" : "roll";
+        if (ver < 0) 
+        text += amt + " " + mov + " to the front";
+        else if (ver > 0) 
+        text += amt + " " + mov + " to the back";
+    }
+    else {
+        var amt = Math.abs(ver);
+        var mov = amt > 1 ? "rolls" : "roll";
+        if (ver < 0) 
+        text += amt + " " + mov + " to the front";
+        else if (ver > 0) 
+        text += amt + " " + mov + " to the back";
+
+        var amt = Math.abs(hor);
+        if (amt > 0) text += " and ";
+        var mov = amt > 1 ? "rolls" : "roll";
+        if (hor < 0) 
+        text += amt + " " + mov + " to the left";
+        else if (hor > 0) 
+        text += amt + " " + mov + " to the right";
+    }
+
+    say(text);
 };
 
 THREE.Object3D.prototype.loadTexture = 
