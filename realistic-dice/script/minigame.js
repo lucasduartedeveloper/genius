@@ -728,6 +728,26 @@ var endRoll = function(dice) {
     dice.rollFrame = 0;
     dice.isRolling = false;
 
+    geometry = new THREE.PlaneGeometry(1, 1, 8, 8); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            side: THREE.DoubleSide,
+            color: 0x99FF99,
+            opacity: 0.8,
+            transparent: true,
+            wireframe: false
+    } );
+    plane = new THREE.Mesh( geometry, material );
+    //plane.scale.set(10, 10, 1);
+    scene.add( plane );
+    plane.receiveShadow = true;
+    plane.position.x = dice.object.position.x;
+    plane.position.y = -2.9;
+    plane.position.z = dice.object.position.z;
+
+    plane.rotation.x = Math.PI/2;
+    plane.loadTexture(drawFace(getDiceValue(dice.object)));
+
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
         _say(getDiceValue(dice.object));
@@ -1015,6 +1035,62 @@ var startBot = function() {
 var stopBot = function() {
     bot.isSolving = false;
     clearInterval(botInterval);
+};
+
+var drawFace = function(number) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 300;
+    canvas.height = 300;
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, 300, 300);
+
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1, 1, 298, 298);
+
+    ctx.fillStyle = "#000";
+
+    if (number == 1 || number == 3 || number == 5) {
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.arc(150, 150, 30, 0, Math.PI*2);
+        ctx.fill();
+    }
+    if (number == 2 || number == 3 ||
+        number == 4 || number == 5 ||
+        number == 6) {
+        ctx.beginPath();
+        ctx.moveTo(50, 50);
+        ctx.arc(50, 50, 30, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(250, 250);
+        ctx.arc(250, 250, 30, 0, Math.PI*2);
+        ctx.fill();
+    }
+    if (number == 4 || number == 5 || number == 6) {
+        ctx.beginPath();
+        ctx.moveTo(250, 50);
+        ctx.arc(250, 50, 30, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(50, 250);
+        ctx.arc(50, 250, 30, 0, Math.PI*2);
+        ctx.fill();
+    }
+    if (number == 6) {
+        ctx.beginPath();
+        ctx.moveTo(50, 150);
+        ctx.arc(50, 150, 30, 0, Math.PI*2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(250, 150);
+        ctx.arc(250, 150, 30, 0, Math.PI*2);
+        ctx.fill();
+    }
+
+    return canvas.toDataURL();
 };
 
 var traceBack = function() {
