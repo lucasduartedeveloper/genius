@@ -857,7 +857,8 @@ var endRoll = function(dice) {
     topCover.getWorldQuaternion(worldQuaternion);
     var worldRotation = new THREE.Euler();
     worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
-    //console.log(worldRotation);
+    var faceRotation = 
+    convertRotation(topCover.value, worldRotation);
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
@@ -904,6 +905,14 @@ var getTopCover = function(dice) {
         }
     }
     return dice.faceArr[tn];
+};
+
+var convertRotation = function(value, rotation) {
+    var result = new THREE.Euler();
+    result.x = rotation.x - valueRotation[value-1].x;
+    result.y = rotation.y - valueRotation[value-1].y;
+    result.z = rotation.z - valueRotation[value-1].z;
+    return result;
 };
 
 var checkpoints = [];
