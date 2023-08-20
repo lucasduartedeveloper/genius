@@ -1086,7 +1086,7 @@ var run = function() {
                 var axes = gamepad.axes;
                 if (Math.abs(axes[2]) > 0.5 || 
                     Math.abs(axes[3]) > 0.5) {
-                    language = "pt-BR";
+                    //language = "pt-BR";
                     axes[0] = axes[2];
                     axes[1] = axes[3];
                 }
