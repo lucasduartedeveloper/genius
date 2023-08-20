@@ -370,7 +370,7 @@ var load3D = function() {
 
     face5.loadTexture(drawFace(3));
 
-    geometry = new THREE.PlaneGeometry(5, 5, 8, 8); 
+    geometry = new THREE.PlaneGeometry(1.1*5, 1.1*5, 5, 5); 
     var material = 
         new THREE.MeshStandardMaterial( { 
             side: THREE.DoubleSide,
@@ -394,7 +394,7 @@ var load3D = function() {
     // or WireframeGeometry
     var mat = new THREE.LineBasicMaterial( { color: 0xFFFFFF } );
     var wireframe = new THREE.LineSegments( geo, mat );
-    //plane.add( wireframe );
+    plane.add( wireframe );
 
     const defaultEffect = 0; // Single view left
     //const defaultEffect = 21; // Anaglyph RC half-colors
@@ -580,6 +580,11 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         obj.children[8].scale.z = rnd * obj.children[8].scale.z;
     }
 
+    var gridX = 
+    Math.round((pos.x+(2*1.1))/1.1);
+    var gridY = 
+    Math.round((pos.z+(2*1.1))/1.1);
+
     var dice = {
         no: diceNo,
         trail: [],
@@ -591,7 +596,7 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         object: obj,
         position: { x: 0, y: 0, z: 0 },
         rotation: { x: 0, y: 0, z: 0 },
-        grid: { x: 0, y: 0 },
+        grid: { x: gridX, y: gridY },
         movedTime: 0,
         restingTime: 0,
         jumped: false,
@@ -667,6 +672,10 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
     dice.rollingFrom = 0;
 
     dice.beginRoll = function(from) {
+        if (from == 0 && dice.grid.x == 4) return;
+        if (from == 1 && dice.grid.y == 4) return;
+        if (from == 2 && dice.grid.x == 0) return;
+        if (from == 3 && dice.grid.y == 0) return;
         if (dice.isRolling) return;
         this.rollPoint.rotation.set(0, 0, 0);
         beginRoll(this, from);
@@ -830,9 +839,13 @@ var endRoll = function(dice) {
 
     for (var n = 0; n < checkpoints.length; n++) {
         var checkpoint = checkpoints[n];
+        var value = getDiceValue(dice.object);
         if (dice.grid.x == checkpoint.position.x &&
              dice.grid.y == checkpoint.position.y &&
-             getDiceValue(dice.object) == checkpoint.number) {
+             value == checkpoint.number) {
+             console.log(valueRotation[value-1]);
+             console.log(dice.object.rotation);
+
              var color = new THREE.Color( 0xFFFF55 );
              checkpoint.object.material.color = color;
              checkpoint.done = true;
