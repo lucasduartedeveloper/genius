@@ -843,14 +843,21 @@ var endRoll = function(dice) {
         if (dice.grid.x == checkpoint.position.x &&
              dice.grid.y == checkpoint.position.y &&
              value == checkpoint.number) {
-             console.log(valueRotation[value-1]);
-             console.log(dice.object.rotation);
+             //console.log(valueRotation[value-1]);
+             //console.log(dice.object.rotation);
 
              var color = new THREE.Color( 0xFFFF55 );
              checkpoint.object.material.color = color;
              checkpoint.done = true;
         }
     }
+
+    var topCover = getTopCover(dice);
+    var worldQuaternion = new THREE.Quaternion();
+    topCover.getWorldQuaternion(worldQuaternion);
+    var worldRotation = new THREE.Euler();
+    worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
+    //console.log(worldRotation);
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
@@ -881,6 +888,22 @@ var dropCover = function(dice, number) {
     clone.visible = true;
     dice.trail.push(clone);
     scene.add(clone);
+};
+
+var getTopCover = function(dice) {
+    var pos = new THREE.Vector3();
+    var tn = 0;
+    dice.faceArr[tn].getWorldPosition(pos);
+    var lastY = pos.y;
+
+    for (var n = 1; n < 6; n++) {
+        dice.faceArr[tn].getWorldPosition(pos);
+        if (pos.y > lastY) {
+            tn = n;
+            lastY = pos.y;
+        }
+    }
+    return dice.faceArr[tn];
 };
 
 var checkpoints = [];
