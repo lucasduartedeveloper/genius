@@ -24,6 +24,16 @@ $(document).ready(function() {
 
     変数 = sw/1.2;
 
+    ws.onmessage = function(e) {
+        var msg = e.data.split("|");
+        if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-roll") {
+            var from = parseInt(msg[3]);
+            dices[0].beginRoll(from);
+        }
+    };
+
     load3D();
 });
 
@@ -113,8 +123,10 @@ var load3D = function() {
 
         if (hyp < 50) return;
 
-        if (!controls.enabled)
-        dices[0].beginRoll(from);
+        if (!controls.enabled) {
+            ws.send("PAPER|"+playerId+"|remote-roll|"+from);
+            dices[0].beginRoll(from);
+        }
     };
     renderer.domElement.ondblclick = function(e) {
         controls.enabled = !controls.enabled;
@@ -1098,8 +1110,10 @@ var run = function() {
                 else if (axes[0] < -0.5) from = 2;
                 else if (axes[1] < -0.5) from = 3;
 
-                if (from > -1)
-                dices[n].beginRoll(from);
+                if (from > -1) {
+                    ws.send("PAPER|"+playerId+"|remote-roll|"+from);
+                    dices[n].beginRoll(from);
+                }
             }
         }
 
