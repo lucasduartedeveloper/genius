@@ -841,14 +841,20 @@ var endRoll = function(dice) {
         var checkpoint = checkpoints[n];
         var value = getDiceValue(dice.object);
         if (dice.grid.x == checkpoint.position.x &&
-             dice.grid.y == checkpoint.position.y &&
-             value == checkpoint.number) {
+             dice.grid.y == checkpoint.position.y) {
              //console.log(valueRotation[value-1]);
              //console.log(dice.object.rotation);
 
-             var color = new THREE.Color( 0xFFFF55 );
-             checkpoint.object.material.color = color;
-             checkpoint.done = true;
+             if (value == checkpoint.number) {
+                 var color = new THREE.Color( 0xFFFF55 );
+                 checkpoint.object.material.color = color;
+                 checkpoint.done = true;
+             }
+             else {
+                 var color = new THREE.Color( 0x55FFFF );
+                 checkpoint.object.material.color = color;
+                 checkpoint.done = false;
+             }
         }
     }
 
