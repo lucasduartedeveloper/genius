@@ -826,7 +826,18 @@ var endRoll = function(dice) {
     dice.isRolling = false;
 
     var number = getDiceValue(dice.object, true);
-    dropCover(dice, number);
+    //dropCover(dice, number);
+
+    for (var n = 0; n < checkpoints.length; n++) {
+        var checkpoint = checkpoints[n];
+        if (dice.grid.x == checkpoint.position.x &&
+             dice.grid.y == checkpoint.position.y &&
+             getDiceValue(dice.object) == checkpoint.number) {
+             var color = new THREE.Color( 0xFFFF55 );
+             checkpoint.object.material.color = color;
+             checkpoint.done = true;
+        }
+    }
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
@@ -858,6 +869,38 @@ var dropCover = function(dice, number) {
     dice.trail.push(clone);
     scene.add(clone);
 };
+
+var checkpoints = [];
+var createCheckpoint = function(x, y, number) {
+    var checkpoint = {
+        number: number,
+        position: { x: x, y: y },
+        done: false
+    };
+
+    geometry = new THREE.PlaneGeometry(1, 1, 8, 8); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            side: THREE.DoubleSide,
+            color: 0x55FFFF,
+            opacity: 0.8,
+            transparent: true,
+            wireframe: false
+    } );
+    var obj = new THREE.Mesh( geometry, material.clone() );
+    obj.value = 5;
+    obj.receiveShadow = true;
+    obj.position.x = (x*1.1)-(2*1.1);
+    obj.position.y = -2.9;
+    obj.position.z = (y*1.1)-(2*1.1);
+
+    obj.rotation.x = (Math.PI/2);
+    obj.loadTexture(drawFace(number));
+
+    scene.add(obj);
+    checkpoint.object = obj;
+    checkpoints.push(checkpoint);
+}
 
 var language = "en-US";
 var _say = function(text) {
@@ -1013,6 +1056,12 @@ var run = function() {
     }, 1000/30);
 
     createDice();
+    createCheckpoint(0, 0, 1);
+    createCheckpoint(0, 2, 2);
+    createCheckpoint(0, 4, 3);
+    createCheckpoint(4, 0, 4);
+    createCheckpoint(4, 2, 5);
+    createCheckpoint(4, 4, 6);
 
     ammoInterval_test = setInterval(function() {
         //jump();
