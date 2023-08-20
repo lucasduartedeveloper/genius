@@ -288,6 +288,88 @@ var load3D = function() {
     sphere5.position.z = 2;
     sphere5.visible = false;
 
+    faceArr = [];
+    geometry = new THREE.PlaneGeometry(1, 1, 8, 8); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            side: THREE.DoubleSide,
+            color: 0x99FF99,
+            opacity: 0.8,
+            transparent: true,
+            wireframe: false
+    } );
+    face0 = new THREE.Mesh( geometry, material.clone() );
+    face0.value = 5;
+    faceArr.push(face0);
+    face0.receiveShadow = true;
+    face0.position.x = 0;
+    face0.position.y = 0.55;
+    face0.position.z = 0;
+    face0.visible = false;
+
+    face0.rotation.x = Math.PI/2;
+    face0.loadTexture(drawFace(5));
+
+    face1 = new THREE.Mesh( geometry, material.clone() );
+    face1.value = 1;
+    faceArr.push(face1);
+    face1.receiveShadow = true;
+    face1.position.x = -0.55;
+    face1.position.y = 0;
+    face1.position.z = 0;
+    face1.visible = false;
+
+    face1.rotation.y = Math.PI/2;
+    face1.loadTexture(drawFace(1));
+
+    face2 = new THREE.Mesh( geometry, material.clone() );
+    face2.value = 6;
+    faceArr.push(face2);
+    face2.receiveShadow = true;
+    face2.position.x = 0.55;
+    face2.position.y = 0;
+    face2.position.z = 0;
+    face2.visible = false;
+
+    face2.rotation.y = Math.PI/2;
+    face2.rotateZ(Math.PI/2);
+    face2.loadTexture(drawFace(6));
+
+    face3 = new THREE.Mesh( geometry, material.clone() );
+    face3.value = 2;
+    faceArr.push(face3);
+    face3.receiveShadow = true;
+    face3.position.x = 0;
+    face3.position.y = -0.55
+    face3.position.z = 0;
+    face3.visible = false;
+
+    face3.rotation.x = Math.PI/2;
+    face3.rotateZ(Math.PI/2);
+    face3.loadTexture(drawFace(2));
+
+    face4 = new THREE.Mesh( geometry, material.clone() );
+    face4.value = 4;
+    faceArr.push(face4);
+    face4.receiveShadow = true;
+    face4.position.x = 0;
+    face4.position.y = 0;
+    face4.position.z = -0.55;
+    face4.visible = false;
+
+    face4.loadTexture(drawFace(4));
+
+    face5 = new THREE.Mesh( geometry, material.clone() );
+    face5.value = 3;
+    faceArr.push(face5);
+    face5.receiveShadow = true;
+    face5.position.x = 0;
+    face5.position.y = 0;
+    face5.position.z = 0.55;
+    face5.visible = false;
+
+    face5.loadTexture(drawFace(3));
+
     geometry = new THREE.PlaneGeometry(5, 5, 8, 8); 
     var material = 
         new THREE.MeshStandardMaterial( { 
@@ -477,7 +559,6 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
     obj.castShadow = true;
     obj.userData.no = diceNo;
     obj.position.set(pos.x, pos.y, pos.z);
-
     obj.add(sphere.clone());
     for (var n = 1; n < 7; n++) {
         obj.add(locationArr[n-1].clone());
@@ -501,6 +582,7 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
 
     var dice = {
         no: diceNo,
+        faceArr: [],
         collided: false,
         material: 0,
         hasCamera: false,
@@ -569,6 +651,13 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
     obj.dice = dice;
     scene.add(dice.object);
     dice.collisionBox = obj.children[7];
+
+    for (var n = 1; n < 7; n++) {
+        var face = faceArr[n-1].clone();
+        face.value = faceArr[n-1].value;
+        dice.faceArr.push(face);
+        obj.add(face);
+    }
 
     dice.rollFrame = 0;
     dice.isRolling = false;
@@ -728,31 +817,37 @@ var endRoll = function(dice) {
     dice.rollFrame = 0;
     dice.isRolling = false;
 
-    geometry = new THREE.PlaneGeometry(1, 1, 8, 8); 
-    var material = 
-        new THREE.MeshStandardMaterial( { 
-            side: THREE.DoubleSide,
-            color: 0x99FF99,
-            opacity: 0.8,
-            transparent: true,
-            wireframe: false
-    } );
-    plane = new THREE.Mesh( geometry, material );
-    //plane.scale.set(10, 10, 1);
-    scene.add( plane );
-    plane.receiveShadow = true;
-    plane.position.x = dice.object.position.x;
-    plane.position.y = -2.9;
-    plane.position.z = dice.object.position.z;
-
-    plane.rotation.x = Math.PI/2;
-    plane.loadTexture(drawFace(
-    getDiceValue(dice.object, true)));
+    var number = getDiceValue(dice.object, true);
+    dropCover(dice, number);
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
         _say(getDiceValue(dice.object));
     }
+};
+
+var dropCover = function(dice, number) {
+    face = 
+    dice.faceArr.filter((o) => { return o.value == number; })[0];
+    var clone = face.clone();
+    var worldPosition = new THREE.Vector3();
+    face.getWorldPosition(worldPosition);
+    var worldQuaternion = new THREE.Quaternion();
+    face.getWorldQuaternion(worldQuaternion);
+    var worldRotation = new THREE.Euler();
+    worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
+    clone.position.set(
+        worldPosition.x,
+        worldPosition.y+0.1,
+        worldPosition.z
+    );
+    clone.rotation.set(
+        worldRotation.x,
+        worldRotation.y,
+        worldRotation.z
+    );
+    clone.visible = true;
+    scene.add(clone);
 };
 
 var language = "en-US";
