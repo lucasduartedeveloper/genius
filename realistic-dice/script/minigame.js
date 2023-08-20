@@ -942,12 +942,31 @@ var loadOBJ = function(path, callback) {
 };
 
 var routes = [
-    { from: 1, to: 3, moves: [ 3, 2, 1, 0, 1, 2, 3, 0 ] },
+    { from: 1, to: 2, moves: [ 1, 2, 3, 0 ] },
+    { from: 1, to: 3, moves: [ 3, 0, 1, 2, 3, 0, 1, 2 ] },
     { from: 1, to: 5, moves: [ 3, 0, 1, 2 ] },
     { from: 2, to: 3, moves: [ 3, 0, 1, 2 ] },
+    { from: 2, to: 5, moves: [ 3, 0, 1, 2, 2, 3, 0, 1 ] },
     { from: 3, to: 5, moves: [ 2, 3, 0, 1 ] },
-    { from: 6, to: 4, moves: [ 1, 2, 3, 0 ] }
+    { from: 4, to: 6, moves: [ 1, 2, 3, 0 ] }
 ];
+
+var getRoute = function(from, to) {
+    var route = [];
+    var fromRoutes = routes.filter((o) => o.from == from);
+    var toRoutes = routes.filter((o) => o.to == to);
+    for (var n = 0; n < fromRoutes.length; n++) {
+        if (fromRoutes[n].to == to)
+        route = [ ...fromRoutes[n].moves ];
+    }
+    for (var n = 0; n < toRoutes.length; n++) {
+        if (toRoutes[n].to == to) {
+            route = [ ...toRoutes[n].moves ];
+            route.reverse();
+        }
+    }
+    return route;
+};
 
 var bot = {
     isSolving: false,
@@ -960,6 +979,9 @@ var startBot = function() {
         stopBot();
         return;
     }
+    bot.route = 
+    getRoute(getDiceValue(dices[0].object), bot.route);
+
     bot.isSolving = true;
     botInterval = setInterval(function() {
         var gridX = dices[0].grid.x;
@@ -980,7 +1002,6 @@ var startBot = function() {
             else from = 3;
         }
 
-        var rnd = Math.floor(Math.random()*4);
         dices[0].beginRoll(from);
 
         if (gridX == bot.destination.x &&
