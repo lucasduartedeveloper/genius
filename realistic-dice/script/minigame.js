@@ -746,7 +746,8 @@ var endRoll = function(dice) {
     plane.position.z = dice.object.position.z;
 
     plane.rotation.x = Math.PI/2;
-    plane.loadTexture(drawFace(getDiceValue(dice.object)));
+    plane.loadTexture(drawFace(
+    getDiceValue(dice.object, true)));
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
@@ -916,7 +917,7 @@ var run = function() {
 
 var gamepadButtons = [];
 
-var getDiceValue = function(obj) {
+var getDiceValue = function(obj, under=false) {
     var brainObj = obj;
     var rotation = brainObj.rotation;
 
@@ -929,7 +930,11 @@ var getDiceValue = function(obj) {
     for (var n = 1; n < 7; n++) {
         //locationArr[n].getWorldPosition(pos);
         brainObj.children[n].getWorldPosition(pos);
-        if (pos.y > lastY) {
+        if (under && pos.y < lastY) {
+            tn = n;
+            lastY = pos.y;
+        }
+        else if (!under && pos.y > lastY) {
             tn = n;
             lastY = pos.y;
         }
@@ -1061,32 +1066,32 @@ var drawFace = function(number) {
         number == 4 || number == 5 ||
         number == 6) {
         ctx.beginPath();
-        ctx.moveTo(50, 50);
-        ctx.arc(50, 50, 30, 0, Math.PI*2);
+        ctx.moveTo(70, 70);
+        ctx.arc(70, 70, 30, 0, Math.PI*2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(250, 250);
-        ctx.arc(250, 250, 30, 0, Math.PI*2);
+        ctx.moveTo(230, 230);
+        ctx.arc(230, 230, 30, 0, Math.PI*2);
         ctx.fill();
     }
     if (number == 4 || number == 5 || number == 6) {
         ctx.beginPath();
-        ctx.moveTo(250, 50);
-        ctx.arc(250, 50, 30, 0, Math.PI*2);
+        ctx.moveTo(230, 70);
+        ctx.arc(230, 70, 30, 0, Math.PI*2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(50, 250);
-        ctx.arc(50, 250, 30, 0, Math.PI*2);
+        ctx.moveTo(70, 230);
+        ctx.arc(70, 230, 30, 0, Math.PI*2);
         ctx.fill();
     }
     if (number == 6) {
         ctx.beginPath();
-        ctx.moveTo(50, 150);
-        ctx.arc(50, 150, 30, 0, Math.PI*2);
+        ctx.moveTo(70, 150);
+        ctx.arc(70, 150, 30, 0, Math.PI*2);
         ctx.fill();
         ctx.beginPath();
-        ctx.moveTo(250, 150);
-        ctx.arc(250, 150, 30, 0, Math.PI*2);
+        ctx.moveTo(230, 150);
+        ctx.arc(230, 150, 30, 0, Math.PI*2);
         ctx.fill();
     }
 
@@ -1137,7 +1142,7 @@ var traceBack = function() {
     say(text);
 };
 
-THREE.Object3D.prototype.loadTexture = 
+THREE.Object3D.prototype.loadTextureNoCache = 
 function(url, n=0, type="D") {
 var rnd = Math.random();
 new THREE.TextureLoader().load(url+"?v="+rnd, 
