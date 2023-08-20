@@ -582,6 +582,7 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
 
     var dice = {
         no: diceNo,
+        trail: [],
         faceArr: [],
         collided: false,
         material: 0,
@@ -637,6 +638,7 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
 
             dices = dices.filter((o) => o.no != this.no);
             rigidBodies = rigidBodies.filter((o) => o.userData.no != this.no);
+            this.clearTrail();
         },
         paint: function(color, lock=false) {
             if (lock) this.paintLock = !this.paintLock ;
@@ -668,6 +670,12 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         if (dice.isRolling) return;
         this.rollPoint.rotation.set(0, 0, 0);
         beginRoll(this, from);
+    };
+
+    dice.clearTrail = function() {
+        for (var n = 0; n < this.trail.length; n++) {
+            scene.remove(dice.trail[n]);
+        }
     };
 
     addCube(dice.object);
@@ -847,6 +855,7 @@ var dropCover = function(dice, number) {
         worldRotation.z
     );
     clone.visible = true;
+    dice.trail.push(clone);
     scene.add(clone);
 };
 
