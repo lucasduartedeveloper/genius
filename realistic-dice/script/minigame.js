@@ -17,6 +17,10 @@ var language = language_id[language_no];
 
 var playingTime = 0;
 
+var isServer = false;
+var isShared = false;
+var version = "0.1";
+
 $(document).ready(function() {
     $("html, body").css("overflow-x", "hidden");
     $("html, body").css("overscroll-behavior", "none");
@@ -31,6 +35,17 @@ $(document).ready(function() {
             msg[2] == "remote-roll") {
             var from = parseInt(msg[3]);
             dices[0].beginRoll(from);
+        }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "server-search-"+(version)) {
+            if (isServer)
+            ws.send("PAPER|"+playerId+"|client-accepted");
+        }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "client-accepted") {
+            isShared = true;
         }
     };
 
@@ -301,12 +316,12 @@ var load3D = function() {
     sphere5.visible = false;
 
     faceArr = [];
-    geometry = new THREE.PlaneGeometry(1, 1, 8, 8); 
+    geometry = new THREE.PlaneGeometry(1.1, 1.1, 8, 8); 
     var material = 
         new THREE.MeshStandardMaterial( { 
             //side: THREE.DoubleSide,
-            color: 0x99FF99,
-            opacity: 0.8,
+            color: 0xFFFF55,
+            opacity: 1,
             transparent: true,
             wireframe: false
     } );
@@ -383,6 +398,10 @@ var load3D = function() {
 
     face5.loadTexture(drawFace(3));
 
+    for (var n = 0; n < 6; n++) {
+        faceArr[n].visible = true;
+    }
+
     geometry = new THREE.PlaneGeometry(1.1*5, 1.1*5, 5, 5); 
     var material = 
         new THREE.MeshStandardMaterial( { 
@@ -418,6 +437,7 @@ var load3D = function() {
     modes = StereoscopicEffects.effectsListForm();
     modes.value = defaultEffect;
     modes.style.position = 'absolute';
+    modes.style.textAlign = "center";
     modes.style.background = "#fff";
     modes.style.left = (((sw-変数)/2)+(sw/2)-(sw/2))+"px";
     modes.style.top = ((sw/9))+"px";
@@ -427,6 +447,20 @@ var load3D = function() {
         stereofx.setEffect(modes.value);
     });
     document.body.appendChild(modes);
+
+    serverButton = document.createElement("button");
+    serverButton.innerText = "Create Server";
+    serverButton.style.position = 'absolute';
+    serverButton.style.background = "#fff";
+    serverButton.style.left = (((sw-変数)/2)+(sw/2)-(sw/2))+"px";
+    serverButton.style.top = (0)+"px";
+    serverButton.style.width = (変数)+"px";
+    serverButton.style.height = (sw/9)+"px";
+    serverButton.onclick = function() {
+        isServer = true;
+        serverButton.innerText = "Connected: 0";
+    };
+    document.body.appendChild(serverButton);
 
     eyeSep = document.createElement("input");
     eyeSep.type = "range";
@@ -746,12 +780,12 @@ var isEqual = function(vector0, vector1, tollerance=0.25) {
 };
 
 var valueRotation = [
-   { x: 0, y: -90*(Math.PI/180), z: -90*(Math.PI/180) },
-   { x: 0, y: 0, z: -180*(Math.PI/180) },
-   { x: -90*(Math.PI/180), y: 0, z: -90*(Math.PI/180) },
+   { x: 0, y: -270*(Math.PI/180), z: -90*(Math.PI/180) },
+   { x: 0, y: -270*(Math.PI/180), z: -180*(Math.PI/180) },
+   { x: -90*(Math.PI/180), y: 0, z: 0 },
    { x: 90*(Math.PI/180), y: 0, z: 0 },
    { x: 0, y: 0, z: 0 },
-   { x: 0, y: 0, z: 90*(Math.PI/180) }
+   { x: 0, y: -180*(Math.PI/180), z: 90*(Math.PI/180) }
 ];
 
 var setDiceValue = function(obj, value) {
@@ -858,8 +892,14 @@ var endRoll = function(dice) {
         var value = getDiceValue(dice.object);
         if (dice.grid.x == checkpoint.position.x &&
              dice.grid.y == checkpoint.position.y) {
-             //console.log(checkpoint.object.rotation);
-             //console.log(worldRotation);
+             console.log(checkpoint.object.rotation);
+             console.log(worldRotation);
+
+             checkpoint.object.rotation.set(
+                 worldRotation.x,
+                 worldRotation.y,
+                 worldRotation.z
+             );
 
              if (value == checkpoint.number) {
                  var color = new THREE.Color( 0xFFFF55 );
@@ -935,7 +975,7 @@ var createCheckpoint = function(x, y, number) {
     geometry = new THREE.PlaneGeometry(1, 1, 8, 8); 
     var material = 
         new THREE.MeshStandardMaterial( { 
-            side: THREE.DoubleSide,
+            //side: THREE.DoubleSide,
             color: 0x55FFFF,
             opacity: 0.8,
             transparent: true,
@@ -948,7 +988,7 @@ var createCheckpoint = function(x, y, number) {
     obj.position.y = -2.9;
     obj.position.z = (y*1.1)-(2*1.1);
 
-    obj.rotation.x = (Math.PI/2);
+    obj.rotation.x = -(Math.PI/2);
     obj.loadTexture(drawFace(number));
 
     scene.add(obj);
@@ -1251,7 +1291,8 @@ var stopBot = function() {
     clearInterval(botInterval);
 };
 
-var drawFace = function(number) {
+var diceType = "numbers";
+var drawFace = function(number, type=diceType) {
     var canvas = document.createElement("canvas");
     canvas.width = 300;
     canvas.height = 300;
@@ -1260,10 +1301,18 @@ var drawFace = function(number) {
     ctx.fillRect(0, 0, 300, 300);
 
     ctx.strokeStyle = "#000";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 5;
     ctx.strokeRect(1, 1, 298, 298);
 
+    ctx.font = "250px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
     ctx.fillStyle = "#000";
+    if (type == "numbers") {
+        ctx.fillText(number, 150, 165);
+        return canvas.toDataURL();
+    }
 
     if (number == 1 || number == 3 || number == 5) {
         ctx.beginPath();
