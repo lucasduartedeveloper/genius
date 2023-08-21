@@ -49,8 +49,30 @@ $(document).ready(function() {
         }
     };
 
-    load3D();
+    loadImages(function() {
+        load3D();
+    });
 });
+
+var sprite_idle = [
+    "img/steel-box-1.png"
+];
+
+var loadImages = function(callback) {
+    var count = 0;
+    for (var n = 0; n < sprite_idle.length; n++) {
+        var img = document.createElement("img");
+        img.n = n;
+        img.onload = function() {
+            count += 1;
+            sprite_idle[this.n] = this;
+            if (count == sprite_idle.length)
+            callback();
+        };
+        var rnd = Math.random();
+        img.src = sprite_idle[n]+"?f="+rnd;
+    }
+};
 
 var rotate2d = function(c, p, angle, deg=true) {
     var cx = c.x;
@@ -320,7 +342,7 @@ var load3D = function() {
     var material = 
         new THREE.MeshStandardMaterial( { 
             //side: THREE.DoubleSide,
-            color: 0xFFFF55,
+            //color: 0xFFFF55,
             opacity: 1,
             transparent: true,
             wireframe: false
@@ -335,7 +357,7 @@ var load3D = function() {
     face0.visible = false;
 
     face0.rotation.x = -Math.PI/2;
-    face0.loadTexture(drawFace(5));
+    face0.loadTexture(drawFace(5, diceType, 0));
 
     face1 = new THREE.Mesh( geometry, material.clone() );
     face1.value = 1;
@@ -347,7 +369,7 @@ var load3D = function() {
     face1.visible = false;
 
     face1.rotation.y = -Math.PI/2;
-    face1.loadTexture(drawFace(1));
+    face1.loadTexture(drawFace(1, diceType, 0));
 
     face2 = new THREE.Mesh( geometry, material.clone() );
     face2.value = 6;
@@ -360,7 +382,7 @@ var load3D = function() {
 
     face2.rotation.y = Math.PI/2;
     face2.rotateZ(Math.PI/2);
-    face2.loadTexture(drawFace(6));
+    face2.loadTexture(drawFace(6, diceType, 0));
 
     face3 = new THREE.Mesh( geometry, material.clone() );
     face3.value = 2;
@@ -373,7 +395,7 @@ var load3D = function() {
 
     face3.rotation.x = Math.PI/2;
     face3.rotateZ(Math.PI/2);
-    face3.loadTexture(drawFace(2));
+    face3.loadTexture(drawFace(2, diceType, 0));
 
     face4 = new THREE.Mesh( geometry, material.clone() );
     face4.value = 4;
@@ -385,7 +407,7 @@ var load3D = function() {
     face4.visible = false;
 
     face4.rotation.x = -Math.PI;
-    face4.loadTexture(drawFace(4));
+    face4.loadTexture(drawFace(4, diceType, 0));
 
     face5 = new THREE.Mesh( geometry, material.clone() );
     face5.value = 3;
@@ -396,7 +418,7 @@ var load3D = function() {
     face5.position.z = 0.55;
     face5.visible = false;
 
-    face5.loadTexture(drawFace(3));
+    face5.loadTexture(drawFace(3, diceType, 0));
 
     for (var n = 0; n < 6; n++) {
         faceArr[n].visible = true;
@@ -440,6 +462,7 @@ var load3D = function() {
     plane.position.z = 0;
 
     plane.rotation.x = Math.PI/2;
+    plane.loadTexture("img/grass-texture-0.png");
 
     // wireframe
     var geo = new THREE.EdgesGeometry( plane.geometry ); 
@@ -522,7 +545,7 @@ var load3D = function() {
     document.body.appendChild(pauseButton);
 
     // instantiate a loader
-   loadOBJ("img/dice_color.obj",
+    loadOBJ("img/dice_color.obj",
     function ( object ) {
         brainObj.add( object );
         object.castShadow = true;
@@ -1337,7 +1360,7 @@ var stopBot = function() {
 };
 
 var diceType = "numbers";
-var drawFace = function(number, type=diceType) {
+var drawFace = function(number, type=diceType, texture=-1) {
     var canvas = document.createElement("canvas");
     canvas.width = 300;
     canvas.height = 300;
@@ -1354,6 +1377,11 @@ var drawFace = function(number, type=diceType) {
     ctx.textBaseline = "middle";
 
     ctx.fillStyle = "#000";
+    if (texture > -1) {
+        ctx.fillStyle = "#fff";
+        ctx.drawImage(sprite_idle[texture], 0, 0, 300, 300);
+    }
+
     if (type == "text") {
         ctx.font = "200px sans-serif";
         ctx.fillText(number, 150, 165);
