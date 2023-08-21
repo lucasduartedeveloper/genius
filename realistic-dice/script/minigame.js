@@ -402,6 +402,26 @@ var load3D = function() {
         faceArr[n].visible = true;
     }
 
+    geometry = new THREE.PlaneGeometry(1.1, 1.1, 8, 8); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            //side: THREE.DoubleSide,
+            color: 0xFF9955,
+            opacity: 1,
+            transparent: true,
+            wireframe: false
+    } );
+    rotationTarget = new THREE.Mesh( geometry, material.clone() );
+    scene.add(rotationTarget);
+    rotationTarget.value = 5;
+    rotationTarget.receiveShadow = true;
+    rotationTarget.position.x = 4*1.1;
+    rotationTarget.position.y = -2.9;
+    rotationTarget.position.z = -4*1.1;
+
+    rotationTarget.rotation.x = -(Math.PI/2);
+    rotationTarget.loadTexture(drawFace("A", "text"));
+
     geometry = new THREE.PlaneGeometry(1.1*5, 1.1*5, 5, 5); 
     var material = 
         new THREE.MeshStandardMaterial( { 
@@ -897,6 +917,12 @@ var endRoll = function(dice) {
              //console.log(checkpoint.object.rotation);
              //console.log(worldRotation);
 
+             rotationTarget.rotation.set(
+                 worldRotation.x,
+                 worldRotation.y,
+                 worldRotation.z
+             );
+
              if (value == checkpoint.number &&
                  validateRotation(topCover.rotation, 
                  worldRotation)) {
@@ -1319,6 +1345,11 @@ var drawFace = function(number, type=diceType) {
     ctx.textBaseline = "middle";
 
     ctx.fillStyle = "#000";
+    if (type == "text") {
+        ctx.font = "200px sans-serif";
+        ctx.fillText(number, 150, 165);
+        return canvas.toDataURL();
+    }
     if (type == "numbers") {
         ctx.fillText(number, 150, 165);
         return canvas.toDataURL();
