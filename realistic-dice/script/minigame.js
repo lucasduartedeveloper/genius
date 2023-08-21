@@ -924,7 +924,7 @@ var endRoll = function(dice) {
              );
 
              if (value == checkpoint.number &&
-                 validateRotation(topCover.rotation, 
+                 validateRotation(checkpoint.object.rotation, 
                  worldRotation)) {
                  var color = new THREE.Color( 0xFFFF55 );
                  checkpoint.object.material.color = color;
@@ -949,13 +949,22 @@ var endRoll = function(dice) {
 
 var validateRotation = function(euler0, euler1) {
     var result = false;
+    console.log(" --- validate rotation --- ");
     console.log(euler0.x.toFixed(5), euler1.x.toFixed(5));
     console.log(euler0.y.toFixed(5), euler1.y.toFixed(5));
     console.log(euler0.z.toFixed(5), euler1.z.toFixed(5));
 
-    result = euler0.x.toFixed(5) == euler1.x.toFixed(5);
-    result = result && euler0.y.toFixed(5) == euler1.y.toFixed(5);
-    result = result && euler0.z.toFixed(5) == euler1.z.toFixed(5);
+    var euler0x = parseFloat(euler0.x.toFixed(3));
+    var euler0y = parseFloat(euler0.y.toFixed(3));
+    var euler0z = parseFloat(euler0.z.toFixed(3));
+
+    var euler1x = parseFloat(euler1.x.toFixed(3));
+    var euler1y = parseFloat(euler1.y.toFixed(3));
+    var euler1z = parseFloat(euler1.z.toFixed(3));
+
+    result = euler0x == euler1x;
+    result = result && euler0y == euler1y;
+    result = result && euler0z == euler1z;
     return result;
 };
 
