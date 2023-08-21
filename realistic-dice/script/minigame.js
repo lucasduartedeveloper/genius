@@ -882,6 +882,8 @@ var endRoll = function(dice) {
     dice.isRolling = false;
 
     var topCover = getTopCover(dice);
+    var worldPosition = new THREE.Vector3();
+    topCover.getWorldPosition(worldPosition);
     var worldQuaternion = new THREE.Quaternion();
     topCover.getWorldQuaternion(worldQuaternion);
     var worldRotation = new THREE.Euler();
@@ -892,16 +894,12 @@ var endRoll = function(dice) {
         var value = getDiceValue(dice.object);
         if (dice.grid.x == checkpoint.position.x &&
              dice.grid.y == checkpoint.position.y) {
-             console.log(checkpoint.object.rotation);
-             console.log(worldRotation);
+             //console.log(checkpoint.object.rotation);
+             //console.log(worldRotation);
 
-             checkpoint.object.rotation.set(
-                 worldRotation.x,
-                 worldRotation.y,
-                 worldRotation.z
-             );
-
-             if (value == checkpoint.number) {
+             if (value == checkpoint.number &&
+                 validateRotation(topCover.rotation, 
+                 worldRotation)) {
                  var color = new THREE.Color( 0xFFFF55 );
                  checkpoint.object.material.color = color;
                  checkpoint.done = true;
@@ -921,6 +919,18 @@ var endRoll = function(dice) {
          dice.object.position.z == 0) {
         _say(getDiceValue(dice.object));
     }
+};
+
+var validateRotation = function(euler0, euler1) {
+    var result = false;
+    console.log(euler0.x.toFixed(5), euler1.x.toFixed(5));
+    console.log(euler0.y.toFixed(5), euler1.y.toFixed(5));
+    console.log(euler0.z.toFixed(5), euler1.z.toFixed(5));
+
+    result = euler0.x.toFixed(5) == euler1.x.toFixed(5);
+    result = result && euler0.y.toFixed(5) == euler1.y.toFixed(5);
+    result = result && euler0.z.toFixed(5) == euler1.z.toFixed(5);
+    return result;
 };
 
 var dropCover = function(dice, number) {
@@ -955,7 +965,7 @@ var getTopCover = function(dice) {
     var lastY = pos.y;
 
     for (var n = 1; n < 6; n++) {
-        dice.faceArr[tn].getWorldPosition(pos);
+        dice.faceArr[n].getWorldPosition(pos);
         if (pos.y > lastY) {
             tn = n;
             lastY = pos.y;
