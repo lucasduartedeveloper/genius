@@ -304,7 +304,7 @@ var load3D = function() {
     geometry = new THREE.PlaneGeometry(1, 1, 8, 8); 
     var material = 
         new THREE.MeshStandardMaterial( { 
-            side: THREE.DoubleSide,
+            //side: THREE.DoubleSide,
             color: 0x99FF99,
             opacity: 0.8,
             transparent: true,
@@ -319,7 +319,7 @@ var load3D = function() {
     face0.position.z = 0;
     face0.visible = false;
 
-    face0.rotation.x = Math.PI/2;
+    face0.rotation.x = -Math.PI/2;
     face0.loadTexture(drawFace(5));
 
     face1 = new THREE.Mesh( geometry, material.clone() );
@@ -331,7 +331,7 @@ var load3D = function() {
     face1.position.z = 0;
     face1.visible = false;
 
-    face1.rotation.y = Math.PI/2;
+    face1.rotation.y = -Math.PI/2;
     face1.loadTexture(drawFace(1));
 
     face2 = new THREE.Mesh( geometry, material.clone() );
@@ -369,6 +369,7 @@ var load3D = function() {
     face4.position.z = -0.55;
     face4.visible = false;
 
+    face4.rotation.x = -Math.PI;
     face4.loadTexture(drawFace(4));
 
     face5 = new THREE.Mesh( geometry, material.clone() );
@@ -846,16 +847,19 @@ var endRoll = function(dice) {
     dice.rollFrame = 0;
     dice.isRolling = false;
 
-    var number = getDiceValue(dice.object, true);
-    //dropCover(dice, number);
+    var topCover = getTopCover(dice);
+    var worldQuaternion = new THREE.Quaternion();
+    topCover.getWorldQuaternion(worldQuaternion);
+    var worldRotation = new THREE.Euler();
+    worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
 
     for (var n = 0; n < checkpoints.length; n++) {
         var checkpoint = checkpoints[n];
         var value = getDiceValue(dice.object);
         if (dice.grid.x == checkpoint.position.x &&
              dice.grid.y == checkpoint.position.y) {
-             //console.log(valueRotation[value-1]);
-             //console.log(dice.object.rotation);
+             //console.log(checkpoint.object.rotation);
+             //console.log(worldRotation);
 
              if (value == checkpoint.number) {
                  var color = new THREE.Color( 0xFFFF55 );
@@ -870,13 +874,8 @@ var endRoll = function(dice) {
         }
     }
 
-    var topCover = getTopCover(dice);
-    var worldQuaternion = new THREE.Quaternion();
-    topCover.getWorldQuaternion(worldQuaternion);
-    var worldRotation = new THREE.Euler();
-    worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
-    var faceRotation = 
-    convertRotation(topCover.value, worldRotation);
+    var number = getDiceValue(dice.object, true);
+    //dropCover(dice, number);
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
@@ -923,14 +922,6 @@ var getTopCover = function(dice) {
         }
     }
     return dice.faceArr[tn];
-};
-
-var convertRotation = function(value, rotation) {
-    var result = new THREE.Euler();
-    result.x = rotation.x - valueRotation[value-1].x;
-    result.y = rotation.y - valueRotation[value-1].y;
-    result.z = rotation.z - valueRotation[value-1].z;
-    return result;
 };
 
 var checkpoints = [];
