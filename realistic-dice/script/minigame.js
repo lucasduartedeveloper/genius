@@ -485,7 +485,7 @@ var load3D = function() {
     rotationTarget.position.z = -4*1.1;
 
     rotationTarget.rotation.x = -(Math.PI/2);
-    rotationTarget.loadTexture(drawFace("A", "text"));
+    rotationTarget.loadTexture(drawFace("∆", "text"));
 
     geometry = new THREE.PlaneGeometry(1.1*7, 1.1*7, 5, 5); 
     var material = 
@@ -1058,8 +1058,6 @@ var endRoll = function(dice) {
     dice.object.position.x = (gridX*1.1)-(2*1.1);
     dice.object.position.z = (gridY*1.1)-(2*1.1);
 
-    updateBody(dice.object);
-    dice.object.userData.pausePhysics = false;
     dice.rollFrame = 0;
     dice.isRolling = false;
 
@@ -1101,6 +1099,12 @@ var endRoll = function(dice) {
                  var color = new THREE.Color( 0xFFFF55 );
                  checkpoint.object.material.color = color;
                  checkpoint.done = true;
+
+                 dice.grid.x = 2;
+                 dice.grid.y = 2;
+
+                 dice.object.position.x = (2*1.1)-(2*1.1);
+                 dice.object.position.z = (2*1.1)-(2*1.1);
              }
              else {
                  for (var k = 0; k < checkpoints.length; k++) {
@@ -1110,9 +1114,18 @@ var endRoll = function(dice) {
                      checkpoint.done = false;
                  }
                  break;
+
+                 dice.grid.x = 2;
+                 dice.grid.y = 2;
+
+                 dice.object.position.x = (2*1.1)-(2*1.1);
+                 dice.object.position.z = (2*1.1)-(2*1.1);
              }
         }
     }
+
+    updateBody(dice.object);
+    dice.object.userData.pausePhysics = false;
 
     var number = getDiceValue(dice.object, true);
     //dropCover(dice, number);
@@ -1258,6 +1271,12 @@ var endPull = function(dice) {
                  var color = new THREE.Color( 0xFFFF55 );
                  checkpoint.object.material.color = color;
                  checkpoint.done = true;
+
+                 dice.grid.x = 2;
+                 dice.grid.y = 2;
+
+                 dice.object.position.x = (2*1.1)-(2*1.1);
+                 dice.object.position.z = (2*1.1)-(2*1.1);
              }
              else {
                  for (var k = 0; k < checkpoints.length; k++) {
@@ -1267,6 +1286,12 @@ var endPull = function(dice) {
                      checkpoint.done = false;
                  }
                  break;
+
+                 dice.grid.x = 2;
+                 dice.grid.y = 2;
+
+                 dice.object.position.x = (2*1.1)-(2*1.1);
+                 dice.object.position.z = (2*1.1)-(2*1.1);
              }
         }
     }
@@ -1277,6 +1302,9 @@ var endPull = function(dice) {
     dice.pullFrame = 0;
     dice.isPulling = false;
     scene.remove(dice.rollPoint);
+
+    updateBody(dice.object);
+    dice.object.userData.pausePhysics = false;
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
