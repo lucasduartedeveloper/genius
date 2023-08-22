@@ -897,7 +897,7 @@ var valueRotation = [
 ];
 
 var setDiceValue = function(dice, value) {
-    if (dice.grid.x != 2 || dice.grid.y != 2) return;
+    //if (dice.grid.x != 2 || dice.grid.y != 2) return;
     var dot = locationArr.filter((o) => { return o.value == value; })[0];
     var rx = valueRotation[value-1].x;
     var ry = valueRotation[value-1].y;
@@ -1603,3 +1603,20 @@ new THREE.TextureLoader().load(url+"?v="+rnd,
         console.log("An error happened", error);
     });
 };
+
+document.body.addEventListener("keydown", function(e) {
+    switch(e.keyCode) {
+        case 37:
+            dices[0].beginRoll(2);
+            break;
+        case 38:
+            dices[0].beginRoll(3);
+            break;
+        case 39:
+            dices[0].beginRoll(0);
+            break;
+        case 40:
+            dices[0].beginRoll(1);
+            break;
+    }
+});
