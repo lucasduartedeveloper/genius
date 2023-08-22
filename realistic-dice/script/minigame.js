@@ -55,7 +55,7 @@ $(document).ready(function() {
 });
 
 var sprite_idle = [
-    "img/steel-box-2.png"
+    "img/wood-box-2.png"
 ];
 
 var loadImages = function(callback) {
@@ -370,6 +370,7 @@ var load3D = function() {
 
     face0.rotation.x = -Math.PI/2;
     face0.loadTexture(drawFace(5, diceType, 0));
+    face0.loadTextureNormal("img/wood-box-2_n.png");
 
     face1 = new THREE.Mesh( geometry, material.clone() );
     face1.value = 1;
@@ -383,6 +384,7 @@ var load3D = function() {
 
     face1.rotation.y = -Math.PI/2;
     face1.loadTexture(drawFace(1, diceType, 0));
+    face1.loadTextureNormal("img/wood-box-2_n.png");
 
     face2 = new THREE.Mesh( geometry, material.clone() );
     face2.value = 6;
@@ -397,6 +399,7 @@ var load3D = function() {
     face2.rotation.y = Math.PI/2;
     face2.rotateZ(Math.PI/2);
     face2.loadTexture(drawFace(6, diceType, 0));
+    face2.loadTextureNormal("img/wood-box-2_n.png");
 
     face3 = new THREE.Mesh( geometry, material.clone() );
     face3.value = 2;
@@ -409,8 +412,9 @@ var load3D = function() {
     face3.visible = false;
 
     face3.rotation.x = Math.PI/2;
-    face3.rotateZ(Math.PI/2);
+    //face3.rotateZ(-(Math.PI/2));
     face3.loadTexture(drawFace(2, diceType, 0));
+    face3.loadTextureNormal("img/wood-box-2_n.png");
 
     face4 = new THREE.Mesh( geometry, material.clone() );
     face4.value = 4;
@@ -423,7 +427,9 @@ var load3D = function() {
     face4.visible = false;
 
     face4.rotation.x = -Math.PI;
+    face4.rotateZ(Math.PI/2);
     face4.loadTexture(drawFace(4, diceType, 0));
+    face4.loadTextureNormal("img/wood-box-2_n.png");
 
     face5 = new THREE.Mesh( geometry, material.clone() );
     face5.value = 3;
@@ -435,7 +441,9 @@ var load3D = function() {
     face5.position.z = 0.55;
     face5.visible = false;
 
+    face5.rotation.z = -Math.PI/2;
     face5.loadTexture(drawFace(3, diceType, 0));
+    face5.loadTextureNormal("img/wood-box-2_n.png");
 
     for (var n = 0; n < 6; n++) {
         faceArr[n].visible = true;
@@ -484,7 +492,7 @@ var load3D = function() {
     geometry = new THREE.BoxGeometry(0.275, 7*1.1, 1.1); 
     var material = 
         new THREE.MeshStandardMaterial( { 
-            //color: 0xFCA903,
+            //color: 0x555599,
             //opacity: 0.8,
             transparent: true,
             wireframe: false
@@ -779,7 +787,7 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
             push(this.object, from);
         },
         setValue: function(value) {
-            setDiceValue(this.object, value);
+            setDiceValue(this, value);
         },
         getValue: function() {
             return getDiceValue(this.object);
@@ -881,22 +889,23 @@ var isEqual = function(vector0, vector1, tollerance=0.25) {
 
 var valueRotation = [
    { x: 0, y: -270*(Math.PI/180), z: -90*(Math.PI/180) },
-   { x: 0, y: -270*(Math.PI/180), z: -180*(Math.PI/180) },
-   { x: -90*(Math.PI/180), y: 0, z: 0 },
-   { x: 90*(Math.PI/180), y: 0, z: 0 },
+   { x: 0, y: -180*(Math.PI/180), z: -180*(Math.PI/180) },
+   { x: -90*(Math.PI/180), y: 0, z: -270*(Math.PI/180) },
+   { x: 90*(Math.PI/180), y: 0, z: 90*(Math.PI/180) },
    { x: 0, y: 0, z: 0 },
    { x: 0, y: -180*(Math.PI/180), z: 90*(Math.PI/180) }
 ];
 
-var setDiceValue = function(obj, value) {
+var setDiceValue = function(dice, value) {
+    if (dice.grid.x != 2 || dice.grid.y != 2) return;
     var dot = locationArr.filter((o) => { return o.value == value; })[0];
     var rx = valueRotation[value-1].x;
     var ry = valueRotation[value-1].y;
     var rz = valueRotation[value-1].z;
 
-    obj.rotation.set(rx, ry, rz);
-    obj.userData.physicsBody.pausePhysics = false;
-    updateBody(obj);
+    dice.object.rotation.set(rx, ry, rz);
+    dice.object.userData.physicsBody.pausePhysics = false;
+    updateBody(dice.object);
 };
 
 var beginRoll = function(dice, from) {
@@ -1021,9 +1030,13 @@ var endRoll = function(dice) {
                  checkpoint.done = true;
              }
              else {
-                 var color = new THREE.Color( 0x55FFFF );
-                 checkpoint.object.material.color = color;
-                 checkpoint.done = false;
+                 for (var k = 0; k < checkpoints.length; k++) {
+                     var checkpoint = checkpoints[k];
+                     var color = new THREE.Color( 0x55FFFF );
+                     checkpoint.object.material.color = color;
+                     checkpoint.done = false;
+                 }
+                 break;
              }
         }
     }
@@ -1551,7 +1564,7 @@ var traceBack = function() {
     say(text);
 };
 
-THREE.Object3D.prototype.loadTextureNoCache = 
+THREE.Object3D.prototype.loadTextureNormal = 
 function(url, n=0, type="D") {
 var rnd = Math.random();
 new THREE.TextureLoader().load(url+"?v="+rnd, 
@@ -1560,7 +1573,7 @@ new THREE.TextureLoader().load(url+"?v="+rnd,
         if (this.material && 
             typeof this.material.length == "undefined") {
             this.material.transparent = true;
-            this.material.map = texture;
+            this.material.normalMap = texture;
             this.material.needsUpdate = true;
         }
         else if (this.material) {
