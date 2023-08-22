@@ -532,12 +532,46 @@ var load3D = function() {
 
     leftRamp.loadTextureEx("img/stone-tile-0.png", 0, 7);
 
-    topRamp = new THREE.Mesh( geometry, material );
+    geometry1 = new THREE.BoxGeometry(0.275, 3*1.1, 1.1); 
+    var material1 = 
+        new THREE.MeshStandardMaterial( { 
+            //color: 0x555599,
+            //opacity: 0.8,
+            transparent: true,
+            wireframe: false
+    } );
+    topRamp = new THREE.Mesh( geometry1, material1 );
     scene.add( topRamp );
-    topRamp.position.x = 0;
+    topRamp.position.x = -2*1.1;
     topRamp.position.y = -3+((0.5*1.1)/4);
     topRamp.position.z = -3*1.1;
     topRamp.rotation.z = -(Math.PI/2);
+
+    topRamp.loadTextureEx("img/stone-tile-0.png", 0, 3);
+
+    topRamp2 = new THREE.Mesh( geometry1, material1 );
+    scene.add( topRamp2 );
+    topRamp2.position.x = 2*1.1;
+    topRamp2.position.y = -3+((0.5*1.1)/4);
+    topRamp2.position.z = -3*1.1;
+    topRamp2.rotation.z = -(Math.PI/2);
+
+    geometry2 = new THREE.BoxGeometry(0.275, 1.1, 1.1); 
+    var material2 = 
+        new THREE.MeshStandardMaterial( { 
+            //color: 0x555599,
+            //opacity: 0.8,
+            transparent: true,
+            wireframe: false
+    } );
+    exitTile = new THREE.Mesh( geometry2, material2 );
+    scene.add( exitTile );
+    exitTile.position.x = 0;
+    exitTile.position.y = -3+((0.5*1.1)/4);
+    exitTile.position.z = -3*1.1;
+    exitTile.rotation.z = -(Math.PI/2);
+
+    exitTile.loadTextureEx("img/stone-tile-0.png", 0, 1);
 
     rightRamp = new THREE.Mesh( geometry, material );
     scene.add( rightRamp );
@@ -1106,6 +1140,15 @@ var endRoll = function(dice) {
 
                  dice.object.position.x = (2*1.1)-(2*1.1);
                  dice.object.position.z = (2*1.1)-(2*1.1);
+
+                 var doneCount = 0;
+                 for (var k = 0; k < checkpoints.length; k++) {
+                     var checkpoint = checkpoints[k];
+                     if (checkpoint.done)
+                     doneCount += 1;
+                 }
+                 if (doneCount == checkpoints.length)
+                 exitTile.visible = false;
              }
              else {
                  for (var k = 0; k < checkpoints.length; k++) {
@@ -1114,13 +1157,14 @@ var endRoll = function(dice) {
                      checkpoint.object.material.color = color;
                      checkpoint.done = false;
                  }
-                 break;
 
                  dice.grid.x = 2;
                  dice.grid.y = 2;
 
                  dice.object.position.x = (2*1.1)-(2*1.1);
                  dice.object.position.z = (2*1.1)-(2*1.1);
+                 exitTile.visible = true;
+                 break;
              }
         }
     }
@@ -1279,6 +1323,15 @@ var endPull = function(dice) {
 
                  dice.object.position.x = (2*1.1)-(2*1.1);
                  dice.object.position.z = (2*1.1)-(2*1.1);
+
+                 var doneCount = 0;
+                 for (var k = 0; k < checkpoints.length; k++) {
+                     var checkpoint = checkpoints[k];
+                     if (checkpoint.done)
+                     doneCount += 1;
+                 }
+                 if (doneCount == checkpoints.length)
+                 exitTile.visible = false;
              }
              else {
                  for (var k = 0; k < checkpoints.length; k++) {
@@ -1287,13 +1340,14 @@ var endPull = function(dice) {
                      checkpoint.object.material.color = color;
                      checkpoint.done = false;
                  }
-                 break;
 
                  dice.grid.x = 2;
                  dice.grid.y = 2;
 
                  dice.object.position.x = (2*1.1)-(2*1.1);
                  dice.object.position.z = (2*1.1)-(2*1.1);
+                 exitTile.visible = true;
+                 break;
              }
         }
     }
