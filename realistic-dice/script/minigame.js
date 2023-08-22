@@ -489,6 +489,13 @@ var load3D = function() {
     plane.rotation.x = Math.PI/2;
     plane.loadTexture("img/grass-texture-1.png");
 
+    // wireframe
+    var geo = new THREE.EdgesGeometry( plane.geometry ); 
+    // or WireframeGeometry
+    var mat = new THREE.LineBasicMaterial( { color: 0xFFFFFF } );
+    var wireframe = new THREE.LineSegments( geo, mat );
+    //plane.add( wireframe );
+
     geometry = new THREE.BoxGeometry(0.275, 7*1.1, 1.1); 
     var material = 
         new THREE.MeshStandardMaterial( { 
@@ -500,7 +507,7 @@ var load3D = function() {
     leftRamp = new THREE.Mesh( geometry, material );
     scene.add( leftRamp );
     leftRamp.position.x = -3*1.1;
-    leftRamp.position.y = -3.5+(0.5*1.1);
+    leftRamp.position.y = -3+((0.5*1.1)/4);
     leftRamp.position.z = 0;
     leftRamp.rotation.x = -(Math.PI/2);
     leftRamp.rotation.y = -(Math.PI/2);
@@ -510,14 +517,14 @@ var load3D = function() {
     topRamp = new THREE.Mesh( geometry, material );
     scene.add( topRamp );
     topRamp.position.x = 0;
-    topRamp.position.y = -3.5+(0.5*1.1);
+    topRamp.position.y = -3+((0.5*1.1)/4);
     topRamp.position.z = -3*1.1;
     topRamp.rotation.z = -(Math.PI/2);
 
     rightRamp = new THREE.Mesh( geometry, material );
     scene.add( rightRamp );
     rightRamp.position.x = 3*1.1;
-    rightRamp.position.y = -3.5+(0.5*1.1);
+    rightRamp.position.y = -3+((0.5*1.1)/4);
     rightRamp.position.z = 0;
     rightRamp.rotation.x = -(Math.PI/2);
     rightRamp.rotation.y = -(Math.PI/2);
@@ -525,16 +532,9 @@ var load3D = function() {
     bottomRamp = new THREE.Mesh( geometry, material );
     scene.add( bottomRamp );
     bottomRamp.position.x = 0;
-    bottomRamp.position.y = -3.5+(0.5*1.1);
+    bottomRamp.position.y = -3+((0.5*1.1)/4);
     bottomRamp.position.z = 3*1.1;
     bottomRamp.rotation.z = -(Math.PI/2);
-
-    // wireframe
-    var geo = new THREE.EdgesGeometry( plane.geometry ); 
-    // or WireframeGeometry
-    var mat = new THREE.LineBasicMaterial( { color: 0xFFFFFF } );
-    var wireframe = new THREE.LineSegments( geo, mat );
-    plane.add( wireframe );
 
     const defaultEffect = 0; // Single view left
     //const defaultEffect = 21; // Anaglyph RC half-colors
