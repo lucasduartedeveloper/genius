@@ -159,14 +159,13 @@ var load3D = function() {
             if (offsetY < 0) from = 3;
             else from = 1;
         }
-        dices[0].beginRoll(from);
 
+        if (new Date().getTime()-startTime > 3000) {
+            controls.enabled = !controls.enabled;
+        }
         if (!controls.enabled) {
             ws.send("PAPER|"+playerId+"|remote-roll|"+from);
             dices[0].beginRoll(from);
-        }
-        if (new Date().getTime()-startTime > 5000) {
-            controls.enabled = !controls.enabled;
         }
     };
 
