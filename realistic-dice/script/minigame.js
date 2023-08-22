@@ -34,7 +34,13 @@ $(document).ready(function() {
             msg[1] != playerId &&
             msg[2] == "remote-roll") {
             var from = parseInt(msg[3]);
-            dices[0].beginRoll(from);
+            dices[1].beginRoll(from);
+        }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-pull") {
+            var from = parseInt(msg[3]);
+            dices[1].beginPull(from);
         }
         else if (msg[0] == "PAPER" &&
             msg[1] != playerId &&
@@ -838,6 +844,20 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
     dice.rollPoint = new THREE.Group();
     dice.rollingFrom = 0;
 
+    geometry = new THREE.CylinderGeometry(0.03, 0.03, 15); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            side: THREE.DoubleSide,
+            color: 0xFFFFFF,
+            emissive: 0xFFFFFF,
+            opacity: 1,
+            transparent: true,
+            wireframe: false
+    } );
+    dice.line = new THREE.Mesh( geometry, material );
+    dice.rollPoint.add( dice.line );
+    dice.line.receiveShadow = true;
+
     dice.beginRoll = function(from) {
         if (from == 0 && dice.grid.x == 4) return;
         if (from == 1 && dice.grid.y == 4) return;
@@ -948,6 +968,29 @@ var beginRoll = function(dice, from) {
     point.position.y = dice.object.position.y - offsetY;
     point.position.z = dice.object.position.z - offsetZ;
 
+    var line = dice.line;
+    line.position.x = 0;
+    line.position.y = 0;
+    line.position.z = 0;
+
+    line.rotation.x = -Math.PI/2;
+
+    if (from == 0) {
+        line.position.x -= 1.1;
+        line.rotation.z = 0;
+    }
+    else if (from == 1) {
+        line.position.z -= 1.1;
+        line.rotation.z = -Math.PI/2;
+    }
+    else if (from == 2) {
+        line.position.x = 1.1;
+        line.rotation.z = 0;
+    }
+    else if (from == 3) {
+        line.position.z = 1.1;
+        line.rotation.z = -Math.PI/2;
+    }
     scene.add(point);
 
     dice.object.userData.pausePhysics = true;
@@ -998,6 +1041,11 @@ var endRoll = function(dice) {
         worldRotation.z
     );
     scene.remove(dice.rollPoint);
+
+    var point = dice.rollPoint;
+    point.rotation.x = 0;
+    point.rotation.y = 0;
+    point.rotation.z = 0;
 
     var gridX = 
     Math.round((dice.object.position.x+(2*1.1))/1.1);
@@ -1100,6 +1148,42 @@ var beginPull = function(dice, from) {
     dice.pullingFrom = from;
     dice.pullFrame = 0;
     dice.isPulling = true;
+
+    var offsetX = 0;
+    var offsetY = 0.55;
+    var offsetZ = 0;
+
+    if (from == 0) { offsetX = 0.55; offsetZ = 0; }
+    else if (from == 1) { offsetX = 0; offsetZ = 0.55; }
+    else if (from == 2) { offsetX = -0.55; offsetZ = 0; }
+    else if (from == 3) { offsetX = 0; offsetZ = -0.55; }
+
+    var point = dice.rollPoint;
+    point.position.x = dice.object.position.x - offsetX;
+    point.position.y = dice.object.position.y - offsetY;
+    point.position.z = dice.object.position.z - offsetZ;
+
+    var line = dice.line;
+    line.position.x = 0;
+    line.position.y = 0.55;
+    line.position.z = 0;
+
+    line.rotation.x = -Math.PI/2;
+
+    if (from == 0) {
+        line.rotation.z = 0;
+    }
+    else if (from == 1) {
+        line.rotation.z = -Math.PI/2;
+    }
+    else if (from == 2) {
+        line.rotation.z = 0;
+    }
+    else if (from == 3) {
+        line.rotation.z = -Math.PI/2;
+    }
+    console.log(line.rotation);
+    scene.add(point);
 };
 
 var updatePull = function(dice) {
@@ -1109,6 +1193,24 @@ var updatePull = function(dice) {
     else if (dice.pullingFrom == 1) dice.object.position.z += a;
     else if (dice.pullingFrom == 2) dice.object.position.x -= a;
     else if (dice.pullingFrom == 3) dice.object.position.z -= a;
+
+    var point = dice.rollPoint;
+    var line = dice.line;
+    line.position.y = 0.55;
+
+    if (dice.pullingFrom == 0) {
+        point.position.x += a;
+    }
+    else if (dice.pullingFrom == 1) {
+        point.position.z += a;
+    }
+    else if (dice.pullingFrom == 2) {
+        point.position.x -= a;
+    }
+    else if (dice.pullingFrom == 3) {
+        point.position.z -= a;
+    }
+    scene.add(point);
 
     updateBody(dice.object);
 
@@ -1174,6 +1276,7 @@ var endPull = function(dice) {
 
     dice.pullFrame = 0;
     dice.isPulling = false;
+    scene.remove(dice.rollPoint);
 
     if (dice.object.position.x == 0 &&
          dice.object.position.z == 0) {
