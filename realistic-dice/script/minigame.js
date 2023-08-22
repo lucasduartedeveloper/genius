@@ -954,6 +954,7 @@ var setDiceValue = function(dice, value) {
 };
 
 var beginRoll = function(dice, from) {
+    if (dice.isPulling) return;
     var offsetX = 0;
     var offsetY = 0.55;
     var offsetZ = 0;
@@ -1158,6 +1159,7 @@ var validateRotation = function(euler0, euler1) {
 };
 
 var beginPull = function(dice, from) {
+    if (dice.isRolling) return;
     dice.pullingFrom = from;
     dice.pullFrame = 0;
     dice.isPulling = true;
