@@ -140,17 +140,27 @@ var load3D = function() {
     renderer.domElement.style.borderRadius = (変数/32)+"px";
     renderer.domElement.style.zIndex = "999";
     var startTime = 0;
+    var downCount = 0;
     var startX = 0;
     var startY = 0;
+    var startId = 0;
     renderer.domElement.onpointerdown = function(e) {
-        startX = e.clientX;
-        startY = e.clientY;
+        startId = downCount == 0 ? e.pointerId : startId;
+        startX = downCount == 0 ? e.clientX : startX;
+        startY = downCount == 0 ? e.clientY : startY;
+        downCount += 1;
         startTime = new Date().getTime();
+
+        if (downCount == 3) {
+            controls.enabled = !controls.enabled;
+        }
     };
     renderer.domElement.onpointerup = function(e) {
+        downCount -= 1;
         var from = 0;
         var offsetX = e.clientX - startX;
         var offsetY = e.clientY - startY;
+
         if (Math.abs(offsetX) > Math.abs(offsetY)) {
             if (offsetX < 0) from = 2;
             else from = 0;
@@ -160,12 +170,14 @@ var load3D = function() {
             else from = 1;
         }
 
-        if (new Date().getTime()-startTime > 3000) {
-            controls.enabled = !controls.enabled;
-        }
-        if (!controls.enabled) {
+        if (!controls.enabled && downCount == 0 && 
+            e.pointerId != startId) {
             ws.send("PAPER|"+playerId+"|remote-roll|"+from);
             dices[0].beginRoll(from);
+        }
+        else if (!controls.enabled && downCount == 0) {
+            ws.send("PAPER|"+playerId+"|remote-pull|"+from);
+            dices[0].beginPull(from);
         }
     };
 
@@ -836,6 +848,19 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         beginRoll(this, from);
     };
 
+    dice.pullFrame = 0;
+    dice.isPulling = false;
+    dice.pullingFrom = 0;
+
+    dice.beginPull = function(from) {
+        if (from == 0 && dice.grid.x == 4) return;
+        if (from == 1 && dice.grid.y == 4) return;
+        if (from == 2 && dice.grid.x == 0) return;
+        if (from == 3 && dice.grid.y == 0) return;
+        if (dice.isPulling) return;
+        beginPull(this, from);
+    };
+
     dice.clearTrail = function() {
         for (var n = 0; n < this.trail.length; n++) {
             scene.remove(dice.trail[n]);
@@ -1071,6 +1096,91 @@ var validateRotation = function(euler0, euler1) {
     return result;
 };
 
+var beginPull = function(dice, from) {
+    dice.pullingFrom = from;
+    dice.pullFrame = 0;
+    dice.isPulling = true;
+};
+
+var updatePull = function(dice) {
+    var a = (1.1/15);
+
+    if (dice.pullingFrom == 0) dice.object.position.x += a;
+    else if (dice.pullingFrom == 1) dice.object.position.z += a;
+    else if (dice.pullingFrom == 2) dice.object.position.x -= a;
+    else if (dice.pullingFrom == 3) dice.object.position.z -= a;
+
+    updateBody(dice.object);
+
+    dice.pullFrame += 1;
+    if (dice.pullFrame == 15) endPull(dice);
+};
+
+var endPull = function(dice) {
+    var gridX = 
+    Math.round((dice.object.position.x+(2*1.1))/1.1);
+    var gridY = 
+    Math.round((dice.object.position.z+(2*1.1))/1.1);
+
+    dice.grid.x = gridX;
+    dice.grid.y = gridY;
+
+    dice.object.position.x = (gridX*1.1)-(2*1.1);
+    dice.object.position.z = (gridY*1.1)-(2*1.1);
+
+    var topCover = getTopCover(dice);
+    var worldPosition = new THREE.Vector3();
+    topCover.getWorldPosition(worldPosition);
+    var worldQuaternion = new THREE.Quaternion();
+    topCover.getWorldQuaternion(worldQuaternion);
+    var worldRotation = new THREE.Euler();
+    worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
+
+    for (var n = 0; n < checkpoints.length; n++) {
+        var checkpoint = checkpoints[n];
+        var value = getDiceValue(dice.object);
+        if (dice.grid.x == checkpoint.position.x &&
+             dice.grid.y == checkpoint.position.y) {
+             //console.log(checkpoint.object.rotation);
+             //console.log(worldRotation);
+
+             rotationTarget.rotation.set(
+                 worldRotation.x,
+                 worldRotation.y,
+                 worldRotation.z
+             );
+
+             if (value == checkpoint.number &&
+                 validateRotation(checkpoint.object.rotation, 
+                 worldRotation)) {
+                 var color = new THREE.Color( 0xFFFF55 );
+                 checkpoint.object.material.color = color;
+                 checkpoint.done = true;
+             }
+             else {
+                 for (var k = 0; k < checkpoints.length; k++) {
+                     var checkpoint = checkpoints[k];
+                     var color = new THREE.Color( 0x55FFFF );
+                     checkpoint.object.material.color = color;
+                     checkpoint.done = false;
+                 }
+                 break;
+             }
+        }
+    }
+
+    var number = getDiceValue(dice.object, true);
+    //dropCover(dice, number);
+
+    dice.pullFrame = 0;
+    dice.isPulling = false;
+
+    if (dice.object.position.x == 0 &&
+         dice.object.position.z == 0) {
+        _say(getDiceValue(dice.object));
+    }
+};
+
 var dropCover = function(dice, number) {
     face = 
     dice.faceArr.filter((o) => { return o.value == number; })[0];
@@ -1259,6 +1369,9 @@ var run = function() {
         for (var n = 0; n < dices.length; n++) {
             if (dices[n].isRolling)
             updateRoll(dices[n]);
+
+            if (dices[n].isPulling)
+            updatePull(dices[n]);
 
             if (gamepad) {
                 var from = -1;
