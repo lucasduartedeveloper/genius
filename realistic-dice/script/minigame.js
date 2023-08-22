@@ -55,7 +55,7 @@ $(document).ready(function() {
 });
 
 var sprite_idle = [
-    "img/steel-box-1.png"
+    "img/steel-box-2.png"
 ];
 
 var loadImages = function(callback) {
@@ -193,7 +193,7 @@ var load3D = function() {
         lightParams.decay
     );
 
-    light.position.set(0, 2.5, 0);
+    light.position.set(5, 2.5, 5);
     light.castShadow = true;
 
     //Set up shadow properties for the light
@@ -202,6 +202,17 @@ var load3D = function() {
 
     lightObj = new THREE.Group();
     lightObj.add(light);
+
+    geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            color: 0xFFFFFF,
+            opacity: 1,
+            transparent: true,
+            wireframe: false
+    } );
+    lightSource = new THREE.Mesh( geometry, material );
+    lightObj.add( lightSource );
 
     camera = new THREE.PerspectiveCamera( 
         cameraParams.fov, 
@@ -351,6 +362,7 @@ var load3D = function() {
     face0.value = 5;
     faceArr.push(face0);
     face0.receiveShadow = true;
+    face0.castShadow = true;
     face0.position.x = 0;
     face0.position.y = 0.55;
     face0.position.z = 0;
@@ -363,6 +375,7 @@ var load3D = function() {
     face1.value = 1;
     faceArr.push(face1);
     face1.receiveShadow = true;
+    face1.castShadow = true;
     face1.position.x = -0.55;
     face1.position.y = 0;
     face1.position.z = 0;
@@ -375,6 +388,7 @@ var load3D = function() {
     face2.value = 6;
     faceArr.push(face2);
     face2.receiveShadow = true;
+    face2.castShadow = true;
     face2.position.x = 0.55;
     face2.position.y = 0;
     face2.position.z = 0;
@@ -388,6 +402,7 @@ var load3D = function() {
     face3.value = 2;
     faceArr.push(face3);
     face3.receiveShadow = true;
+    face3.castShadow = true;
     face3.position.x = 0;
     face3.position.y = -0.55
     face3.position.z = 0;
@@ -401,6 +416,7 @@ var load3D = function() {
     face4.value = 4;
     faceArr.push(face4);
     face4.receiveShadow = true;
+    face4.castShadow = true;
     face4.position.x = 0;
     face4.position.y = 0;
     face4.position.z = -0.55;
@@ -413,6 +429,7 @@ var load3D = function() {
     face5.value = 3;
     faceArr.push(face5);
     face5.receiveShadow = true;
+    face5.castShadow = true;
     face5.position.x = 0;
     face5.position.y = 0;
     face5.position.z = 0.55;
@@ -444,7 +461,7 @@ var load3D = function() {
     rotationTarget.rotation.x = -(Math.PI/2);
     rotationTarget.loadTexture(drawFace("A", "text"));
 
-    geometry = new THREE.PlaneGeometry(1.1*5, 1.1*5, 5, 5); 
+    geometry = new THREE.PlaneGeometry(1.1*7, 1.1*7, 5, 5); 
     var material = 
         new THREE.MeshStandardMaterial( { 
             side: THREE.DoubleSide,
@@ -462,7 +479,47 @@ var load3D = function() {
     plane.position.z = 0;
 
     plane.rotation.x = Math.PI/2;
-    plane.loadTexture("img/grass-texture-0.png");
+    plane.loadTexture("img/grass-texture-1.png");
+
+    geometry = new THREE.BoxGeometry(0.275, 7*1.1, 1.1); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            //color: 0xFCA903,
+            //opacity: 0.8,
+            transparent: true,
+            wireframe: false
+    } );
+    leftRamp = new THREE.Mesh( geometry, material );
+    scene.add( leftRamp );
+    leftRamp.position.x = -3*1.1;
+    leftRamp.position.y = -3.5+(0.5*1.1);
+    leftRamp.position.z = 0;
+    leftRamp.rotation.x = -(Math.PI/2);
+    leftRamp.rotation.y = -(Math.PI/2);
+
+    leftRamp.loadTextureEx("img/stone-tile-0.png", 0, 7);
+
+    topRamp = new THREE.Mesh( geometry, material );
+    scene.add( topRamp );
+    topRamp.position.x = 0;
+    topRamp.position.y = -3.5+(0.5*1.1);
+    topRamp.position.z = -3*1.1;
+    topRamp.rotation.z = -(Math.PI/2);
+
+    rightRamp = new THREE.Mesh( geometry, material );
+    scene.add( rightRamp );
+    rightRamp.position.x = 3*1.1;
+    rightRamp.position.y = -3.5+(0.5*1.1);
+    rightRamp.position.z = 0;
+    rightRamp.rotation.x = -(Math.PI/2);
+    rightRamp.rotation.y = -(Math.PI/2);
+
+    bottomRamp = new THREE.Mesh( geometry, material );
+    scene.add( bottomRamp );
+    bottomRamp.position.x = 0;
+    bottomRamp.position.y = -3.5+(0.5*1.1);
+    bottomRamp.position.z = 3*1.1;
+    bottomRamp.rotation.z = -(Math.PI/2);
 
     // wireframe
     var geo = new THREE.EdgesGeometry( plane.geometry ); 
@@ -923,6 +980,16 @@ var endRoll = function(dice) {
     dice.object.userData.pausePhysics = false;
     dice.rollFrame = 0;
     dice.isRolling = false;
+
+    console.log(dice.object.rotation);
+    var rotX = Math.round(dice.object.rotation.x/(Math.PI/2));
+    var rotY = Math.round(dice.object.rotation.y/(Math.PI/2));
+    var rotZ = Math.round(dice.object.rotation.z/(Math.PI/2));
+    console.log(rotX, rotY, rotZ);
+
+    dice.object.rotation.x = rotX * (Math.PI/2);
+    dice.object.rotation.y = rotY * (Math.PI/2);
+    dice.object.rotation.z = rotZ * (Math.PI/2);
 
     var topCover = getTopCover(dice);
     var worldPosition = new THREE.Vector3();
@@ -1388,6 +1455,12 @@ var drawFace = function(number, type=diceType, texture=-1) {
         return canvas.toDataURL();
     }
     if (type == "numbers") {
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(150, 150, 125, 0, (Math.PI*2));
+        //ctx.fill();
+        //ctx.fillStyle = "#fff";
+        ctx.font = "250px sans-serif";
         ctx.fillText(number, 150, 165);
         return canvas.toDataURL();
     }
