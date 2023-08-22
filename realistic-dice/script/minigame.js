@@ -139,34 +139,35 @@ var load3D = function() {
     renderer.domElement.style.border = "2px solid #fff";
     renderer.domElement.style.borderRadius = (変数/32)+"px";
     renderer.domElement.style.zIndex = "999";
+    var startTime = 0;
+    var startX = 0;
+    var startY = 0;
     renderer.domElement.onpointerdown = function(e) {
-        var c = { x: (sw/2), y: (sh/2) };
-        var p = { x: e.clientX, y: e.clientY };
-        var pc = { x: p.x-c.x, y: p.y-c.y };
-        var a = (180/Math.PI)*angle2d(pc.x, pc.y);
-
-        a = a > 0 ? (180 - a)+180 : a*-1;
-
-        var hyp = Math.sqrt(
-            Math.pow(Math.abs(pc.x), 2)+
-            Math.pow(Math.abs(pc.y), 2)
-        );
-
+        startX = e.clientX;
+        startY = e.clientY;
+        startTime = new Date().getTime();
+    };
+    renderer.domElement.onpointerup = function(e) {
         var from = 0;
-        if (a < 135 && a > 45) from = 0;
-        else if (a < 45 || a > 315) from = 1;
-        else if (a > 225 && a < 315) from = 2;
-        else if (a > 135 && a < 225) from = 3;
-
-        if (hyp < 50) return;
+        var offsetX = e.clientX - startX;
+        var offsetY = e.clientY - startY;
+        if (Math.abs(offsetX) > Math.abs(offsetY)) {
+            if (offsetX < 0) from = 2;
+            else from = 0;
+        }
+        else {
+            if (offsetY < 0) from = 3;
+            else from = 1;
+        }
+        dices[0].beginRoll(from);
 
         if (!controls.enabled) {
             ws.send("PAPER|"+playerId+"|remote-roll|"+from);
             dices[0].beginRoll(from);
         }
-    };
-    renderer.domElement.ondblclick = function(e) {
-        controls.enabled = !controls.enabled;
+        if (new Date().getTime()-startTime > 5000) {
+            controls.enabled = !controls.enabled;
+        }
     };
 
     diceList = document.createElement("div");
