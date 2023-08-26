@@ -138,8 +138,7 @@ $(document).ready(function() {
 
     baseTile.onclick= function(e) {
         var ctxVideoCanvas = canvas.getContext("2d");
-        ctxVideoCanvas.fillColor = "#000";
-        ctxVideoCanvas.fillRect(0, 0, 300, 300);
+        ctxVideoCanvas.clearRect(0, 0, 300, 300);
 
         canvas.style.outlineOffset = 
         ((300/resolution)/2)+"px";
@@ -147,10 +146,14 @@ $(document).ready(function() {
         ((300/resolution)/2)+"px solid yellow";
         _say("image created");
 
-        if (location.href.includes("192"))
-        loadImages(function() {
+        if (location.href.includes("192")) {
+            if (!imagesLoaded)
+            loadImages(function() {
+                gameLoop();
+            });
+            else
             gameLoop();
-        });
+        }
         else
         startCamera();
     };
@@ -185,6 +188,7 @@ var img_list = [
     //"img/human-icon-0.png"
 ];
 
+var imagesLoaded = false;
 var loadImages = function(callback) {
     var count = 0;
     for (var n = 0; n < img_list.length; n++) {
@@ -193,8 +197,10 @@ var loadImages = function(callback) {
         img.onload = function() {
             count += 1;
             img_list[this.n] = this;
-            if (count == img_list.length)
-            callback();
+            if (count == img_list.length) {
+                imagesLoaded = true;
+                callback();
+            }
         };
         var rnd = Math.random();
         img.src = img_list[n]+"?f="+rnd;
