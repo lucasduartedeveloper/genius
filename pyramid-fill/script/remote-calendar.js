@@ -297,7 +297,7 @@ var gameLoop = function() {
 
 var formatTime = function() {
     var time = new Date().getTime() - timeStarted;
-    var minutes = Math.floor(((time/1000)/60)/60);
+    var minutes = Math.floor((time/1000)/60);
     var seconds = Math.floor(time/1000)%60;
     stopwatch.innerText = 
     minutes.toString().padStart(2, "0")+":"+
