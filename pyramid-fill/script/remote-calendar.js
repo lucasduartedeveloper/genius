@@ -94,6 +94,30 @@ $(document).ready(function() {
     baseTile.style.zIndex = "5";
     document.body.appendChild(baseTile);
 
+    baseTile.onclick= function(e) {
+        var ctxVideoCanvas = canvas.getContext("2d");
+        ctxVideoCanvas.clearRect(0, 0, 300, 300);
+
+        canvas.style.outlineOffset = 
+        (5)+"px";
+        canvas.style.outline = 
+        (5)+"px solid yellow";
+
+        timeStarted = new Date().getTime();
+        stopwatch.innerText = "00:00";
+
+        if (location.href.includes("192")) {
+            if (!imagesLoaded)
+            loadImages(function() {
+                gameLoop();
+            });
+            else
+            gameLoop();
+        }
+        else
+        startCamera();
+    };
+
     leftArrow = document.createElement("i");
     leftArrow.style.position = "absolute";
     leftArrow.className = "fa-solid fa-arrow-left";
@@ -136,27 +160,16 @@ $(document).ready(function() {
         camera.height = resolution;
     };
 
-    baseTile.onclick= function(e) {
-        var ctxVideoCanvas = canvas.getContext("2d");
-        ctxVideoCanvas.clearRect(0, 0, 300, 300);
-
-        canvas.style.outlineOffset = 
-        ((300/resolution)/2)+"px";
-        canvas.style.outline = 
-        ((300/resolution)/2)+"px solid yellow";
-        _say("image created");
-
-        if (location.href.includes("192")) {
-            if (!imagesLoaded)
-            loadImages(function() {
-                gameLoop();
-            });
-            else
-            gameLoop();
-        }
-        else
-        startCamera();
-    };
+    stopwatch = document.createElement("span");
+    stopwatch.style.position = "absolute";
+    stopwatch.innerText = "00:00";
+    stopwatch.style.color = "#fff";
+    stopwatch.style.left = ((sw/2)-50)+"px";
+    stopwatch.style.top = ((sh/2)+225)+"px";
+    stopwatch.style.width = (100)+"px";
+    stopwatch.style.height = (25)+"px";
+    stopwatch.style.zIndex = "5";
+    document.body.appendChild(stopwatch);
 
     $("*").not("i").css("font-family", "Khand");
 
@@ -176,6 +189,8 @@ $(document).ready(function() {
 
     camera.onplay = function() {
         console.log("onplay");
+        timeStarted = new Date().getTime();
+        stopwatch.innerText = "00:00";
         _say("camera connected");
         gameLoop();
     };
@@ -207,6 +222,7 @@ var loadImages = function(callback) {
     }
 };
 
+var timeStarted = 0;
 var layer = 0;
 var resolution = 50;
 var pixelNo = 0;
@@ -260,21 +276,32 @@ var gameLoop = function() {
     //ctx.putImageData(imgData, 0, 0);
     navigator.vibrate(100);
 
+    formatTime();
+
     pixelNo += 1;
     if (pixelNo == resolution*resolution) {
         //layer += 1;
         pixelNo = 0;
 
         canvas.style.outlineOffset = 
-        ((300/resolution)/2)+"px";
+        (5)+"px";
         canvas.style.outline = 
-        ((300/resolution)/2)+"px solid limegreen";
+        (5)+"px solid limegreen";
         _say("image created");
         ws.send("PAPER|"+playerId+"|image-data|"+canvas.toDataURL());
         return;
     }
 
     requestAnimationFrame(gameLoop);
+};
+
+var formatTime = function() {
+    var time = new Date().getTime() - timeStarted;
+    var minutes = Math.floor(((time/1000)/60)/60);
+    var seconds = Math.floor(time/1000)%60;
+    stopwatch.innerText = 
+    minutes.toString().padStart(2, "0")+":"+
+    seconds.toString().padStart(2, "0");
 };
 
 var language = "en-US";
