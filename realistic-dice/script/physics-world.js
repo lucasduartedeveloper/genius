@@ -53,14 +53,14 @@ var startAmmojs = function() {
     console.log("startAmmojs");
     setupPhysicsWorld();
 
-    addGround(plane);
+    addGround(plane, { x: 7*1.1, y: 7*1.1, z: 0.1 });
 
     //startGyroscopeMonitor();
 };
 
-var addGround = function(ground) {
+var addGround = function(ground, size) {
     var pos = ground.position;
-    var scale = { x: 5, y: 5, z: 0.1 }; //ground.scale;
+    var scale = size; //ground.scale;
     var quat = ground.quaternion;
     var mass = 0;
 
@@ -87,16 +87,16 @@ var addGround = function(ground) {
     ground.userData.tag = "ground";
 };
 
-var addCube = function(cube) {
+var addCube = function(cube, size, kinematic=false) {
     //console.log(cube);
 
     var pos = cube.position;
-    var scale = cube.children[7].scale; //{ x: 1, y: 1, z: 1 };
+    var scale = size; //{ x: 1, y: 1, z: 1 };
     var quat = cube.quaternion;
-    var mass = 
-       (cube.children[7].scale.x +
+    var mass = 1;
+       /*(cube.children[7].scale.x +
        cube.children[7].scale.y + 
-       cube.children[7].scale.z) / 3;
+       cube.children[7].scale.z) / 3;*/
 
     //Ammojs Section
     var transform = new Ammo.btTransform();
@@ -115,7 +115,7 @@ var addCube = function(cube) {
     var body = new Ammo.btRigidBody( rbInfo );
 
     body.setActivationState(4);
-    //body.setCollisionFlags(2);
+    if (kinematic) body.setCollisionFlags(2);
     body.setRestitution(0);
     body.setFriction(50);
 
@@ -128,6 +128,8 @@ var addCube = function(cube) {
     cube.userData.physicsBody = body;
     cube.userData.tag = "cube";
     rigidBodies.push(cube);
+
+    return body;
 };
 
 var updateBody = function(threeObj, speed) {
@@ -154,11 +156,11 @@ var updateBody = function(threeObj, speed) {
     //physicsBody.setLinearVelocity(ammoTmpPos);
 }
 
-var addSphere = function(sphere, kinematic=false) {
+var addSphere = function(sphere, size, connected, kinematic=false) {
     var book = sphere;
 
     var pos = book.position;
-    var scale = book.scale;
+    var scale = size;
     var quat = book.quaternion;
     var mass = 1;
 
@@ -190,6 +192,8 @@ var addSphere = function(sphere, kinematic=false) {
     book.userData.physicsBody = body;
     book.userData.n =  rigidBodies.length;
     rigidBodies2.push(book);
+
+    return body;
 };
 
 var removeBody = function(n) {

@@ -21,7 +21,7 @@ $thirdpart_script = [
     1 => "nes/jsnes.min.js"
 ];
 $script = [
-    0 => "/genius/script/camera-helper.js",
+    0 => "script/camera-helper.js",
     1 => "/genius/script/recorder.js",
     2 => "/genius/script/geo-location.js",
     3 => "/genius/script/websocket.js",

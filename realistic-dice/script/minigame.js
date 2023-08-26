@@ -491,7 +491,7 @@ var load3D = function() {
     var material = 
         new THREE.MeshStandardMaterial( { 
             side: THREE.DoubleSide,
-            color: 0x99FF99,
+            //color: 0x99FF99,
             opacity: 0.8,
             transparent: true,
             wireframe: false
@@ -505,7 +505,7 @@ var load3D = function() {
     plane.position.z = 0;
 
     plane.rotation.x = Math.PI/2;
-    plane.loadTexture("img/grass-texture-1.png");
+    plane.loadTextureEx("img/interleaved-texture-0.png", 7, 7);
 
     // wireframe
     var geo = new THREE.EdgesGeometry( plane.geometry ); 
@@ -921,7 +921,7 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         }
     };
 
-    addCube(dice.object);
+    addCube(dice.object, { x: 1.1, y: 1.1, z: 1.1 });
     dice.physicsBody = obj.userData.physicsBody;
 
     dices.push(dice);
@@ -1158,11 +1158,6 @@ var endRoll = function(dice) {
                      checkpoint.done = false;
                  }
 
-                 dice.grid.x = 2;
-                 dice.grid.y = 2;
-
-                 dice.object.position.x = (2*1.1)-(2*1.1);
-                 dice.object.position.z = (2*1.1)-(2*1.1);
                  exitTile.visible = true;
                  break;
              }
@@ -1341,11 +1336,6 @@ var endPull = function(dice) {
                      checkpoint.done = false;
                  }
 
-                 dice.grid.x = 2;
-                 dice.grid.y = 2;
-
-                 dice.object.position.x = (2*1.1)-(2*1.1);
-                 dice.object.position.z = (2*1.1)-(2*1.1);
                  exitTile.visible = true;
                  break;
              }
