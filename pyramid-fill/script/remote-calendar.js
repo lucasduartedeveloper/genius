@@ -56,6 +56,72 @@ $(document).ready(function() {
     canvas.style.zIndex = "5";
     document.body.appendChild(canvas);
 
+    lineBackground = document.createElement("span");
+    lineBackground.style.position = "absolute";
+    lineBackground.style.background = "#446";
+    lineBackground.style.left = ((sw/2)-150)+"px";
+    lineBackground.style.top = ((sh/2)+150)+"px";
+    lineBackground.style.width = (300)+"px";
+    lineBackground.style.height = (50)+"px";
+    lineBackground.style.zIndex = "5";
+    document.body.appendChild(lineBackground);
+
+    fileName = document.createElement("span");
+    fileName.style.position = "absolute";
+    fileName.innerText = resolution+"x_zoom.png";
+    fileName.style.fontSize = "20px";
+    fileName.style.textAlign = "left";
+    fileName.style.color = "#888";
+    fileName.style.left = ((sw/2)-138.5)+"px";
+    fileName.style.top = ((sh/2)+162.5)+"px";
+    fileName.style.width = (300)+"px";
+    fileName.style.height = (25)+"px";
+    fileName.style.zIndex = "5";
+    document.body.appendChild(fileName);
+
+    share = document.createElement("i");
+    share.style.position = "absolute";
+    share.className = "fa-solid fa-download";
+    share.style.color = "#fff";
+    share.style.left = ((sw/2)+112.5)+"px";
+    share.style.top = ((sh/2)+162.5)+"px";
+    share.style.width = (25)+"px";
+    share.style.height = (50)+"px";
+    share.style.zIndex = "5";
+    document.body.appendChild(share);
+
+    share.onclick = function() {
+        var dataURL = canvas.toDataURL();
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = dataURL;
+        hiddenElement.target = "_blank";
+        hiddenElement.download = 
+        resolution+"x_zoom.png";
+        hiddenElement.click();
+    };
+
+    inputDevice = document.createElement("span");
+    inputDevice.style.position = "absolute";
+    inputDevice.style.background = "rgba(50, 50, 65, 1)";
+    inputDevice.style.lineHeight = (100)+"px";
+    inputDevice.style.color = "#fff";
+    inputDevice.innerText = "device: "+deviceNo;
+    inputDevice.style.right = (0)+"px";
+    inputDevice.style.top = (0)+"px";
+    inputDevice.style.width = (100)+"px";
+    inputDevice.style.height = (100)+"px";
+    inputDevice.style.transform = "scale(0.8)";
+    inputDevice.style.zIndex = "5";
+    document.body.appendChild(inputDevice);
+
+    inputDevice.onclick = function() {
+        deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
+        (deviceNo+1) : 0;
+        inputDevice.innerText = "device: "+deviceNo;
+        camera.style.transform = deviceNo == 0 ? 
+        "rotateY(-180deg)" : "rotateY(0deg)";
+    };
+
     baseCanvas = document.createElement("canvas");
     baseCanvas.style.position = "absolute";
     baseCanvas.width = resolution;
@@ -137,6 +203,7 @@ $(document).ready(function() {
         baseCanvas.height = resolution;
         camera.width = resolution;
         camera.height = resolution;
+        fileName.innerText = resolution+"x_zoom.png";
     };
 
     rightArrow = document.createElement("i");
@@ -158,6 +225,7 @@ $(document).ready(function() {
         baseCanvas.height = resolution;
         camera.width = resolution;
         camera.height = resolution;
+        fileName.innerText = resolution+"x_zoom.png";
     };
 
     stopwatch = document.createElement("span");
@@ -241,7 +309,7 @@ var gameLoop = function() {
 
     var ctxVideoCanvas = videoCanvas.getContext("2d");
     var format = fitImageCover(camera, baseCanvas);
-    if (!location.href.includes("192")) {
+    if (!location.href.includes("192") && deviceNo == 0) {
         ctxVideoCanvas.save();
         ctxVideoCanvas.translate(format.width, 0);
         ctxVideoCanvas.scale(-1, 1);
