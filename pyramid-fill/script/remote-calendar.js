@@ -58,6 +58,8 @@ $(document).ready(function() {
     canvas.ontouchmove = paintPixel;
     document.body.appendChild(canvas);
 
+    canvas.getContext("2d").imageSmoothingEnabled = false;
+
     canvas1 = document.createElement("canvas");
     canvas1.style.position = "absolute";
     canvas1.width = 300;
@@ -71,6 +73,8 @@ $(document).ready(function() {
     canvas1.ontouchstart = paintPixel;
     canvas1.ontouchmove = paintPixel;
     document.body.appendChild(canvas1);
+
+    canvas1.getContext("2d").imageSmoothingEnabled = false;
 
     canvas.style.outlineOffset = 
     (5)+"px";
@@ -162,31 +166,27 @@ $(document).ready(function() {
         layerNo = (layerNo+1) < (2) ? 
         (layerNo+1) : 0;
         layerTile.innerText = "layer no: "+layerNo;
+        if (layerNo == 0) {
+            canvas.style.display = "initial";
+            canvas1.style.display = "none";
+        }
+        else {
+            canvas.style.display = "initial";
+            canvas1.style.display = "initial";
+        }
     };
 
     baseCanvas = document.createElement("canvas");
     baseCanvas.style.position = "absolute";
     baseCanvas.width = resolution;
     baseCanvas.height = resolution;
-    baseCanvas.style.left = (50)+"px";
+    baseCanvas.style.left = (0)+"px";
     baseCanvas.style.top = (0)+"px";
     baseCanvas.style.width = (50)+"px";
     baseCanvas.style.height = (50)+"px";
     //baseCanvas.style.transform = "scale(0.8)";
     baseCanvas.style.zIndex = "5";
     document.body.appendChild(baseCanvas);
-
-    baseCanvasClear = document.createElement("canvas");
-    baseCanvasClear.style.position = "absolute";
-    baseCanvasClear.width = 50;
-    baseCanvasClear.height = 50;
-    baseCanvasClear.style.left = (50)+"px";
-    baseCanvasClear.style.top = (50)+"px";
-    baseCanvasClear.style.width = (50)+"px";
-    baseCanvasClear.style.height = (50)+"px";
-    //baseCanvas.style.transform = "scale(0.8)";
-    baseCanvasClear.style.zIndex = "5";
-    document.body.appendChild(baseCanvasClear);
 
     baseTile = document.createElement("span");
     baseTile.innerText = resolution+"x";
@@ -214,16 +214,50 @@ $(document).ready(function() {
         timeStarted = new Date().getTime();
         stopwatch.innerText = "00:00";
 
-        if (location.href.includes("192")) {
+        if (preloaded) {
             if (!imagesLoaded)
             loadImages(function() {
-                gameLoop();
+                drawSquare();
             });
             else
-            gameLoop();
+            drawSquare();
         }
         else
         startCamera();
+    };
+
+    preloaded = location.href.includes("192");
+    switchBackground = document.createElement("span");
+    switchBackground.style.position = "absolute";
+    switchBackground.style.background = "rgba(50, 50, 65, 1)";
+    switchBackground.style.color = "#fff";
+    switchBackground.style.left = (0)+"px";
+    switchBackground.style.top = (125)+"px";
+    switchBackground.style.width = (100)+"px";
+    switchBackground.style.height = (50)+"px";
+    switchBackground.style.transform = "scale(0.8)";
+    switchBackground.style.zIndex = "5";
+    document.body.appendChild(switchBackground);
+
+    switchButton = document.createElement("span");
+    switchButton.style.position = "absolute";
+    switchButton.style.background = "#fff";
+    if (preloaded)
+    switchButton.style.left = (60)+"px";
+    else
+    switchButton.style.left = (10)+"px";
+    switchButton.style.top = (10)+"px";
+    switchButton.style.width = (30)+"px";
+    switchButton.style.height = (30)+"px";
+    switchButton.style.zIndex = "5";
+    switchBackground.appendChild(switchButton);
+
+    switchBackground.onclick = function() {
+        preloaded = !preloaded;
+        if (preloaded)
+        switchButton.style.left = (60)+"px";
+        else
+        switchButton.style.left = (10)+"px";
     };
 
     leftArrow = document.createElement("i");
@@ -466,7 +500,7 @@ $(document).ready(function() {
         timeStarted = new Date().getTime();
         stopwatch.innerText = "00:00";
         _say("camera connected");
-        gameLoop();
+        drawSquare();
     };
 });
 
@@ -612,98 +646,39 @@ var saveButtons = function() {
     }
 };
 
-var timeStarted = 0;
-var layer = 0;
 var resolution = 10;
-var pixelNo = 0;
-var gameLoop = function() {
-    var pixelCount = resolution*resolution;
-    var x = (pixelNo % resolution);
-    var y = Math.floor(pixelNo / resolution);
-
+var drawSquare = function() {
     var ctx = layerNo == 0 ? 
     canvas.getContext("2d") : 
     canvas1.getContext("2d");
 
-    if (layer == 0) {
-    var videoCanvas = document.createElement("canvas");
-    videoCanvas.width = 300;
-    videoCanvas.height = 300;
+    var resolutionCanvas = document.createElement("canvas");
+    resolutionCanvas.imageSmoothingEnabled = false;
+    resolutionCanvas.width = resolution;
+    resolutionCanvas.height = resolution;
 
-    var ctxVideoCanvas = videoCanvas.getContext("2d");
+    var resolutionCtx = resolutionCanvas.getContext("2d");
     var format = fitImageCover(camera, baseCanvas);
-    if (!location.href.includes("192") && deviceNo == 0) {
-        ctxVideoCanvas.save();
-        ctxVideoCanvas.translate(format.width, 0);
-        ctxVideoCanvas.scale(-1, 1);
+    if (!preloaded && deviceNo == 0) {
+        resolutionCtx.save();
+        resolutionCtx.translate(format.width, 0);
+        resolutionCtx.scale(-1, 1);
     }
-    if (location.href.includes("192"))
-    ctxVideoCanvas.drawImage(img_list[0], format.left, format.top, format.width, format.height);
+    if (preloaded)
+    resolutionCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
     else
-    ctxVideoCanvas.drawImage(camera, format.left, format.top, format.width, format.height);
-    ctxVideoCanvas.restore();
+    resolutionCtx.drawImage(camera, format.left, format.top, format.width, format.height);
+    resolutionCtx.restore();
 
-    var cameraImageData = 
-    ctxVideoCanvas.getImageData(0, 0, resolution, resolution);
+    ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
+    navigator.vibrate(500);
 
-    var n = pixelNo * 4;
-    var m = ((x*resolution)+y) * 4;
-    var w = (cameraImageData.data.length-4) - (pixelNo * 4);
-
-    var fillStyle = 
-    "rgba("+cameraImageData.data[n]+", "+
-    cameraImageData.data[n+1]+", "+
-    cameraImageData.data[n+2]+", 1)";
-    ctx.fillStyle = fillStyle;
-
-    var r = Math.floor(Math.random()*(255/2));
-    var g = Math.floor(Math.random()*(255/2));
-    var b = Math.floor(Math.random()*(255/2));
-    //ctx.fillStyle = "rgba("+r+", "+g+", "+b+", 0.5)";
-
-    ctx.fillRect(Math.round(x*(300/resolution)), 
-    Math.round(y*(300/resolution)), 
-    Math.round(300/resolution), Math.round(300/resolution));
-
-    /*var fillStyle = 
-    "rgba("+cameraImageData.data[w]+", "+
-    cameraImageData.data[w+1]+", "+
-    cameraImageData.data[w+2]+", 1)";
-    ctx.fillStyle = fillStyle;
-
-    ctx.fillRect(Math.round(((resolution-1)-x)*(300/resolution)), 
-    Math.round(((resolution-1)-y)*(300/resolution)), 
-    Math.round(300/resolution), Math.round(300/resolution));*/
-    }
-
-    //ctx.putImageData(imgData, 0, 0);
-    navigator.vibrate(100);
-
-    formatTime();
-
-    pixelNo += 1;
-    if (pixelNo == resolution*resolution) {
-        //layer += 1;
-        pixelNo = 0;
-
-        canvas.style.outlineOffset = 
-        (5)+"px";
-        canvas.style.outline = 
-        (5)+"px solid limegreen";
-        _say("image created");
-        ws.send("PAPER|"+playerId+"|image-data|"+canvas.toDataURL());
-        return;
-    }
-
-    requestAnimationFrame(gameLoop);
-}
-
-var pyramidFill = function(data) {
-    var result = [];
-    for (var n = 0; n < resolution; n++) {
-        result.push(n*resolution);
-    }
-    return result;
+    canvas.style.outlineOffset = 
+    (5)+"px";
+    canvas.style.outline = 
+    (5)+"px solid limegreen";
+    _say("image created");
+    ws.send("PAPER|"+playerId+"|image-data|"+canvas.toDataURL());
 };
 
 var formatTime = function() {
