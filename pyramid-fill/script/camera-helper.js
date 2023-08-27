@@ -131,9 +131,19 @@ var fitImageCover = function(img, frame) {
     obj.width = width;
     obj.height = height;
 
-    
-
     return obj;
+};
+
+// 480/640 = 0.75
+var resizeFrame = function(frame, content) {
+    var r = content.width/content.height;
+    if (content.width < content.height) {
+        frame.height = frame.height / r;
+    }
+    else {
+        frame.width = frame.width * r;
+    }
+    return frame;
 };
 
 /*

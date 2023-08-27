@@ -14,7 +14,8 @@ $lib = [
 ];
 $style = [
     0 => "/genius/css/style.css",
-    1 => "/genius/css/animate.css"
+    1 => "/genius/css/animate.css",
+    2 => "css/coloris.css"
 ];
 $thirdpart_script = [
     0 => "/genius/script/thirdpart/three.min.js",
@@ -33,7 +34,8 @@ $script = [
     9 => "/genius/script/ai-network.js",
     10 => "/genius/script/gamepad-helper.js",
     11 => "script/math-helper.js",
-    12 => "script/remote-calendar.js"
+    12 => "script/coloris.js",
+    13 => "script/remote-calendar.js"
 ];
 
 $module = [];
