@@ -124,7 +124,7 @@ $(document).ready(function() {
     share.style.position = "absolute";
     share.className = "fa-solid fa-download";
     share.style.color = "#fff";
-    share.style.left = (300-27.5)+"px";
+    share.style.left = (300-37.5)+"px";
     share.style.top = (12.5)+"px";
     share.style.width = (25)+"px";
     share.style.height = (50)+"px";
@@ -769,12 +769,16 @@ var clipLayers = function() {
 
 var restoreCanvas = function() {
     var pixelCount = resolution*resolution;
+    if (layerNo == 0) {
+        var ctxPortal = canvasPortal.getContext("2d");
+        ctxPortal.clearRect(0, 0, 300, 300);
+    }
 
     var ctx = layerNo == 0 ? 
     canvas.getContext("2d") : 
     canvas1.getContext("2d");
 
-    ctx.fillRect(0, 0, 300, 300);
+    ctx.clearRect(0, 0, 300, 300);
 
     for (var n = 0; n < pixelCount; n++) {
         var x = n % resolution;
