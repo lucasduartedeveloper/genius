@@ -206,6 +206,33 @@ $(document).ready(function() {
     baseCanvas.style.zIndex = "5";
     document.body.appendChild(baseCanvas);
 
+    author = document.createElement("span");
+    author.style.position = "absolute";
+    author.innerText = "LUCAS DUARTE DE OLIVEIRA";
+    author.fontSize = "15px";
+    author.textAlign = "center";
+    author.style.color = "#fff";
+    author.width = resolution;
+    author.height = resolution;
+    author.style.left = ((sw/2)+25)+"px";
+    author.style.top = ((sh/2)-10)+"px";
+    author.style.width = (300*0.8)+"px";
+    author.style.height = (25)+"px";
+    author.style.transform = "rotateZ(-90deg)";
+    author.style.zIndex = "5";
+    document.body.appendChild(author);
+
+    slideCount = 0;
+    startX = 0;
+    startY = 0;
+    author.ontouchstart = function(e) {
+        startY = e.clientY;
+    };
+    author.ontouchmove = function(e) {
+        var offsetY = Math.abs(e.clientY - startY);
+        console.log(offsetY);
+    };
+
     baseTile = document.createElement("span");
     baseTile.innerText = resolution+"x";
     baseTile.style.lineHeight = (100)+"px";
