@@ -635,9 +635,9 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/human-icon-1.png",
+    "img/human-icon-0.png",
+    //"img/human-icon-1.png",
     //"img/human-icon-2.png",
-    //"img/human-icon-0.png"
 ];
 
 var imagesLoaded = false;
@@ -728,7 +728,7 @@ var paintPixel = function(e=false) {
         resolutionCtx.strokeStyle = pixelColor;
         resolutionCtx.lineWidth = 1;
         resolutionCtx.lineCap = "butt";
-        resolutionCtx.lineJoin = "butt";
+        resolutionCtx.lineJoin = "mitter";
 
         resolutionCtx.beginPath();
         for (var n = 1; n < polygon.length; n++) {;
@@ -743,6 +743,9 @@ var paintPixel = function(e=false) {
 
         var ctxPortal = canvasPortal.getContext("2d");
         ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
+        removeBlur(canvasPortal);
+
+        applyMask(canvas1, canvasPortal);
         return;
     }
 
@@ -906,6 +909,61 @@ var restoreCanvas = function() {
         Math.round((300/resolution)),
         Math.round((300/resolution)));
     }
+};
+
+var applyMask = function(destinationCanvas, maskCanvas) {
+    var maskCtx = maskCanvas.getContext("2d");
+    var maskImageData = 
+    maskCtx.getImageData(0, 0, 300, 300);
+    var maskArray = maskImageData.data;
+
+    var destinationCtx = destinationCanvas.getContext("2d");
+    var destinationImageData = 
+    destinationCtx.getImageData(0, 0, 300, 300);
+    var destinationArray = destinationImageData.data;
+
+    var newArray = new Uint8ClampedArray(destinationArray);
+    for (var n = 0; n < destinationArray.length; n += 4) {
+        if (!(maskArray[n] == 255 &&
+        maskArray[n+1] == 255 &&
+        maskArray[n+2] == 255 &&
+        maskArray[n+3] == 255)) {
+            newArray[n + 0] =  destinationArray[n + 0]; // red
+            newArray[n + 1] =  destinationArray[n + 1]  // green
+            newArray[n + 2] = destinationArray[n + 2]; // blue
+            newArray[n + 3] = destinationArray[n + 3] ; // alpha
+        }
+    };
+
+    var newImageData = new ImageData(newArray, 
+    destinationImageData.width, destinationImageData.height);
+
+    destinationCtx.putImageData(newImageData, 0, 0);
+};
+
+var removeBlur = function(destinationCanvas) {
+    var destinationCtx = destinationCanvas.getContext("2d");
+    var destinationImageData = 
+    destinationCtx.getImageData(0, 0, 300, 300);
+    var destinationArray = destinationImageData.data;
+
+    var newArray = new Uint8ClampedArray(destinationArray);
+    for (var n = 0; n < destinationArray.length; n += 4) {
+        if ((destinationArray[n] == 255 &&
+        destinationArray[n+1] == 255 &&
+        destinationArray[n+2] == 255 &&
+        destinationArray[n+3] == 255)) {
+            newArray[n + 0] =  destinationArray[n + 0]; // red
+            newArray[n + 1] =  destinationArray[n + 1]  // green
+            newArray[n + 2] = destinationArray[n + 2]; // blue
+            newArray[n + 3] = destinationArray[n + 3] ; // alpha
+        }
+    };
+
+    var newImageData = new ImageData(newArray, 
+    destinationImageData.width, destinationImageData.height);
+
+    destinationCtx.putImageData(newImageData, 0, 0);
 };
 
 var anaglyph = function(centeredCanvas, destinationCanvas) {
