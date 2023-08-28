@@ -379,6 +379,10 @@ $(document).ready(function() {
     pixelPosition = { x: 0, y: 0 };
     targetPixel = document.createElement("div");
     targetPixel.style.position = "absolute";
+    targetPixel.innerText = "0";
+    targetPixel.style.color = "#000";
+    targetPixel.style.fontSize = ((300/resolution)*0.8)+"px";
+    targetPixel.style.lineHeight = ((300/resolution)*0.8)+"px";
     targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
     (pixelPosition.x*((300/resolution)*0.8))+"px";
     targetPixel.style.top = (((sh/2)-((300*0.8)/2)))+
@@ -772,6 +776,12 @@ var updatePixel = function() {
         x = (resolution-1)-pixelPosition.y;
         y = pixelPosition.x;
     }
+
+    var n = (y*resolution)+(x);
+
+    targetPixel.innerText = n;
+    targetPixel.style.fontSize = ((300/resolution)*0.8)+"px";
+    targetPixel.style.lineHeight = ((300/resolution)*0.8)+"px";
 
     targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
     (x*((300/resolution)*0.8))+"px";
