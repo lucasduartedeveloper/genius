@@ -179,7 +179,7 @@ $(document).ready(function() {
     document.body.appendChild(layerTile);
 
     layerTile.onclick = function() {
-        layerNo = (layerNo+1) < (2) ? 
+        layerNo = (layerNo+1) < (3) ? 
         (layerNo+1) : 0;
         layerTile.innerText = "layer no: "+layerNo;
         if (layerNo == 0) {
@@ -731,7 +731,7 @@ var drawSquare = function() {
     resolutionCanvas.height = resolution;
 
     var resolutionCtx = resolutionCanvas.getContext("2d");
-    var format = fitImageCover(camera, baseCanvas);
+    var format = fitImageCover(camera, resolutionCanvas);
     if (!preloaded && deviceNo == 0) {
         resolutionCtx.save();
         resolutionCtx.translate(format.width, 0);
@@ -744,7 +744,32 @@ var drawSquare = function() {
     resolutionCtx.restore();
 
     ctx.clearRect(0, 0, 300, 300);
-    ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
+    if (layerNo < 2) {
+        ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
+    }
+    else {
+        var centeredCanvas = document.createElement("canvas");
+        centeredCanvas.imageSmoothingEnabled = false;
+        centeredCanvas.width = resolution;
+        centeredCanvas.height = resolution;
+
+        var centeredCtx = centeredCanvas.getContext("2d");
+        var format = fitImageCover(centeredCanvas, canvas);
+        if (!preloaded && deviceNo == 0) {
+            centeredCtx.save();
+            centeredCtx.translate(format.width, 0);
+            centeredCtx.scale(-1, 1);
+        }
+        if (preloaded)
+        centeredCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
+        else
+        centeredCtx.drawImage(canvas, format.left, format.top, format.width, format.height);
+        centeredCtx.restore();
+
+        anaglyph(centeredCanvas, resolutionCanvas);
+        ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
+    }
+
     navigator.vibrate(500);
 
     canvas.style.outlineOffset = 
@@ -795,6 +820,32 @@ var restoreCanvas = function() {
         Math.round((300/resolution)),
         Math.round((300/resolution)));
     }
+};
+
+var anaglyph = function(centeredCanvas, destinationCanvas) {
+    var centeredCtx = centeredCanvas.getContext("2d");
+    var centeredImageData = 
+    centeredCtx.getImageData(0, 0, resolution, resolution);
+    var centeredArray = centeredImageData.data;
+
+    var destinationCtx = destinationCanvas.getContext("2d");
+    var destinationImageData = 
+    destinationCtx.getImageData(0, 0, resolution, resolution);
+    var destinationArray = destinationImageData.data;
+
+    var newArray = new Uint8ClampedArray(centeredArray);
+    for (var n = 0; n < centeredArray.length; n += 4) {
+        newArray[n + 0] =  0.7* destinationArray[n + 1] + 
+        0.3* centeredCanvas[n + 2]; // red
+        newArray[n + 1] = 1.0* centeredArray[n + 1]  // green
+        newArray[n + 2] = 1.0 * centeredArray[n + 2]; // blue
+        newArray[n + 3] = centeredArray[n + 3] ; // alpha
+    };
+
+    var newImageData = new ImageData(newArray, 
+    centeredArray.width, centeredArray.height);
+
+    destinationCtx.putImageData(newImageData);
 };
 
 var formatTime = function() {
