@@ -830,17 +830,26 @@ var drawSquare = function() {
     resolutionCanvas.height = resolution;
 
     var resolutionCtx = resolutionCanvas.getContext("2d");
-    var format = fitImageCover(camera, resolutionCanvas);
     if (!preloaded && deviceNo == 0) {
+        var image = { width: vw, height: vh };
+        var format = fitImageCover(image, resolutionCanvas);
+        //console.log(format);
         resolutionCtx.save();
         resolutionCtx.translate(format.width, 0);
         resolutionCtx.scale(-1, 1);
     }
-    if (preloaded)
-    resolutionCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
-    else
-    resolutionCtx.drawImage(camera, format.left, format.top, format.width, format.height);
-    resolutionCtx.restore();
+    if (preloaded) {
+        var format = fitImageCover(img_list[0], resolutionCanvas);
+        //console.log(format);
+        resolutionCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
+    }
+    else {
+        var image = { width: vw, height: vh };
+        var format = fitImageCover(image, resolutionCanvas);
+        //console.log(format);
+        resolutionCtx.drawImage(camera, format.left, format.top, format.width, format.height);
+        resolutionCtx.restore();
+    }
 
     ctx.clearRect(0, 0, 300, 300);
     if (layerNo < 2) {
