@@ -259,17 +259,15 @@ $(document).ready(function() {
         timeStarted = new Date().getTime();
         stopwatch.innerText = "00:00";
 
-        if (preloaded) {
-            if (!imagesLoaded)
-            loadImages(function() {
-                drawSquare();
-            });
-            else
-            drawSquare();
-        }
+        if (preloaded)
+        drawSquare();
         else
         startCamera();
     };
+
+    loadImages(function() {
+        console.log("images loaded");
+    });
 
     preloaded = location.href.includes("192");
     switchBackground = document.createElement("span");
@@ -557,6 +555,15 @@ $(document).ready(function() {
         else
         moveContainer.style.transform = "rotateZ(0deg)";
         updatePixel();
+
+        if (gyro.accZ < 0) {
+            var accZ = Math.abs(gyro.accZ);
+            resolution = Math.floor((1+accZ)*10);
+            baseTile.innerText = resolution+"x";
+            baseCanvas.width = resolution;
+            baseCanvas.height = resolution;
+            drawSquare();
+        }
     };
     moveLoop();
 
@@ -776,7 +783,7 @@ var drawSquare = function() {
     (5)+"px";
     canvas.style.outline = 
     (5)+"px solid limegreen";
-    _say("image created");
+    //_say("image created");
 };
 
 var clipLayers = function() {
