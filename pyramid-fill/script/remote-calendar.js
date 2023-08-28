@@ -419,6 +419,53 @@ $(document).ready(function() {
         ws.send("PAPER|"+playerId+"|image-data|"+clipLayers());
     };
 
+    locked = true;
+    offsetZ = 0;
+    ropeButton = document.createElement("i");
+    ropeButton.style.position = "absolute";
+    ropeButton.className = "fa-solid fa-lock";
+    ropeButton.style.color = "#fff";
+    ropeButton.style.left = ((sw/2)-162.5)+"px";
+    ropeButton.style.top = ((sh/2)+(((300/2)*0.8)-100))+"px";
+    ropeButton.style.width = (25)+"px";
+    ropeButton.style.height = (25)+"px";
+    ropeButton.style.zIndex = "5";
+    document.body.appendChild(ropeButton);
+
+    ropeButton.onclick = function() {
+        locked = !locked;
+        if (locked) {
+            offsetZ = gyro.accZ;
+            ropeButton.className = "fa-solid fa-lock";
+        }
+        else {
+            offsetZ = 0;
+            ropeButton.className = "fa-solid fa-unlock";
+        }
+    };
+
+    polygonMode = false;
+    polygonButton = document.createElement("i");
+    polygonButton.style.position = "absolute";
+    polygonButton.className = "fa-solid fa-draw-polygon";
+    polygonButton.style.color = "#555";
+    polygonButton.style.left = ((sw/2)-162.5)+"px";
+    polygonButton.style.top = ((sh/2)+(((300/2)*0.8)-137.5))+"px";
+    polygonButton.style.width = (25)+"px";
+    polygonButton.style.height = (25)+"px";
+    polygonButton.style.zIndex = "5";
+    document.body.appendChild(polygonButton);
+
+    polygonButton.onclick = function() {
+        polygonMode = !polygonMode;
+        if (polygonMode) {
+            polygonButton.style.color = "#fff";
+        }
+        else {
+            polygonButton.style.color = "#555";
+        }
+    };
+
     moveContainer = document.createElement("i");
     moveContainer.style.position = "absolute";
     moveContainer.style.left = ((sw/2)-150)+"px";
@@ -556,8 +603,8 @@ $(document).ready(function() {
         moveContainer.style.transform = "rotateZ(0deg)";
         updatePixel();
 
-        if (gyro.accZ < 0) {
-            var accZ = Math.abs(gyro.accZ);
+        if (((gyro.accZ+offsetZ) < 0) && !locked) {
+            var accZ = Math.abs(gyro.accZ+offsetZ);
             resolution = Math.floor((1+accZ)*10);
             baseTile.innerText = resolution+"x";
             baseCanvas.width = resolution;
@@ -588,8 +635,8 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/human-icon-0.png",
-    //"img/human-icon-1.png",
+    "img/human-icon-1.png",
+    //"img/human-icon-2.png",
     //"img/human-icon-0.png"
 ];
 
@@ -647,6 +694,7 @@ var moveLoop = function() {
     requestAnimationFrame(moveLoop);
 };
 
+var polygon = [];
 var pixelColor = "yellow";
 var paintPixel = function(e=false) {
     if (e) {
@@ -665,6 +713,37 @@ var paintPixel = function(e=false) {
     if (landscape) {
         x = (resolution-1)-pixelPosition.y;
         y = pixelPosition.x;
+    }
+
+    if (polygonMode) {
+        polygon.push({ x: x, y: y });
+
+        if (polygon.length < 2) return;
+        var resolutionCanvas = document.createElement("canvas");
+        resolutionCanvas.imageSmoothingEnabled = false;
+        resolutionCanvas.width = resolution;
+        resolutionCanvas.height = resolution;
+
+        var resolutionCtx = resolutionCanvas.getContext("2d");
+        resolutionCtx.strokeStyle = pixelColor;
+        resolutionCtx.lineWidth = 1;
+        resolutionCtx.lineCap = "butt";
+        resolutionCtx.lineJoin = "butt";
+
+        resolutionCtx.beginPath();
+        for (var n = 1; n < polygon.length; n++) {;
+            resolutionCtx.moveTo(
+            Math.round(polygon[n-1].x), 
+            Math.round(polygon[n-1].y));
+            resolutionCtx.lineTo(
+            Math.round(polygon[n].x), 
+            Math.round(polygon[n].y));
+        }
+        resolutionCtx.stroke();
+
+        var ctxPortal = canvasPortal.getContext("2d");
+        ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
+        return;
     }
 
     var ctx = canvas1.getContext("2d");
