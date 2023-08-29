@@ -480,10 +480,34 @@ $(document).ready(function() {
         polygonMode = !polygonMode;
         if (polygonMode) {
             polygonButton.style.color = "#fff";
+            polygonConnectButton.style.display = "initial";
         }
         else {
             polygonButton.style.color = "#555";
+            polygonConnectButton.style.display = "none";
         }
+    };
+
+    polygonConnectButton = document.createElement("i");
+    polygonConnectButton.style.position = "absolute";
+    polygonConnectButton.style.display = "none";
+    polygonConnectButton.className = 
+    "fa-solid fa-circle-nodes";
+    polygonConnectButton.style.color = "#fff";
+    polygonConnectButton.style.left = ((sw/2)-162.5)+"px";
+    polygonConnectButton.style.top = 
+    ((sh/2)+(((300/2)*0.8)-175))+"px";
+    polygonConnectButton.style.width = (25)+"px";
+    polygonConnectButton.style.height = (25)+"px";
+    polygonConnectButton.style.zIndex = "5";
+    document.body.appendChild(polygonConnectButton);
+
+    polygonConnectButton.onclick = function() {
+        polygon.push(polygon[0]);
+        pixelPosition.x = polygon[0].x;
+        pixelPosition.y = polygon[0].y;
+        paintPixel();
+        updatePixel();
     };
 
     moveContainer = document.createElement("i");
