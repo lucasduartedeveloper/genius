@@ -376,6 +376,23 @@ $(document).ready(function() {
     stopwatch.style.zIndex = "5";
     document.body.appendChild(stopwatch);
 
+    auxName = document.createElement("span");
+    auxName.style.position = "absolute";
+    auxName.innerText = "AJUDANTE";
+    auxName.style.textAlign = "left";
+    auxName.style.fontSize = "20px";
+    auxName.style.color = "#fff";
+    auxName.style.left = ((sw/2)-((300*0.8)/2))+"px";
+    auxName.style.top = ((sh/2)-((300*0.8)/2)-35)+"px";
+    auxName.style.width = (100)+"px";
+    auxName.style.height = (25)+"px";
+    auxName.style.zIndex = "5";
+    document.body.appendChild(auxName);
+
+    auxName.onclick = function() {
+        auxName.innerText = prompt();
+    };
+
     $("*").not("i").css("font-family", "Khand");
 
     ws.onmessage = function(e) {
@@ -745,10 +762,10 @@ var paintPixel = function(e=false) {
         var clientX = e.touches[0].clientX;
         var clientY = e.touches[0].clientY;
 
-        pixelPosition.x = Math.floor((clientX-((sw/2)-150))/
-        (300/resolution));
-        pixelPosition.y = Math.floor((clientY-((sh/2)-150))/
-        (300/resolution));
+        pixelPosition.x = Math.floor((clientX-((sw/2)-(300/2)*0.8))/
+        ((300/resolution)*0.8));
+        pixelPosition.y = Math.floor((clientY-((sh/2)-(300/2)*0.8))/
+        ((300/resolution)*0.8));
        updatePixel();
     }
 
@@ -811,19 +828,27 @@ var paintPixel = function(e=false) {
             var ctxResolution = resolutionCanvas.getContext("2d");
             ctxResolution.fillStyle = pixelColor;
             ctxResolution.beginPath();
+            ctxResolution.moveTo(
+            Math.round(polygon[0].x+0.5), 
+            Math.round(polygon[0].y+0.5));
             for (var n = 1; n < polygon.length; n++) {
-                ctxResolution.moveTo(
-                Math.round(polygon[n-1].x+0.5), 
-                Math.round(polygon[n-1].y+0.5));
                 ctxResolution.lineTo(
                 Math.round(polygon[n].x+0.5), 
                 Math.round(polygon[n].y+0.5));
             }
             ctxResolution.closePath();
+            ctxResolution.stroke();
             ctxResolution.fill();
+
+            removeBlur(resolutionCanvas);
 
             var ctxPortal = canvasPortal.getContext("2d");
             ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
+
+            applyMask(canvas1, canvasPortal);
+        }
+        else {
+            navigator.vibrate(500);
         }
         return;
     }
@@ -1045,12 +1070,18 @@ var removeBlur = function(destinationCanvas) {
     for (var n = 0; n < destinationArray.length; n += 4) {
         if ((destinationArray[n] == 255 &&
         destinationArray[n+1] == 255 &&
-        destinationArray[n+2] == 255 &&
+        destinationArray[n+2] == 0 &&
         destinationArray[n+3] == 255)) {
-            newArray[n + 0] =  destinationArray[n + 0]; // red
-            newArray[n + 1] =  destinationArray[n + 1]  // green
+            newArray[n + 0] = destinationArray[n + 0]; // red
+            newArray[n + 1] = destinationArray[n + 1]; // green
             newArray[n + 2] = destinationArray[n + 2]; // blue
-            newArray[n + 3] = destinationArray[n + 3] ; // alpha
+            newArray[n + 3] = destinationArray[n + 3]; // alpha
+        }
+        else {
+            newArray[n + 0] = 0; // red
+            newArray[n + 1] = 0; // green
+            newArray[n + 2] = 0; // blue
+            newArray[n + 3] = 0; // alpha
         }
     };
 
