@@ -497,7 +497,6 @@ $(document).ready(function() {
         polygonMode = !polygonMode;
         if (polygonMode) {
             polygonButton.style.color = "#fff";
-            polygonConnectButton.style.display = "initial";
         }
         else {
             polygonButton.style.color = "#555";
@@ -621,7 +620,7 @@ $(document).ready(function() {
 
     color = document.createElement("div");
     color.style.position = "absolute";
-    color.style.background = "yellow";
+    color.style.background = pixelColor;
     color.style.left = ((sw/2)-162.5)+"px";
     color.style.top = (((sh/2)-((300*0.8)/2)))+"px";
     color.style.width = (25)+"px";
@@ -756,7 +755,7 @@ var moveLoop = function() {
 };
 
 var polygon = [];
-var pixelColor = "yellow";
+var pixelColor = "rgba(255, 0, 0, 0.5)";
 var paintPixel = function(e=false) {
     if (e) {
         var clientX = e.touches[0].clientX;
@@ -781,10 +780,13 @@ var paintPixel = function(e=false) {
 
         var ctxTool = canvasTool.getContext("2d");
         ctxTool.clearRect(0, 0, 300, 300);
-        ctxTool.strokeStyle = pixelColor;
+        ctxTool.strokeStyle = "orange";
         ctxTool.lineWidth = 1;
         ctxTool.lineCap = "butt";
         ctxTool.lineJoin = "mitter";
+
+        if (polygon.length > 1)
+        polygonConnectButton.style.display = "initial";
 
         ctxTool.beginPath();
         if (polygon.length > 1)
@@ -802,7 +804,7 @@ var paintPixel = function(e=false) {
         }
         ctxTool.stroke();
 
-        ctxTool.fillStyle = pixelColor;
+        ctxTool.fillStyle = "orange";
         for (var n = 0; n < polygon.length; n++) {;
             ctxTool.beginPath();
             ctxTool.arc(
@@ -840,9 +842,16 @@ var paintPixel = function(e=false) {
             ctxResolution.stroke();
             ctxResolution.fill();
 
+            polygon = [];
+            polygonConnectButton.style.display = "none";
+
+            var ctxTool = canvasTool.getContext("2d");
+            ctxTool.clearRect(0, 0, 300, 300);
+
             removeBlur(resolutionCanvas);
 
             var ctxPortal = canvasPortal.getContext("2d");
+            ctxPortal.clearRect(0, 0, 300, 300);
             ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
 
             applyMask(canvas1, canvasPortal);
@@ -861,6 +870,9 @@ var paintPixel = function(e=false) {
     Math.round(300/resolution), Math.round(300/resolution));
 
     ctxPortal.fillStyle = pixelColor;
+    ctxPortal.clearRect(Math.round(x*(300/resolution)), 
+    Math.round(y*(300/resolution)), 
+    Math.round(300/resolution), Math.round(300/resolution));
     ctxPortal.fillRect(Math.round(x*(300/resolution)), 
     Math.round(y*(300/resolution)), 
     Math.round(300/resolution), Math.round(300/resolution));
@@ -1047,9 +1059,9 @@ var applyMask = function(destinationCanvas, maskCanvas) {
     var newArray = new Uint8ClampedArray(destinationArray);
     for (var n = 0; n < destinationArray.length; n += 4) {
         if (!(maskArray[n] == 255 &&
-        maskArray[n+1] == 255 &&
+        maskArray[n+1] == 0 &&
         maskArray[n+2] == 0 &&
-        maskArray[n+3] == 255)) {
+        maskArray[n+3] == 128)) {
             newArray[n + 0] = destinationArray[n + 0]; // red
             newArray[n + 1] = destinationArray[n + 1]; // green
             newArray[n + 2] = destinationArray[n + 2]; // blue
@@ -1057,7 +1069,7 @@ var applyMask = function(destinationCanvas, maskCanvas) {
         }
     };
 
-    destinationCtx.clearRect(0, 0, 300, 300);
+    //destinationCtx.clearRect(0, 0, 300, 300);
 
     var newImageData = new ImageData(newArray, 
     destinationImageData.width, destinationImageData.height);
@@ -1074,9 +1086,9 @@ var removeBlur = function(destinationCanvas) {
     var newArray = new Uint8ClampedArray(destinationArray);
     for (var n = 0; n < destinationArray.length; n += 4) {
         if ((destinationArray[n] == 255 &&
-        destinationArray[n+1] == 255 &&
+        destinationArray[n+1] == 0 &&
         destinationArray[n+2] == 0 &&
-        destinationArray[n+3] == 255)) {
+        destinationArray[n+3] == 128)) {
             newArray[n + 0] = destinationArray[n + 0]; // red
             newArray[n + 1] = destinationArray[n + 1]; // green
             newArray[n + 2] = destinationArray[n + 2]; // blue
