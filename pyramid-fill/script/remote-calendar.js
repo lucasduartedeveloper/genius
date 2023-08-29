@@ -1011,8 +1011,11 @@ var restoreCanvas = function() {
     canvas.getContext("2d") : 
     canvas1.getContext("2d");
 
-    ctx.clearRect(0, 0, 300, 300);
+    ctx.fillStyle = layerNo == 0 ? "#000" : "#fff";
+    ctx.fillRect(0, 0, 300, 300);
 
+    return;
+    ctx.clearRect(0, 0, 300, 300);
     for (var n = 0; n < pixelCount; n++) {
         var x = n % resolution;
         var y = Math.floor(n / resolution);
@@ -1045,14 +1048,16 @@ var applyMask = function(destinationCanvas, maskCanvas) {
     for (var n = 0; n < destinationArray.length; n += 4) {
         if (!(maskArray[n] == 255 &&
         maskArray[n+1] == 255 &&
-        maskArray[n+2] == 255 &&
+        maskArray[n+2] == 0 &&
         maskArray[n+3] == 255)) {
-            newArray[n + 0] =  destinationArray[n + 0]; // red
-            newArray[n + 1] =  destinationArray[n + 1]  // green
+            newArray[n + 0] = destinationArray[n + 0]; // red
+            newArray[n + 1] = destinationArray[n + 1]; // green
             newArray[n + 2] = destinationArray[n + 2]; // blue
-            newArray[n + 3] = destinationArray[n + 3] ; // alpha
+            newArray[n + 3] = destinationArray[n + 3]; // alpha
         }
     };
+
+    destinationCtx.clearRect(0, 0, 300, 300);
 
     var newImageData = new ImageData(newArray, 
     destinationImageData.width, destinationImageData.height);
