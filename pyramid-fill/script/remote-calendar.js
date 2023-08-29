@@ -770,7 +770,7 @@ var paintPixel = function(e=false) {
         ctxTool.lineJoin = "mitter";
 
         ctxTool.beginPath();
-        if (polygon.length > 2)
+        if (polygon.length > 1)
         for (var n = 1; n < polygon.length; n++) {;
             ctxTool.moveTo(
             Math.round((polygon[n-1].x*(300/resolution))+
@@ -795,6 +795,35 @@ var paintPixel = function(e=false) {
             ((300/resolution)/2)), 5, 
             0, Math.PI*2);
             ctxTool.fill();
+        }
+
+        if (polygon[0].x == polygon[polygon.length-1].x && 
+        polygon[0].y == polygon[polygon.length-1].y &&
+        polygon.length > 1) {
+            console.log("polygon closed");
+
+            var resolutionCanvas = document.
+            createElement("canvas");
+            resolutionCanvas.imageSmoothingEnabled = false;
+            resolutionCanvas.width = resolution;
+            resolutionCanvas.height = resolution;
+
+            var ctxResolution = resolutionCanvas.getContext("2d");
+            ctxResolution.fillStyle = pixelColor;
+            ctxResolution.beginPath();
+            for (var n = 1; n < polygon.length; n++) {
+                ctxResolution.moveTo(
+                Math.round(polygon[n-1].x+0.5), 
+                Math.round(polygon[n-1].y+0.5));
+                ctxResolution.lineTo(
+                Math.round(polygon[n].x+0.5), 
+                Math.round(polygon[n].y+0.5));
+            }
+            ctxResolution.closePath();
+            ctxResolution.fill();
+
+            var ctxPortal = canvasPortal.getContext("2d");
+            ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
         }
         return;
     }
