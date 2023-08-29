@@ -92,6 +92,22 @@ $(document).ready(function() {
 
     canvas1.getContext("2d").imageSmoothingEnabled = false;
 
+    canvasTool = document.createElement("canvas");
+    canvasTool.style.position = "absolute";
+    canvasTool.width = 300;
+    canvasTool.height = 300;
+    canvasTool.style.left = ((sw/2)-150)+"px";
+    canvasTool.style.top = ((sh/2)-150)+"px";
+    canvasTool.style.width = (300)+"px";
+    canvasTool.style.height = (300)+"px";
+    canvasTool.style.transform = "scale(0.8)";
+    canvasTool.style.zIndex = "5";
+    canvasTool.ontouchstart = paintPixel;
+    canvasTool.ontouchmove = paintPixel;
+    document.body.appendChild(canvasTool);
+
+    canvasTool.getContext("2d").imageSmoothingEnabled = false;
+
     canvas.style.outlineOffset = 
     (5)+"px";
     canvas.style.outline = 
@@ -722,34 +738,40 @@ var paintPixel = function(e=false) {
     if (polygonMode) {
         polygon.push({ x: x, y: y });
 
-        if (polygon.length < 2) return;
-        var resolutionCanvas = document.createElement("canvas");
-        resolutionCanvas.imageSmoothingEnabled = false;
-        resolutionCanvas.width = resolution;
-        resolutionCanvas.height = resolution;
+        var ctxTool = canvasTool.getContext("2d");
+        ctxTool.clearRect(0, 0, 300, 300);
+        ctxTool.strokeStyle = pixelColor;
+        ctxTool.lineWidth = 1;
+        ctxTool.lineCap = "butt";
+        ctxTool.lineJoin = "mitter";
 
-        var resolutionCtx = resolutionCanvas.getContext("2d");
-        resolutionCtx.strokeStyle = pixelColor;
-        resolutionCtx.lineWidth = 1;
-        resolutionCtx.lineCap = "butt";
-        resolutionCtx.lineJoin = "mitter";
-
-        resolutionCtx.beginPath();
+        ctxTool.beginPath();
+        if (polygon.length > 2)
         for (var n = 1; n < polygon.length; n++) {;
-            resolutionCtx.moveTo(
-            Math.round(polygon[n-1].x), 
-            Math.round(polygon[n-1].y));
-            resolutionCtx.lineTo(
-            Math.round(polygon[n].x), 
-            Math.round(polygon[n].y));
+            ctxTool.moveTo(
+            Math.round((polygon[n-1].x*(300/resolution))+
+            ((300/resolution)/2)), 
+            Math.round((polygon[n-1].y*(300/resolution))+
+            ((300/resolution)/2)));
+            ctxTool.lineTo(
+            Math.round((polygon[n].x*(300/resolution))+
+            ((300/resolution)/2)), 
+            Math.round((polygon[n].y*(300/resolution))+
+            ((300/resolution)/2)));
         }
-        resolutionCtx.stroke();
+        ctxTool.stroke();
 
-        var ctxPortal = canvasPortal.getContext("2d");
-        ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
-        removeBlur(canvasPortal);
-
-        applyMask(canvas1, canvasPortal);
+        ctxTool.fillStyle = pixelColor;
+        for (var n = 0; n < polygon.length; n++) {;
+            ctxTool.beginPath();
+            ctxTool.arc(
+            Math.round((polygon[n].x*(300/resolution))+
+            ((300/resolution)/2)), 
+            Math.round((polygon[n].y*(300/resolution))+
+            ((300/resolution)/2)), 5, 
+            0, Math.PI*2);
+            ctxTool.fill();
+        }
         return;
     }
 
