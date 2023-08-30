@@ -264,9 +264,6 @@ $(document).ready(function() {
     document.body.appendChild(baseTile);
 
     baseTile.onclick= function(e) {
-        var ctxVideoCanvas = canvas.getContext("2d");
-        ctxVideoCanvas.clearRect(0, 0, 300, 300);
-
         canvas.style.outlineOffset = 
         (5)+"px";
         canvas.style.outline = 
@@ -695,9 +692,9 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/75x_zoom.png",
+    "img/human-icon-0.png",
+    //"img/75x_zoom.png",
     //"img/human-icon-3.png",
-    //"img/human-icon-0.png",
     //"img/human-icon-1.png",
     //"img/human-icon-2.png",
 ];
