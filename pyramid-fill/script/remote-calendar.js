@@ -722,7 +722,8 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/human-icon-0.png",
+    "img/human-product-0.png",
+    //"img/human-icon-0.png",
     //"img/15x15.png",
     //"img/75x_zoom.png",
     //"img/human-icon-3.png",
@@ -1135,7 +1136,7 @@ var restoreCanvas = function() {
     ctx.fillStyle = layerNo == 0 ? "#000" : "#fff";
     ctx.fillRect(0, 0, 300, 300);
 
-    return;
+    if (layerNo == 1) {
     ctx.clearRect(0, 0, 300, 300);
     for (var n = 0; n < pixelCount; n++) {
         var x = n % resolution;
@@ -1151,6 +1152,7 @@ var restoreCanvas = function() {
         Math.round(y*(300/resolution)),
         Math.round((300/resolution)),
         Math.round((300/resolution)));
+    }
     }
 };
 
