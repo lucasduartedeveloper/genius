@@ -753,7 +753,7 @@ var createSwitch = function(background, x, y, value, callback) {
     switchButton.style.fontSize = "20px";
     switchButton.style.lineHeight = "20px";
     switchButton.style.color = "#000";
-    switchButton.innerText = "2";
+    switchButton.innerText = value;
     switchButton.style.left = (2.5)+"px";
     if (value == 2)
     switchButton.style.top = (2.5)+"px";
@@ -1269,7 +1269,7 @@ var anaglyph = function(centeredCanvas, destinationCanvas) {
     for (var n = 0; n < centeredArray.length; n += 4) {
         newArray[n + 0] = 
         getValue(redSwitch, [1.0, 0.0, 0.0])* centeredArray[n + 0] + 
-        getValue(redSwitch, [0.0, 0.0, 0.1])* destinationArray[n + 0]; // red
+        getValue(redSwitch, [0.0, 0.0, 1.0])* destinationArray[n + 0]; // red
         newArray[n + 1] = 
         getValue(greenSwitch, [0.0, 0.5, 0.0])* centeredArray[n + 1] + 
         getValue(greenSwitch, [0.0, 0.5, 0.0])* destinationArray[n + 1]; // green
