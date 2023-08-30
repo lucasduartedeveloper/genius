@@ -478,7 +478,7 @@ $(document).ready(function() {
         }
     };
 
-    polygonMode = false;
+    polygonMode = 0;
     polygonButton = document.createElement("i");
     polygonButton.style.position = "absolute";
     polygonButton.className = "fa-solid fa-draw-polygon";
@@ -491,9 +491,13 @@ $(document).ready(function() {
     document.body.appendChild(polygonButton);
 
     polygonButton.onclick = function() {
-        polygonMode = !polygonMode;
-        if (polygonMode) {
+        polygonMode = (polygonMode+1) < 3 ? 
+        (polygonMode+1) : 0;
+        if (polygonMode == 1) {
             polygonButton.style.color = "#fff";
+        }
+        else if (polygonMode == 2) {
+            polygonButton.style.color = "blue";
         }
         else {
             polygonButton.style.color = "#555";
@@ -774,7 +778,7 @@ var paintPixel = function(e=false) {
         y = pixelPosition.x;
     }
 
-    if (polygonMode) {
+    if (polygonMode > 0) {
         polygon.push({ x: x, y: y });
 
         var ctxTool = canvasTool.getContext("2d");
@@ -819,6 +823,10 @@ var paintPixel = function(e=false) {
         polygon[0].y == polygon[polygon.length-1].y &&
         polygon.length > 1) {
             console.log("polygon closed");
+            var ctxTool = canvasTool.getContext("2d");
+            if (polygonMode == 1) {
+                ctxTool.clearRect(0, 0, 300, 300);
+            }
 
             var resolutionCanvas = document.
             createElement("canvas");
@@ -827,7 +835,16 @@ var paintPixel = function(e=false) {
             resolutionCanvas.height = resolution;
 
             var ctxResolution = resolutionCanvas.getContext("2d");
-            ctxResolution.fillStyle = pixelColor;
+            if (polygonMode == 1) {
+                ctxResolution.lineWidth = 1;
+                ctxResolution.strokeStyle = pixelColor;
+                ctxResolution.fillStyle = pixelColor;
+            }
+            else if (polygonMode == 2) {
+                ctxResolution.lineWidth = 1;
+                ctxResolution.strokeStyle = "yellow";
+                ctxResolution.fillStyle = "yellow";
+            }
             ctxResolution.beginPath();
             ctxResolution.moveTo(
             Math.round(polygon[0].x+0.5), 
@@ -843,9 +860,6 @@ var paintPixel = function(e=false) {
 
             polygon = [];
             polygonConnectButton.style.display = "none";
-
-            var ctxTool = canvasTool.getContext("2d");
-            ctxTool.clearRect(0, 0, 300, 300);
 
             removeBlur(resolutionCanvas);
 
@@ -1122,6 +1136,21 @@ var removeBlur = function(destinationCanvas) {
             newArray[n + 1] = destinationArray[n + 1]; // green
             newArray[n + 2] = destinationArray[n + 2]; // blue
             newArray[n + 3] = destinationArray[n + 3]; // alpha
+        }
+        else if ((destinationArray[n] == 255 &&
+        destinationArray[n+1] == 255 &&
+        destinationArray[n+2] == 0 &&
+        destinationArray[n+3] == 255)) {
+            newArray[n + 0] = 0; // red
+            newArray[n + 1] = 0; // green
+            newArray[n + 2] = 0 // blue
+            newArray[n + 3] = 0; // alpha
+        }
+        else if (destinationArray[n+3] > 128) {
+            newArray[n + 0] = 255; // red
+            newArray[n + 1] = 0; // green
+            newArray[n + 2] = 0 // blue
+            newArray[n + 3] = 128; // alpha
         }
         else {
             newArray[n + 0] = 0; // red
