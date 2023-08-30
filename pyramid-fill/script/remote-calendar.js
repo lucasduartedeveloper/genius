@@ -1189,14 +1189,14 @@ var anaglyph = function(centeredCanvas, destinationCanvas) {
     var newArray = new Uint8ClampedArray(centeredArray);
     for (var n = 0; n < centeredArray.length; n += 4) {
         newArray[n + 0] = 
-        0.0* centeredArray[n + 1] + 
-        1.0* destinationArray[n + 1]; // red
+        0.0* centeredArray[n + 0] + 
+        1.0* destinationArray[n + 0]; // red
         newArray[n + 1] = 
-        0.5* centeredArray[n + 2] + 
-        0.5* destinationArray[n + 2]; // green
+        0.5* centeredArray[n + 1] + 
+        0.5* destinationArray[n + 1]; // green
         newArray[n + 2] = 
-        1.0* centeredArray[n + 3] + 
-        0.0* destinationArray[n + 3]; // blue
+        1.0* centeredArray[n + 2] + 
+        0.0* destinationArray[n + 2]; // blue
         newArray[n + 3] = centeredArray[n + 3]; // alpha
     };
 
