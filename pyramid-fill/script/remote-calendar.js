@@ -682,19 +682,22 @@ $(document).ready(function() {
     };
     moveLoop();
 
-    redSwitch = true;
-    createSwitch("#f00", (sw/2)-37.5, (sh-50), function(active) {
-        redSwitch = !redSwitch;
+    redSwitch = 2;
+    createSwitch("#f00", (sw/2)-37.5, (sh-50), redSwitch,
+    function(active) {
+        redSwitch = active;
         drawSquare();
     });
-    greenSwitch = true;
-    createSwitch("#0f0", (sw/2), (sh-50), function(active) {
-        greenSwitch = !greenSwitch;
+    greenSwitch = 1;
+    createSwitch("#0f0", (sw/2), (sh-50), greenSwitch,
+    function(active) {
+        greenSwitch = active;
         drawSquare();
     });
-    blueSwitch = true;
-    createSwitch("#00f", (sw/2)+37.5, (sh-50), function(active) {
-        blueSwitch = !blueSwitch;
+    blueSwitch = 2;
+    createSwitch("#00f", (sw/2)+37.5, (sh-50), blueSwitch,
+    function(active) {
+        blueSwitch = active;
         drawSquare();
     });
 
@@ -727,7 +730,7 @@ var img_list = [
     //"img/human-icon-2.png",
 ];
 
-var createSwitch = function(background, x, y, callback) {
+var createSwitch = function(background, x, y, value, callback) {
     var switchBackground = document.createElement("span");
     switchBackground.style.position = "absolute";
     switchBackground.style.boxShadow = 
@@ -737,7 +740,7 @@ var createSwitch = function(background, x, y, callback) {
     switchBackground.style.left = (x-12.5)+"px";
     switchBackground.style.top = (y-25)+"px";
     switchBackground.style.width = (25)+"px";
-    switchBackground.style.height = (50)+"px";
+    switchBackground.style.height = (75)+"px";
     switchBackground.style.transform = "scale(0.8)";
     switchBackground.style.zIndex = "5";
     document.body.appendChild(switchBackground);
@@ -747,22 +750,43 @@ var createSwitch = function(background, x, y, callback) {
     switchButton.style.boxShadow = 
     "0px 0px 5px black";
     switchButton.style.background = "#fff";
+    switchButton.style.fontSize = "20px";
+    switchButton.style.lineHeight = "20px";
+    switchButton.style.color = "#000";
+    switchButton.innerText = "2";
     switchButton.style.left = (2.5)+"px";
+    if (value == 2)
     switchButton.style.top = (2.5)+"px";
+    else if (value == 1)
+    switchButton.style.top = (27.5)+"px";
+    else if (value == 0)
+    switchButton.style.top = (52.5)+"px";
     switchButton.style.width = (20)+"px";
     switchButton.style.height = (20)+"px";
     switchButton.style.zIndex = "5";
     switchBackground.appendChild(switchButton);
 
-    switchButton.active = true;
+    switchBackground.button = switchButton;
+    switchButton.active = 2;
+    switchButton.lastActive = 2;
 
     switchBackground.onclick = function() {
-        this.active = !this.active;
-        if (this.active)
+        this.button.active = 
+        (this.button.active == 2) || (this.button.active == 0) ? 
+        1 : ((this.button.lastActive == 0) ? 2 : 0) ;
+
+        if (this.button.active == 2)
         switchButton.style.top = (2.5)+"px";
-        else
+        else if (this.button.active == 1)
         switchButton.style.top = (27.5)+"px";
-        callback(this.active);
+        else if (this.button.active == 0)
+        switchButton.style.top = (52.5)+"px";
+
+        if (this.button.active != 1)
+        switchButton.lastActive = this.button.active;
+
+        this.button.innerText = this.button.active;
+        callback(this.button.active);
     };
 };
 
@@ -1244,14 +1268,14 @@ var anaglyph = function(centeredCanvas, destinationCanvas) {
     var newArray = new Uint8ClampedArray(centeredArray);
     for (var n = 0; n < centeredArray.length; n += 4) {
         newArray[n + 0] = 
-        (redSwitch ? 0.0 : 0.0)* centeredArray[n + 0] + 
-        (redSwitch ? 1.0 : 0.0)* destinationArray[n + 0]; // red
+        getValue(redSwitch, [1.0, 0.0, 0.0])* centeredArray[n + 0] + 
+        getValue(redSwitch, [0.0, 0.0, 0.1])* destinationArray[n + 0]; // red
         newArray[n + 1] = 
-        (greenSwitch ? 0.5 : 0.5)* centeredArray[n + 1] + 
-        (greenSwitch ? 0.5 : 0.5)* destinationArray[n + 1]; // green
+        getValue(greenSwitch, [0.0, 0.5, 0.0])* centeredArray[n + 1] + 
+        getValue(greenSwitch, [0.0, 0.5, 0.0])* destinationArray[n + 1]; // green
         newArray[n + 2] = 
-        (blueSwitch ? 5.0 : 0.0)* centeredArray[n + 2] + 
-        (blueSwitch ? 0.0 : 0.0)* destinationArray[n + 2]; // blue
+        getValue(blueSwitch, [0.0, 0.0, 1.0])* centeredArray[n + 2] + 
+        getValue(blueSwitch, [1.0, 0.0, 0.0])* destinationArray[n + 2]; // blue
         newArray[n + 3] = centeredArray[n + 3]; // alpha
     };
 
@@ -1259,6 +1283,10 @@ var anaglyph = function(centeredCanvas, destinationCanvas) {
     centeredImageData.width, centeredImageData.height);
 
     destinationCtx.putImageData(newImageData, 0, 0);
+};
+
+var getValue = function(n, options) {
+    return options[n];
 };
 
 var formatTime = function() {
