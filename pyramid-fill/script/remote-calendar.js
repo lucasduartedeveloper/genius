@@ -1052,6 +1052,10 @@ var drawSquare = function() {
         resolutionCtx.scale(-1, 1);
     }
     if (preloaded) {
+        var image = { 
+            width: img_list[0].width, 
+            height: img_list[0].height
+        };
         var format = fitImageCover(img_list[0], resolutionCanvas);
         //console.log(format);
         resolutionCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
@@ -1075,18 +1079,21 @@ var drawSquare = function() {
         centeredCanvas.height = resolution;
 
         var centeredCtx = centeredCanvas.getContext("2d");
-        var format = fitImageCover(canvas, centeredCanvas);
-        //console.log(format);
+        console.log(format);
         if (!preloaded && deviceNo == 0) {
             centeredCtx.save();
             centeredCtx.translate(format.width, 0);
             centeredCtx.scale(-1, 1);
         }
-        if (preloaded)
-        centeredCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
-        else
-        centeredCtx.drawImage(canvas, format.left, format.top, format.width, format.height);
-        centeredCtx.restore();
+        if (preloaded) {
+            var format = fitImageCover(img_list[0], centeredCanvas);
+            centeredCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
+        }
+        else {
+            var format = fitImageCover(canvas, centeredCanvas)
+            centeredCtx.drawImage(canvas, format.left, format.top, format.width, format.height);
+            centeredCtx.restore();
+        }
 
         anaglyph(centeredCanvas, resolutionCanvas);
         ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
