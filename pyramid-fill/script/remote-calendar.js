@@ -682,6 +682,22 @@ $(document).ready(function() {
     };
     moveLoop();
 
+    redSwitch = true;
+    createSwitch("#f00", (sw/2)-37.5, (sh-50), function(active) {
+        redSwitch = !redSwitch;
+        drawSquare();
+    });
+    greenSwitch = true;
+    createSwitch("#0f0", (sw/2), (sh-50), function(active) {
+        greenSwitch = !greenSwitch;
+        drawSquare();
+    });
+    blueSwitch = true;
+    createSwitch("#00f", (sw/2)+37.5, (sh-50), function(active) {
+        blueSwitch = !blueSwitch;
+        drawSquare();
+    });
+
     camera.onplay = function() {
         console.log("onplay");
         var frame = { width: 50, height: 50 };
@@ -703,13 +719,52 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/15x15.png",
-    //"img/human-icon-0.png",
+    "img/human-icon-0.png",
+    //"img/15x15.png",
     //"img/75x_zoom.png",
     //"img/human-icon-3.png",
     //"img/human-icon-1.png",
     //"img/human-icon-2.png",
 ];
+
+var createSwitch = function(background, x, y, callback) {
+    var switchBackground = document.createElement("span");
+    switchBackground.style.position = "absolute";
+    switchBackground.style.boxShadow = 
+    "inset 0px 0px 5px black";
+    switchBackground.style.background = background;
+    switchBackground.style.color = "#fff";
+    switchBackground.style.left = (x-12.5)+"px";
+    switchBackground.style.top = (y-25)+"px";
+    switchBackground.style.width = (25)+"px";
+    switchBackground.style.height = (50)+"px";
+    switchBackground.style.transform = "scale(0.8)";
+    switchBackground.style.zIndex = "5";
+    document.body.appendChild(switchBackground);
+
+    var switchButton = document.createElement("span");
+    switchButton.style.position = "absolute";
+    switchButton.style.boxShadow = 
+    "0px 0px 5px black";
+    switchButton.style.background = "#fff";
+    switchButton.style.left = (2.5)+"px";
+    switchButton.style.top = (2.5)+"px";
+    switchButton.style.width = (20)+"px";
+    switchButton.style.height = (20)+"px";
+    switchButton.style.zIndex = "5";
+    switchBackground.appendChild(switchButton);
+
+    switchButton.active = true;
+
+    switchBackground.onclick = function() {
+        this.active = !this.active;
+        if (this.active)
+        switchButton.style.top = (2.5)+"px";
+        else
+        switchButton.style.top = (27.5)+"px";
+        callback(this.active);
+    };
+};
 
 var imagesLoaded = false;
 var loadImages = function(callback) {
@@ -997,7 +1052,7 @@ var drawSquare = function() {
 
         var centeredCtx = centeredCanvas.getContext("2d");
         var format = fitImageCover(canvas, centeredCanvas);
-        console.log(format);
+        //console.log(format);
         if (!preloaded && deviceNo == 0) {
             centeredCtx.save();
             centeredCtx.translate(format.width, 0);
@@ -1189,14 +1244,14 @@ var anaglyph = function(centeredCanvas, destinationCanvas) {
     var newArray = new Uint8ClampedArray(centeredArray);
     for (var n = 0; n < centeredArray.length; n += 4) {
         newArray[n + 0] = 
-        0.0* centeredArray[n + 0] + 
-        1.0* destinationArray[n + 0]; // red
+        (redSwitch ? 0.0 : 0.0)* centeredArray[n + 0] + 
+        (redSwitch ? 1.0 : 0.0)* destinationArray[n + 0]; // red
         newArray[n + 1] = 
-        0.5* centeredArray[n + 1] + 
-        0.5* destinationArray[n + 1]; // green
+        (greenSwitch ? 0.5 : 0.5)* centeredArray[n + 1] + 
+        (greenSwitch ? 0.5 : 0.5)* destinationArray[n + 1]; // green
         newArray[n + 2] = 
-        1.0* centeredArray[n + 2] + 
-        0.0* destinationArray[n + 2]; // blue
+        (blueSwitch ? 5.0 : 0.0)* centeredArray[n + 2] + 
+        (blueSwitch ? 0.0 : 0.0)* destinationArray[n + 2]; // blue
         newArray[n + 3] = centeredArray[n + 3]; // alpha
     };
 
