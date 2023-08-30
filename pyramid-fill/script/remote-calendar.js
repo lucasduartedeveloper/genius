@@ -695,7 +695,9 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/human-icon-0.png",
+    "img/75x_zoom.png",
+    //"img/human-icon-3.png",
+    //"img/human-icon-0.png",
     //"img/human-icon-1.png",
     //"img/human-icon-2.png",
 ];
@@ -854,6 +856,7 @@ var paintPixel = function(e=false) {
             ctxPortal.clearRect(0, 0, 300, 300);
             ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
 
+            listPixels(canvasPortal);
             applyMask(canvas1, canvasPortal);
         }
         else {
@@ -1056,8 +1059,10 @@ var applyMask = function(destinationCanvas, maskCanvas) {
     destinationCtx.getImageData(0, 0, 300, 300);
     var destinationArray = destinationImageData.data;
 
-    var newArray = new Uint8ClampedArray(destinationArray);
-    for (var n = 0; n < destinationArray.length; n += 4) {
+    var preserveCount = 0;
+    var newArray = new Uint8ClampedArray(maskArray.length);
+
+    for (var n = 0; n < newArray.length; n += 4) {
         if (!(maskArray[n] == 255 &&
         maskArray[n+1] == 0 &&
         maskArray[n+2] == 0 &&
@@ -1066,6 +1071,7 @@ var applyMask = function(destinationCanvas, maskCanvas) {
             newArray[n + 1] = destinationArray[n + 1]; // green
             newArray[n + 2] = destinationArray[n + 2]; // blue
             newArray[n + 3] = destinationArray[n + 3]; // alpha
+            preserveCount += 1;
         }
     };
 
@@ -1075,7 +1081,33 @@ var applyMask = function(destinationCanvas, maskCanvas) {
     destinationImageData.width, destinationImageData.height);
 
     destinationCtx.putImageData(newImageData, 0, 0);
+    console.log("preserved "+preserveCount+" pixels");
 };
+
+var listPixels = function(canvas) {
+    var ctx = canvas.getContext("2d");
+    var imageData = 
+    ctx.getImageData(0, 0, 300, 300);
+    var imageArray = imageData.data;
+
+    var visibleCount = 0;
+    var newArray = new Uint8ClampedArray(imageArray);
+    for (var n = 0; n < imageArray.length; n += 4) {
+        if (!(newArray[n] == 0 &&
+        newArray[n+1] == 0 &&
+        newArray[n+2] == 0 &&
+        newArray[n+3] == 0)) {
+            /*console.log("pixel "+n+":", 
+            newArray[n],
+            newArray[n+1],
+            newArray[n+2],
+            newArray[n+3]);*/
+            visibleCount += 1;
+        }
+    };
+
+    console.log("selected "+visibleCount+" pixels");
+}
 
 var removeBlur = function(destinationCanvas) {
     var destinationCtx = destinationCanvas.getContext("2d");
