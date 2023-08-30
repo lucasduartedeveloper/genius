@@ -25,6 +25,7 @@ if (navigator.mediaDevices) {
 }
 
 function startCamera(color=true) {
+    stopCamera();
     if (navigator.mediaDevices) {
           navigator.mediaDevices
           .getUserMedia({ 

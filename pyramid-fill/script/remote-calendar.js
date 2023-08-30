@@ -172,8 +172,13 @@ $(document).ready(function() {
     document.body.appendChild(inputDevice);
 
     inputDevice.onclick = function() {
-        deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
-        (deviceNo+1) : 0;
+        if (cameraOn) {
+            deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
+            (deviceNo+1) : 0;
+        }
+
+        startCamera();
+
         inputDevice.innerText = "device: "+deviceNo;
         camera.style.transform = deviceNo == 0 ? 
         "rotateY(-180deg)" : "rotateY(0deg)";
@@ -197,7 +202,12 @@ $(document).ready(function() {
     layerTile.onclick = function() {
         layerNo = (layerNo+1) < (3) ? 
         (layerNo+1) : 0;
+
+        if (layerNo < 2)
         layerTile.innerText = "layer no: "+layerNo;
+        else
+        layerTile.innerText = "3D";
+
         if (layerNo == 0) {
             canvas.style.display = "initial";
             canvasPortal.style.display = "initial";
@@ -272,10 +282,7 @@ $(document).ready(function() {
         timeStarted = new Date().getTime();
         stopwatch.innerText = "00:00";
 
-        if (preloaded)
         drawSquare();
-        else
-        startCamera();
     };
 
     loadImages(function() {
@@ -696,7 +703,8 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/human-icon-0.png",
+    "img/15x15.png",
+    //"img/human-icon-0.png",
     //"img/75x_zoom.png",
     //"img/human-icon-3.png",
     //"img/human-icon-1.png",
@@ -988,7 +996,8 @@ var drawSquare = function() {
         centeredCanvas.height = resolution;
 
         var centeredCtx = centeredCanvas.getContext("2d");
-        var format = fitImageCover(centeredCanvas, canvas);
+        var format = fitImageCover(canvas, centeredCanvas);
+        console.log(format);
         if (!preloaded && deviceNo == 0) {
             centeredCtx.save();
             centeredCtx.translate(format.width, 0);
@@ -1179,17 +1188,22 @@ var anaglyph = function(centeredCanvas, destinationCanvas) {
 
     var newArray = new Uint8ClampedArray(centeredArray);
     for (var n = 0; n < centeredArray.length; n += 4) {
-        newArray[n + 0] =  0.7* destinationArray[n + 1] + 
-        0.3* centeredCanvas[n + 2]; // red
-        newArray[n + 1] = 1.0* centeredArray[n + 1]  // green
-        newArray[n + 2] = 1.0 * centeredArray[n + 2]; // blue
-        newArray[n + 3] = centeredArray[n + 3] ; // alpha
+        newArray[n + 0] = 
+        0.0* centeredArray[n + 1] + 
+        1.0* destinationArray[n + 1]; // red
+        newArray[n + 1] = 
+        0.5* centeredArray[n + 2] + 
+        0.5* destinationArray[n + 2]; // green
+        newArray[n + 2] = 
+        1.0* centeredArray[n + 3] + 
+        0.0* destinationArray[n + 3]; // blue
+        newArray[n + 3] = centeredArray[n + 3]; // alpha
     };
 
     var newImageData = new ImageData(newArray, 
-    centeredArray.width, centeredArray.height);
+    centeredImageData.width, centeredImageData.height);
 
-    destinationCtx.putImageData(newImageData);
+    destinationCtx.putImageData(newImageData, 0, 0);
 };
 
 var formatTime = function() {
