@@ -508,7 +508,10 @@ $(document).ready(function() {
         }
         else {
             polygonButton.style.color = "#555";
+            polygon = [];
             polygonConnectButton.style.display = "none";
+            var ctxTool = canvasTool.getContext("2d");
+            ctxTool.clearRect(0, 0, 300, 300);
         }
     };
 
