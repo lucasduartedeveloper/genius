@@ -218,6 +218,7 @@ $(document).ready(function() {
     layerTile = document.createElement("span");
     layerTile.style.position = "absolute";
     layerTile.style.background = "rgba(50, 50, 65, 1)";
+    layerTile.style.fontSize = (15)+"px";
     layerTile.style.lineHeight = (100)+"px";
     layerTile.style.color = "#fff";
     layerTile.innerText = "layer no: "+layerNo;
