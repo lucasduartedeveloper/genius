@@ -92,6 +92,20 @@ $(document).ready(function() {
 
     canvas1.getContext("2d").imageSmoothingEnabled = false;
 
+    canvasGrid = document.createElement("canvas");
+    canvasGrid.style.position = "absolute";
+    canvasGrid.width = 300;
+    canvasGrid.height = 300;
+    canvasGrid.style.left = ((sw/2)-150)+"px";
+    canvasGrid.style.top = ((sh/2)-150)+"px";
+    canvasGrid.style.width = (300)+"px";
+    canvasGrid.style.height = (300)+"px";
+    canvasGrid.style.transform = "scale(0.8)";
+    canvasGrid.style.zIndex = "5";
+    document.body.appendChild(canvasGrid);
+
+    canvasGrid.getContext("2d").imageSmoothingEnabled = false;
+
     canvasTool = document.createElement("canvas");
     canvasTool.style.position = "absolute";
     canvasTool.width = 300;
@@ -282,6 +296,7 @@ $(document).ready(function() {
         timeStarted = new Date().getTime();
         stopwatch.innerText = "00:00";
 
+        updateGrid();
         drawSquare();
     };
 
@@ -337,6 +352,7 @@ $(document).ready(function() {
 
     leftArrow.onclick = function() {
         resolution = ((resolution/5)-1)*5;
+        updateGrid();
         updatePixel();
         baseTile.innerText = resolution+"x";
         baseCanvas.width = resolution;
@@ -360,6 +376,7 @@ $(document).ready(function() {
 
     rightArrow.onclick = function() {
         resolution = ((resolution/5)+1)*5;
+        updateGrid();
         updatePixel();
         baseTile.innerText = resolution+"x";
         baseCanvas.width = resolution;
@@ -535,6 +552,28 @@ $(document).ready(function() {
         pixelPosition.y = polygon[0].y;
         paintPixel();
         updatePixel();
+    };
+
+    gridButton = document.createElement("i");
+    gridButton.style.position = "absolute";
+    gridButton.className = 
+    "fa-solid fa-border-all";
+    gridButton.style.color = "#555";
+    gridButton.style.left = ((sw/2)-162.5)+"px";
+    gridButton.style.top = 
+    ((sh/2)+(((300/2)*0.8)-212.5))+"px";
+    gridButton.style.width = (25)+"px";
+    gridButton.style.height = (25)+"px";
+    gridButton.style.zIndex = "5";
+    document.body.appendChild(gridButton);
+
+    gridButton.onclick = function() {
+        showGrid = !showGrid;
+        if (showGrid)
+        gridButton.style.color = "#fff";
+        else
+        gridButton.style.color = "#555";
+        updateGrid();
     };
 
     moveContainer = document.createElement("i");
@@ -1110,6 +1149,26 @@ var drawSquare = function() {
     canvas.style.outline = 
     (5)+"px solid limegreen";
     //_say("image created");
+};
+
+var showGrid = false;
+var updateGrid = function() {
+    var ctxGrid = canvasGrid.getContext("2d");
+    ctxGrid.clearRect(0, 0, 300, 300);
+    if (!showGrid) return;
+    ctxGrid.lineWidth = 1;
+    ctxGrid.strokeStyle = "#555";
+    for (var n = 0; n < (resolution+1); n++) {
+        ctxGrid.beginPath();
+        ctxGrid.moveTo(0, (n*(300/resolution)));
+        ctxGrid.lineTo(300, (n*(300/resolution)));
+        ctxGrid.stroke();
+
+        ctxGrid.beginPath();
+        ctxGrid.moveTo((n*(300/resolution)), 0);
+        ctxGrid.lineTo((n*(300/resolution)), 300);
+        ctxGrid.stroke();
+    }
 };
 
 var clipLayers = function() {
