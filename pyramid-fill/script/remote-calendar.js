@@ -1200,6 +1200,7 @@ var clipLayers = function() {
     var finalCtx = finalCanvas.getContext("2d");
     finalCtx.drawImage(canvas, 0, 0, 300, 300);
     finalCtx.drawImage(canvas1, 0, 0, 300, 300);
+    finalCtx.drawImage(canvasEffect, 0, 0, 300, 300);
 
     return finalCanvas.toDataURL();
 };
