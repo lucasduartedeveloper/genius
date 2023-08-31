@@ -92,6 +92,22 @@ $(document).ready(function() {
 
     canvas1.getContext("2d").imageSmoothingEnabled = false;
 
+    canvasEffect = document.createElement("canvas");
+    canvasEffect.style.position = "absolute";
+    canvasEffect.width = 300;
+    canvasEffect.height = 300;
+    canvasEffect.style.left = ((sw/2)-150)+"px";
+    canvasEffect.style.top = ((sh/2)-150)+"px";
+    canvasEffect.style.width = (300)+"px";
+    canvasEffect.style.height = (300)+"px";
+    canvasEffect.style.transform = "scale(0.8)";
+    canvasEffect.style.zIndex = "5";
+    canvasEffect.ontouchstart = paintPixel;
+    canvasEffect.ontouchmove = paintPixel;
+    document.body.appendChild(canvasEffect);
+
+    canvasEffect.getContext("2d").imageSmoothingEnabled = false;
+
     canvasGrid = document.createElement("canvas");
     canvasGrid.style.position = "absolute";
     canvasGrid.width = 300;
@@ -214,23 +230,35 @@ $(document).ready(function() {
     document.body.appendChild(layerTile);
 
     layerTile.onclick = function() {
-        layerNo = (layerNo+1) < (3) ? 
+        layerNo = (layerNo+1) < (5) ? 
         (layerNo+1) : 0;
 
         if (layerNo < 2)
         layerTile.innerText = "layer no: "+layerNo;
-        else
+        else if (layerNo == 2)
         layerTile.innerText = "3D";
+        else if (layerNo == 3)
+        layerTile.innerText = "Interleaved";
+        else if (layerNo == 4)
+        layerTile.innerText = "Interleaved XY";
 
         if (layerNo == 0) {
             canvas.style.display = "initial";
             canvasPortal.style.display = "initial";
             canvas1.style.display = "none";
+            canvasEffect.style.display = "none";
         }
-        else {
+        else if (layerNo == 1) {
             canvas.style.display = "initial";
             canvasPortal.style.display = "none";
             canvas1.style.display = "initial";
+            canvasEffect.style.display = "none";
+        }
+        else if (layerNo == 2) {
+            canvas.style.display = "none";
+            canvasPortal.style.display = "none";
+            canvas1.style.display = "none";
+            canvasEffect.style.display = "initial";
         }
     };
 
@@ -350,8 +378,11 @@ $(document).ready(function() {
     leftArrow.style.zIndex = "5";
     document.body.appendChild(leftArrow);
 
-    leftArrow.onclick = function() {
-        resolution = ((resolution/5)-1)*5;
+    var setResolution = function(n) {
+        resolution = n < 0 ? 
+        ((resolution/5)-1)*5 :
+        ((resolution/5)+1)*5;
+        resolution = resolution < 5 ? 5 : resolution;
         updateGrid();
         updatePixel();
         baseTile.innerText = resolution+"x";
@@ -360,6 +391,10 @@ $(document).ready(function() {
         camera.width = resolution;
         camera.height = resolution;
         fileName.innerText = resolution+"x_zoom.png";
+    };
+
+    leftArrow.onclick = function() {
+        setResolution(-1);
     };
 
     rightArrow = document.createElement("i");
@@ -375,15 +410,7 @@ $(document).ready(function() {
     document.body.appendChild(rightArrow);
 
     rightArrow.onclick = function() {
-        resolution = ((resolution/5)+1)*5;
-        updateGrid();
-        updatePixel();
-        baseTile.innerText = resolution+"x";
-        baseCanvas.width = resolution;
-        baseCanvas.height = resolution;
-        camera.width = resolution;
-        camera.height = resolution;
-        fileName.innerText = resolution+"x_zoom.png";
+        setResolution(1);
     };
 
     stopwatch = document.createElement("span");
@@ -764,8 +791,9 @@ $(document).ready(function() {
 
 //"img/island-0.png",
 var img_list = [
-    "img/human-product-0.png",
+    "img/human-icon-4.png",
     //"img/human-icon-0.png",
+    //"img/human-product-0.png",
     //"img/15x15.png",
     //"img/75x_zoom.png",
     //"img/human-icon-3.png",
@@ -1076,6 +1104,11 @@ var saveButtons = function() {
 
 var resolution = 10;
 var drawSquare = function() {
+    if (layerNo >= 2) {
+        applyEffect(layerNo-2);
+        return;
+    }
+
     var ctx = layerNo == 0 ? 
     canvas.getContext("2d") : 
     canvas1.getContext("2d");
@@ -1112,35 +1145,7 @@ var drawSquare = function() {
     }
 
     ctx.clearRect(0, 0, 300, 300);
-    if (layerNo < 2) {
-        ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
-    }
-    else {
-        var centeredCanvas = document.createElement("canvas");
-        centeredCanvas.imageSmoothingEnabled = false;
-        centeredCanvas.width = resolution;
-        centeredCanvas.height = resolution;
-
-        var centeredCtx = centeredCanvas.getContext("2d");
-        console.log(format);
-        if (!preloaded && deviceNo == 0) {
-            centeredCtx.save();
-            centeredCtx.translate(format.width, 0);
-            centeredCtx.scale(-1, 1);
-        }
-        if (preloaded) {
-            var format = fitImageCover(img_list[0], centeredCanvas);
-            centeredCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
-        }
-        else {
-            var format = fitImageCover(canvas, centeredCanvas)
-            centeredCtx.drawImage(canvas, format.left, format.top, format.width, format.height);
-            centeredCtx.restore();
-        }
-
-        anaglyph(centeredCanvas, resolutionCanvas);
-        ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
-    }
+    ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
 
     navigator.vibrate(500);
 
@@ -1149,6 +1154,20 @@ var drawSquare = function() {
     canvas.style.outline = 
     (5)+"px solid limegreen";
     //_say("image created");
+};
+
+var applyEffect = function(n) {
+    var ctx = canvasEffect.getContext("2d");
+
+    var effect;
+    if (n == 0)
+    effect = anaglyph(canvas, canvas1);
+    else if (n == 1)
+    effect = interleaved(canvas, canvas1);
+    else if (n == 2)
+    effect = interleavedBothAxis(canvas, canvas1);
+
+    ctx.drawImage(effect, 0, 0, 300, 300);
 };
 
 var showGrid = false;
@@ -1198,6 +1217,7 @@ var restoreCanvas = function() {
     ctx.fillStyle = layerNo == 0 ? "#000" : "#fff";
     ctx.fillRect(0, 0, 300, 300);
 
+    return;
     if (layerNo == 1) {
     ctx.clearRect(0, 0, 300, 300);
     for (var n = 0; n < pixelCount; n++) {
@@ -1326,14 +1346,20 @@ var removeBlur = function(destinationCanvas) {
 };
 
 var anaglyph = function(centeredCanvas, destinationCanvas) {
+    var result = document.createElement("canvas");
+    result.width = 300;
+    result.height = 300;
+
+    var resultCtx = result.getContext("2d");
+
     var centeredCtx = centeredCanvas.getContext("2d");
     var centeredImageData = 
-    centeredCtx.getImageData(0, 0, resolution, resolution);
+    centeredCtx.getImageData(0, 0, 300, 300);
     var centeredArray = centeredImageData.data;
 
     var destinationCtx = destinationCanvas.getContext("2d");
     var destinationImageData = 
-    destinationCtx.getImageData(0, 0, resolution, resolution);
+    destinationCtx.getImageData(0, 0, 300, 300);
     var destinationArray = destinationImageData.data;
 
     var newArray = new Uint8ClampedArray(centeredArray);
@@ -1353,8 +1379,75 @@ var anaglyph = function(centeredCanvas, destinationCanvas) {
     var newImageData = new ImageData(newArray, 
     centeredImageData.width, centeredImageData.height);
 
-    destinationCtx.putImageData(newImageData, 0, 0);
+    resultCtx.putImageData(newImageData, 0, 0);
+    return result;
 };
+
+var interleaved = function(centeredCanvas, destinationCanvas) {
+    var result = document.createElement("canvas");
+    result.width = 300;
+    result.height = 300;
+
+    var resultCtx = result.getContext("2d");
+
+    for (var n = 0; n < resolution; n++) {
+        var odd = (n % 2) == 1;
+        var y = n*(300/resolution);
+
+        if (odd) {
+            resultCtx.drawImage(destinationCanvas, 0, y, 
+            300, (300/resolution), 0, y, 
+            300, (300/resolution));
+        }
+        else {
+            resultCtx.drawImage(centeredCanvas, 0, y, 
+            300, (300/resolution), 0, y, 
+            300, (300/resolution));
+        }
+    }
+
+    return result;
+}
+
+var interleavedBothAxis = function(centeredCanvas, destinationCanvas) {
+    var result = document.createElement("canvas");
+    result.width = 300;
+    result.height = 300;
+
+    var resultCtx = result.getContext("2d");
+
+    resultCtx.drawImage(centeredCanvas, 0, 0, 
+    300, 300);
+
+    resultCtx.fillStyle = "rgba(100, 100, 100, 0.5)";
+
+    var region = new Path2D();
+    for (var n = 0; n < resolution; n++) {
+        var oddLine = (n % 2) == 1;
+        var y = n*(300/resolution);
+
+        for (var k = 0; k < resolution; k++) {
+            var oddColumn = (k % 2) == 1;
+            var x = k*(300/resolution);
+
+            if (oddColumn) continue;
+            if (oddLine) {
+                region.rect(x, y, (300/resolution), (300/resolution));
+            }
+            else {
+                x += (300/resolution);
+
+                region.rect(x, y, (300/resolution), (300/resolution));
+            }
+        }
+    }
+    resultCtx.clip(region);
+
+    resultCtx.drawImage(destinationCanvas, 0, 0, 
+    300, 300);
+
+    return result;
+}
 
 var getValue = function(n, options) {
     return options[n];
