@@ -15,7 +15,7 @@ $(document).ready(function() {
     $("#title").css("font-size", "15px");
     $("#title").css("color", "#fff");
 
-    $("#title")[0].innerText = "VERY SLOW MOTION PRINTER";
+    $("#title")[0].innerText = "OPEN IMAGE EDITOR v0.1";
 
     icon = document.createElement("i");
     icon.style.position = "absolute";
@@ -475,16 +475,45 @@ $(document).ready(function() {
     targetPixel.style.zIndex = "5";
     document.body.appendChild(targetPixel);
 
+    leftMenuOpen = false;
+    leftMenu = document.createElement("div");
+    leftMenu.style.position = "absolute";
+    leftMenu.style.background = "rgba(50,50,65,1)";
+    leftMenu.style.left = (0)+"px";
+    leftMenu.style.top = ((sh/2)-150)+"px";
+    leftMenu.style.width = (112.5)+"px";
+    leftMenu.style.height = (300)+"px";
+    leftMenu.style.transform = "scale(0.8)";
+    leftMenu.style.borderRadius = "0px 25px 25px 0px";
+    leftMenu.style.zIndex = "10";
+    document.body.appendChild(leftMenu);
+
+    closeButton = document.createElement("i");
+    closeButton.style.position = "absolute";
+    closeButton.className = "fa-solid fa-close";
+    closeButton.style.color = "#fff";
+    closeButton.style.left = 75+"px";
+    closeButton.style.top = 12.5+"px";
+    closeButton.style.width = (25)+"px";
+    closeButton.style.height = (25)+"px";
+    closeButton.style.zIndex = "5";
+    leftMenu.appendChild(closeButton);
+
+    closeButton.onclick = function() {
+        leftMenuOpen = false;
+        leftMenu.style.display = "none";
+    };
+
     undoButton = document.createElement("i");
     undoButton.style.position = "absolute";
     undoButton.className = "fa-solid fa-trash";
     undoButton.style.color = "#fff";
-    undoButton.style.left = ((sw/2)-162.5)+"px";
-    undoButton.style.top = ((sh/2)+(((300/2)*0.8)-62.5))+"px";
+    undoButton.style.left = 12.5+"px";
+    undoButton.style.top = 150+"px";
     undoButton.style.width = (25)+"px";
     undoButton.style.height = (25)+"px";
     undoButton.style.zIndex = "5";
-    document.body.appendChild(undoButton);
+    leftMenu.appendChild(undoButton);
 
     undoButton.onclick = function() {
         restoreCanvas();
@@ -494,12 +523,12 @@ $(document).ready(function() {
     clipButton.style.position = "absolute";
     clipButton.className = "fa-solid fa-share";
     clipButton.style.color = "#fff";
-    clipButton.style.left = ((sw/2)-162.5)+"px";
-    clipButton.style.top = ((sh/2)+(((300/2)*0.8)-25))+"px";
+    clipButton.style.left = 12.5+"px";
+    clipButton.style.top = 112.5+"px";
     clipButton.style.width = (25)+"px";
     clipButton.style.height = (25)+"px";
     clipButton.style.zIndex = "5";
-    document.body.appendChild(clipButton);
+    leftMenu.appendChild(clipButton);
 
     clipButton.onclick = function() {
         ws.send("PAPER|"+playerId+"|image-data|"+clipLayers());
@@ -511,12 +540,12 @@ $(document).ready(function() {
     ropeButton.style.position = "absolute";
     ropeButton.className = "fa-solid fa-lock";
     ropeButton.style.color = "#fff";
-    ropeButton.style.left = ((sw/2)-162.5)+"px";
-    ropeButton.style.top = ((sh/2)+(((300/2)*0.8)-100))+"px";
+    ropeButton.style.left = 12.5+"px";
+    ropeButton.style.top = 187.5+"px";
     ropeButton.style.width = (25)+"px";
     ropeButton.style.height = (25)+"px";
     ropeButton.style.zIndex = "5";
-    document.body.appendChild(ropeButton);
+    leftMenu.appendChild(ropeButton);
 
     ropeButton.onclick = function() {
         locked = !locked;
@@ -535,12 +564,12 @@ $(document).ready(function() {
     polygonButton.style.position = "absolute";
     polygonButton.className = "fa-solid fa-draw-polygon";
     polygonButton.style.color = "#555";
-    polygonButton.style.left = ((sw/2)-162.5)+"px";
-    polygonButton.style.top = ((sh/2)+(((300/2)*0.8)-137.5))+"px";
+    polygonButton.style.left = 12.5+"px";
+    polygonButton.style.top = 75+"px";
     polygonButton.style.width = (25)+"px";
     polygonButton.style.height = (25)+"px";
     polygonButton.style.zIndex = "5";
-    document.body.appendChild(polygonButton);
+    leftMenu.appendChild(polygonButton);
 
     polygonButton.onclick = function() {
         polygonMode = (polygonMode+1) < 3 ? 
@@ -566,13 +595,12 @@ $(document).ready(function() {
     polygonConnectButton.className = 
     "fa-solid fa-circle-nodes";
     polygonConnectButton.style.color = "#fff";
-    polygonConnectButton.style.left = ((sw/2)-162.5)+"px";
-    polygonConnectButton.style.top = 
-    ((sh/2)+(((300/2)*0.8)-175))+"px";
+    polygonConnectButton.style.left = 12.5+"px";
+    polygonConnectButton.style.top = 37.5+"px";
     polygonConnectButton.style.width = (25)+"px";
     polygonConnectButton.style.height = (25)+"px";
     polygonConnectButton.style.zIndex = "5";
-    document.body.appendChild(polygonConnectButton);
+    leftMenu.appendChild(polygonConnectButton);
 
     polygonConnectButton.onclick = function() {
         polygon.push(polygon[0]);
@@ -587,13 +615,12 @@ $(document).ready(function() {
     gridButton.className = 
     "fa-solid fa-border-all";
     gridButton.style.color = "#555";
-    gridButton.style.left = ((sw/2)-162.5)+"px";
-    gridButton.style.top = 
-    ((sh/2)+(((300/2)*0.8)-212.5))+"px";
+    gridButton.style.left = 12.5+"px";
+    gridButton.style.top = 12.5+"px";
     gridButton.style.width = (25)+"px";
     gridButton.style.height = (25)+"px";
     gridButton.style.zIndex = "5";
-    document.body.appendChild(gridButton);
+    leftMenu.appendChild(gridButton);
 
     gridButton.onclick = function() {
         showGrid = !showGrid;
@@ -602,6 +629,22 @@ $(document).ready(function() {
         else
         gridButton.style.color = "#555";
         updateGrid();
+    };
+
+    menuButton = document.createElement("i");
+    menuButton.style.position = "absolute";
+    menuButton.className = "fa-solid fa-bars";
+    menuButton.style.color = "#fff";
+    menuButton.style.left = 12.5+"px";
+    menuButton.style.top = (sh/2)+(((300/2)*0.8)-37.5)+"px";
+    menuButton.style.width = (25)+"px";
+    menuButton.style.height = (25)+"px";
+    menuButton.style.zIndex = "5";
+    document.body.appendChild(menuButton);
+
+    menuButton.onclick = function() {
+        leftMenuOpen = true;
+        leftMenu.style.display = "initial";
     };
 
     moveContainer = document.createElement("i");
