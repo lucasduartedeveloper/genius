@@ -8,10 +8,14 @@ var sh = window.innerHeight;
 var audioBot = false;
 var playerId = new Date().getTime();
 
+var canvasBackgroundColor = "rgba(255,255,255,1)";
+var backgroundColor = "rgba(50,50,65,1)";
+var buttonColor = "rgba(75,75,90,1)";
+
 // Botão de gravação
 $(document).ready(function() {
     $("html, body").css("overscroll-behavior", "none");
-    //$("html, body").css("background", "#fff");
+    $("html, body").css("background", backgroundColor);
     $("#title").css("font-size", "15px");
     $("#title").css("color", "#fff");
 
@@ -46,6 +50,7 @@ $(document).ready(function() {
 
     canvas = document.createElement("canvas");
     canvas.style.position = "absolute";
+    canvas.style.background = canvasBackgroundColor;
     canvas.width = 300;
     canvas.height = 300;
     canvas.style.left = ((sw/2)-150)+"px";
@@ -53,6 +58,7 @@ $(document).ready(function() {
     canvas.style.width = (300)+"px";
     canvas.style.height = (300)+"px";
     canvas.style.transform = "scale(0.8)";
+    canvas.style.boxShadow = "0px 0px 25px #000";
     canvas.style.zIndex = "5";
     canvas.ontouchstart = paintPixel;
     canvas.ontouchmove = paintPixel;
@@ -138,10 +144,10 @@ $(document).ready(function() {
 
     canvasTool.getContext("2d").imageSmoothingEnabled = false;
 
-    canvas.style.outlineOffset = 
+    /*canvas.style.outlineOffset = 
     (5)+"px";
     canvas.style.outline = 
-    (5)+"px solid red";
+    (5)+"px solid red";*/
 
     saveContainer = document.createElement("span");
     saveContainer.style.position = "absolute";
@@ -189,7 +195,7 @@ $(document).ready(function() {
 
     inputDevice = document.createElement("span");
     inputDevice.style.position = "absolute";
-    inputDevice.style.background = "rgba(50, 50, 65, 1)";
+    inputDevice.style.background = buttonColor;
     inputDevice.style.lineHeight = (100)+"px";
     inputDevice.style.color = "#fff";
     inputDevice.innerText = "device: "+deviceNo;
@@ -217,7 +223,7 @@ $(document).ready(function() {
     layerNo = 0;
     layerTile = document.createElement("span");
     layerTile.style.position = "absolute";
-    layerTile.style.background = "rgba(50, 50, 65, 1)";
+    layerTile.style.background = buttonColor;
     layerTile.style.fontSize = (15)+"px";
     layerTile.style.lineHeight = (100)+"px";
     layerTile.style.color = "#fff";
@@ -277,7 +283,7 @@ $(document).ready(function() {
 
     author = document.createElement("span");
     author.style.position = "absolute";
-    author.innerText = "LUCAS DUARTE DE OLIVEIRA";
+    author.innerText = "GITHUB";
     author.fontSize = "15px";
     author.textAlign = "center";
     author.style.color = "#fff";
@@ -291,22 +297,16 @@ $(document).ready(function() {
     author.style.zIndex = "5";
     document.body.appendChild(author);
 
-    slideCount = 0;
-    startX = 0;
-    startY = 0;
-    author.ontouchstart = function(e) {
-        startY = e.clientY;
-    };
-    author.ontouchmove = function(e) {
-        var offsetY = Math.abs(e.clientY - startY);
-        console.log(offsetY);
+    author.onclick = function() {
+        window.open(
+        "https://github.com/lucasduartedeveloper/genius/tree/main/pyramid-fill", "_blank");
     };
 
     baseTile = document.createElement("span");
     baseTile.innerText = resolution+"x";
     baseTile.style.lineHeight = (100)+"px";
     baseTile.style.position = "absolute";
-    baseTile.style.background = "rgba(50, 50, 65, 1)";
+    baseTile.style.background = buttonColor;
     baseTile.style.color = "#fff";
     baseTile.style.left = (0)+"px";
     baseTile.style.top = (0)+"px";
@@ -336,7 +336,7 @@ $(document).ready(function() {
     preloaded = location.href.includes("192");
     switchBackground = document.createElement("span");
     switchBackground.style.position = "absolute";
-    switchBackground.style.background = "rgba(50, 50, 65, 1)";
+    switchBackground.style.background = buttonColor;
     switchBackground.style.color = "#fff";
     switchBackground.style.left = (0)+"px";
     switchBackground.style.top = (125)+"px";
@@ -427,7 +427,7 @@ $(document).ready(function() {
 
     auxName = document.createElement("span");
     auxName.style.position = "absolute";
-    auxName.innerText = "AJUDANTE";
+    auxName.innerText = "DIGITE";
     auxName.style.textAlign = "left";
     auxName.style.fontSize = "20px";
     auxName.style.color = "#fff";
@@ -478,7 +478,7 @@ $(document).ready(function() {
     leftMenuOpen = false;
     leftMenu = document.createElement("div");
     leftMenu.style.position = "absolute";
-    leftMenu.style.background = "rgba(50,50,65,1)";
+    leftMenu.style.background = buttonColor;
     leftMenu.style.left = (0)+"px";
     leftMenu.style.top = ((sh/2)-150)+"px";
     leftMenu.style.width = (112.5)+"px";
@@ -1193,10 +1193,10 @@ var drawSquare = function() {
 
     navigator.vibrate(500);
 
-    canvas.style.outlineOffset = 
+    /*canvas.style.outlineOffset = 
     (5)+"px";
     canvas.style.outline = 
-    (5)+"px solid limegreen";
+    (5)+"px solid limegreen";*/
     //_say("image created");
 };
 
