@@ -479,7 +479,7 @@ $(document).ready(function() {
     leftMenu = document.createElement("div");
     leftMenu.style.position = "absolute";
     leftMenu.style.background = buttonColor;
-    leftMenu.style.left = (0)+"px";
+    leftMenu.style.left = -((112.5-(112.5*0.8))/2)+"px";
     leftMenu.style.top = ((sh/2)-150)+"px";
     leftMenu.style.width = (112.5)+"px";
     leftMenu.style.height = (300)+"px";
@@ -509,7 +509,7 @@ $(document).ready(function() {
     undoButton.className = "fa-solid fa-trash";
     undoButton.style.color = "#fff";
     undoButton.style.left = 12.5+"px";
-    undoButton.style.top = 150+"px";
+    undoButton.style.top = 162.5+"px";
     undoButton.style.width = (25)+"px";
     undoButton.style.height = (25)+"px";
     undoButton.style.zIndex = "5";
@@ -524,7 +524,7 @@ $(document).ready(function() {
     clipButton.className = "fa-solid fa-share";
     clipButton.style.color = "#fff";
     clipButton.style.left = 12.5+"px";
-    clipButton.style.top = 112.5+"px";
+    clipButton.style.top = 125+"px";
     clipButton.style.width = (25)+"px";
     clipButton.style.height = (25)+"px";
     clipButton.style.zIndex = "5";
@@ -541,7 +541,7 @@ $(document).ready(function() {
     ropeButton.className = "fa-solid fa-lock";
     ropeButton.style.color = "#fff";
     ropeButton.style.left = 12.5+"px";
-    ropeButton.style.top = 187.5+"px";
+    ropeButton.style.top = 200+"px";
     ropeButton.style.width = (25)+"px";
     ropeButton.style.height = (25)+"px";
     ropeButton.style.zIndex = "5";
@@ -563,9 +563,9 @@ $(document).ready(function() {
     polygonButton = document.createElement("i");
     polygonButton.style.position = "absolute";
     polygonButton.className = "fa-solid fa-draw-polygon";
-    polygonButton.style.color = "#555";
+    polygonButton.style.color = "#333";
     polygonButton.style.left = 12.5+"px";
-    polygonButton.style.top = 75+"px";
+    polygonButton.style.top = 87.5+"px";
     polygonButton.style.width = (25)+"px";
     polygonButton.style.height = (25)+"px";
     polygonButton.style.zIndex = "5";
@@ -581,7 +581,7 @@ $(document).ready(function() {
             polygonButton.style.color = "blue";
         }
         else {
-            polygonButton.style.color = "#555";
+            polygonButton.style.color = "#333";
             polygon = [];
             polygonConnectButton.style.display = "none";
             var ctxTool = canvasTool.getContext("2d");
@@ -596,7 +596,7 @@ $(document).ready(function() {
     "fa-solid fa-circle-nodes";
     polygonConnectButton.style.color = "#fff";
     polygonConnectButton.style.left = 12.5+"px";
-    polygonConnectButton.style.top = 37.5+"px";
+    polygonConnectButton.style.top = 50+"px";
     polygonConnectButton.style.width = (25)+"px";
     polygonConnectButton.style.height = (25)+"px";
     polygonConnectButton.style.zIndex = "5";
@@ -614,7 +614,7 @@ $(document).ready(function() {
     gridButton.style.position = "absolute";
     gridButton.className = 
     "fa-solid fa-border-all";
-    gridButton.style.color = "#555";
+    gridButton.style.color = "#333";
     gridButton.style.left = 12.5+"px";
     gridButton.style.top = 12.5+"px";
     gridButton.style.width = (25)+"px";
@@ -627,7 +627,7 @@ $(document).ready(function() {
         if (showGrid)
         gridButton.style.color = "#fff";
         else
-        gridButton.style.color = "#555";
+        gridButton.style.color = "#333";
         updateGrid();
     };
 
