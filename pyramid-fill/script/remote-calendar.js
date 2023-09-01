@@ -25,12 +25,12 @@ $(document).ready(function() {
     icon.style.position = "absolute";
     icon.className = "fa-solid fa-print";
     icon.style.color = "#fff";
-    icon.style.fontSize = "50px";
-    icon.style.left = ((sw/2)-25)+"px";
+    icon.style.fontSize = "75px";
+    icon.style.left = ((sw/2)-35)+"px";
     icon.style.top = ((sh/2)-225)+"px";
     icon.style.width = (50)+"px";
     icon.style.height = (50)+"px";
-    icon.style.transform = "scale(0.8)";
+    icon.style.transform = "scale(0.5)";
     icon.style.zIndex = "5";
     document.body.appendChild(icon);
 
@@ -477,7 +477,7 @@ $(document).ready(function() {
     targetPixel = document.createElement("div");
     targetPixel.style.position = "absolute";
     targetPixel.innerText = "0";
-    targetPixel.style.color = "#000";
+    targetPixel.style.color = "rgba(0,0,0,0)";
     targetPixel.style.fontSize = ((300/resolution)*0.8)+"px";
     targetPixel.style.lineHeight = ((300/resolution)*0.8)+"px";
     targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
@@ -571,6 +571,30 @@ $(document).ready(function() {
         else {
             offsetZ = 0;
             ropeButton.className = "fa-solid fa-unlock";
+        }
+    };
+
+    showPosition = false;
+    showPositionButton = document.createElement("i");
+    showPositionButton.style.position = "absolute";
+    showPositionButton.className = "fa-solid fa-list-ol";
+    showPositionButton.style.color = "#333";
+    showPositionButton.style.left = 12.5+"px";
+    showPositionButton.style.top = 237.5+"px";
+    showPositionButton.style.width = (25)+"px";
+    showPositionButton.style.height = (25)+"px";
+    showPositionButton.style.zIndex = "5";
+    leftMenu.appendChild(showPositionButton);
+
+    showPositionButton.onclick = function() {
+        showPosition = !showPosition;
+        if (showPosition) {
+            targetPixel.style.color = "rgba(0,0,0,1)";
+            showPositionButton.style.color = "#fff";
+        }
+        else {
+            targetPixel.style.color = "rgba(0,0,0,0)";
+            showPositionButton.style.color = "#333";
         }
     };
 
