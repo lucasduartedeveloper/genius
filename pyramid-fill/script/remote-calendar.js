@@ -1278,6 +1278,8 @@ var drawSquare = function() {
 
     navigator.vibrate(500);
 
+    if (layerNo < 2) layerTile.click();
+
     /*canvas.style.outlineOffset = 
     (5)+"px";
     canvas.style.outline = 
