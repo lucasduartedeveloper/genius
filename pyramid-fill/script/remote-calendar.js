@@ -846,18 +846,17 @@ $(document).ready(function() {
         _say("camera connected");
         drawSquare();
     };
+
+    imgNo = Math.floor(Math.random()*img_list.length);
 });
 
-//"img/island-0.png",
+var imgNo = 0;
 var img_list = [
+    "img/human-icon-0.png",
+    "img/human-icon-1.png",
+    "img/human-icon-2.png",
+    "img/human-icon-3.png",
     "img/human-icon-4.png",
-    //"img/human-icon-0.png",
-    //"img/human-product-0.png",
-    //"img/15x15.png",
-    //"img/75x_zoom.png",
-    //"img/human-icon-3.png",
-    //"img/human-icon-1.png",
-    //"img/human-icon-2.png",
 ];
 
 var createSwitch = function(background, x, y, value, callback) {
@@ -1188,12 +1187,12 @@ var drawSquare = function() {
     }
     if (preloaded) {
         var image = { 
-            width: img_list[0].width, 
-            height: img_list[0].height
+            width: img_list[imgNo].width, 
+            height: img_list[imgNo].height
         };
-        var format = fitImageCover(img_list[0], resolutionCanvas);
+        var format = fitImageCover(img_list[imgNo], resolutionCanvas);
         //console.log(format);
-        resolutionCtx.drawImage(img_list[0], format.left, format.top, format.width, format.height);
+        resolutionCtx.drawImage(img_list[imgNo], format.left, format.top, format.width, format.height);
     }
     else {
         var image = { width: vw, height: vh };
