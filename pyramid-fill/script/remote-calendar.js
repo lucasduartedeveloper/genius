@@ -98,6 +98,22 @@ $(document).ready(function() {
 
     canvas1.getContext("2d").imageSmoothingEnabled = false;
 
+    canvas2 = document.createElement("canvas");
+    canvas2.style.position = "absolute";
+    canvas2.width = 300;
+    canvas2.height = 300;
+    canvas2.style.left = ((sw/2)-150)+"px";
+    canvas2.style.top = ((sh/2)-150)+"px";
+    canvas2.style.width = (300)+"px";
+    canvas2.style.height = (300)+"px";
+    canvas2.style.transform = "scale(0.8)";
+    canvas2.style.zIndex = "5";
+    canvas2.ontouchstart = paintPixel;
+    canvas2.ontouchmove = paintPixel;
+    document.body.appendChild(canvas2);
+
+    canvas2.getContext("2d").imageSmoothingEnabled = false;
+
     canvasEffect = document.createElement("canvas");
     canvasEffect.style.position = "absolute";
     canvasEffect.width = 300;
@@ -144,8 +160,10 @@ $(document).ready(function() {
 
     canvasTool.getContext("2d").imageSmoothingEnabled = false;
 
+    var rnd = Math.random();
     canvasPosition = document.createElement("img");
     canvasPosition.style.position = "absolute";
+    canvasPosition.style.filter = "invert(98%) sepia(73%) saturate(1435%) hue-rotate(325deg) brightness(111%) contrast(117%)";
     canvasPosition.style.display = "none";
     canvasPosition.style.objectFit = "cover";
     canvasPosition.style.opacity = "0.5";
@@ -154,7 +172,7 @@ $(document).ready(function() {
     canvasPosition.style.width = (300)+"px";
     canvasPosition.style.height = (300)+"px";
     canvasPosition.style.transform = "scale(0.8)";
-    canvasPosition.src = "img/position-0.png";
+    canvasPosition.src = "img/position-0.png?rnd="+rnd;
     canvasPosition.style.zIndex = "5";
     document.body.appendChild(canvasPosition);
 
@@ -251,34 +269,46 @@ $(document).ready(function() {
     document.body.appendChild(layerTile);
 
     layerTile.onclick = function() {
-        layerNo = (layerNo+1) < (5) ? 
+        layerNo = (layerNo+1) < (7) ? 
         (layerNo+1) : 0;
 
-        if (layerNo < 2)
+        if (layerNo < 3)
         layerTile.innerText = "layer no: "+layerNo;
-        else if (layerNo == 2)
-        layerTile.innerText = "3D";
         else if (layerNo == 3)
-        layerTile.innerText = "Interleaved";
+        layerTile.innerText = "3D";
         else if (layerNo == 4)
+        layerTile.innerText = "Interleaved";
+        else if (layerNo == 5)
         layerTile.innerText = "Interleaved XY";
+        else if (layerNo == 6)
+        layerTile.innerText = "Interleaved MAX";
 
         if (layerNo == 0) {
             canvas.style.display = "initial";
             canvasPortal.style.display = "initial";
             canvas1.style.display = "none";
+            canvas2.style.display = "none";
             canvasEffect.style.display = "none";
         }
         else if (layerNo == 1) {
             canvas.style.display = "initial";
             canvasPortal.style.display = "none";
             canvas1.style.display = "initial";
+            canvas2.style.display = "none";
             canvasEffect.style.display = "none";
         }
         else if (layerNo == 2) {
+            canvas.style.display = "initial";
+            canvasPortal.style.display = "none";
+            canvas1.style.display = "initial";
+            canvas2.style.display = "initial";
+            canvasEffect.style.display = "none";
+        }
+        else if (layerNo == 3) {
             canvas.style.display = "none";
             canvasPortal.style.display = "none";
             canvas1.style.display = "none";
+            canvas2.style.display = "none";
             canvasEffect.style.display = "initial";
         }
     };
@@ -591,7 +621,7 @@ $(document).ready(function() {
     showPosition = false;
     showPositionButton = document.createElement("i");
     showPositionButton.style.position = "absolute";
-    showPositionButton.className = "fa-solid fa-list-ol";
+    showPositionButton.className = "fa-solid fa-house";
     showPositionButton.style.color = "#333";
     showPositionButton.style.left = 12.5+"px";
     showPositionButton.style.top = 237.5+"px";
@@ -1202,14 +1232,15 @@ var saveButtons = function() {
 
 var resolution = 10;
 var drawSquare = function() {
-    if (layerNo >= 2) {
-        applyEffect(layerNo-2);
+    if (layerNo >= 3) {
+        applyEffect(layerNo-3);
         return;
     }
 
-    var ctx = layerNo == 0 ? 
-    canvas.getContext("2d") : 
-    canvas1.getContext("2d");
+    var ctx;
+    if (layerNo == 0) canvas.getContext("2d");
+    else if (layerNo == 1)canvas1.getContext("2d");
+    else if (layerNo == 2)canvas2.getContext("2d");
 
     var resolutionCanvas = document.createElement("canvas");
     resolutionCanvas.imageSmoothingEnabled = false;
@@ -1264,6 +1295,8 @@ var applyEffect = function(n) {
     effect = interleaved(canvas, canvas1);
     else if (n == 2)
     effect = interleavedBothAxis(canvas, canvas1);
+    else if (n == 3)
+    effect = interleavedMax([ canvas, canvas1, canvas2 ]);
 
     ctx.drawImage(effect, 0, 0, 300, 300);
 };
@@ -1309,11 +1342,17 @@ var restoreCanvas = function() {
         ctxPortal.clearRect(0, 0, 300, 300);
     }
 
-    var ctx = layerNo == 0 ? 
-    canvas.getContext("2d") : 
-    canvas1.getContext("2d");
+    var ctx; 
+    if (layerNo == 0) ctx = canvas.getContext("2d");
+    else if (layerNo == 1) ctx = canvas1.getContext("2d");
+    else if (layerNo == 2) ctx = canvas2.getContext("2d");
 
-    ctx.fillStyle = layerNo == 0 ? "#000" : "#fff";
+    var fillStyle;
+    if (layerNo == 0) fillStyle = "#000";
+    else if (layerNo == 1) fillStyle =  "#0f0";
+    else if (layerNo == 2) fillStyle =  "#fff";
+
+    ctx.fillStyle = fillStyle;
     ctx.fillRect(0, 0, 300, 300);
 
     return;
@@ -1500,6 +1539,27 @@ var interleaved = function(centeredCanvas, destinationCanvas) {
         }
         else {
             resultCtx.drawImage(centeredCanvas, 0, y, 
+            300, (300/resolution), 0, y, 
+            300, (300/resolution));
+        }
+    }
+
+    return result;
+}
+
+var interleavedMax = function(canvas) {
+    var result = document.createElement("canvas");
+    result.width = 300;
+    result.height = 300;
+
+    var resultCtx = result.getContext("2d");
+
+    for (var n = 0; n < resolution; n++) {
+        var w = (n % canvas.length);
+        var y = n*(300/resolution);
+
+        for (var k = 0; k < canvas.length; k++) {
+            resultCtx.drawImage(canvas[w], 0, y, 
             300, (300/resolution), 0, y, 
             300, (300/resolution));
         }
