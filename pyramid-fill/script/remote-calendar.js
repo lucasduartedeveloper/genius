@@ -164,7 +164,7 @@ $(document).ready(function() {
     fileName.innerText = resolution+"x_zoom.png";
     fileName.style.fontSize = "20px";
     fileName.style.textAlign = "left";
-    fileName.style.color = "#888";
+    fileName.style.color = "#fff";
     fileName.style.left = (12.5)+"px";
     fileName.style.top = (12.5)+"px";
     fileName.style.width = (300)+"px";
@@ -302,6 +302,21 @@ $(document).ready(function() {
         "https://github.com/lucasduartedeveloper/genius/tree/main/pyramid-fill", "_blank");
     };
 
+    githubIcon = document.createElement("img");
+    githubIcon.style.position = "absolute";
+    githubIcon.style.background = "#fff";
+    githubIcon.src = "https://icons.veryicon.com/png/o/miscellaneous/mirror-icon/github-65.png";
+    githubIcon.width = resolution;
+    githubIcon.height = resolution;
+    githubIcon.style.left = ((sw/2)+135)+"px";
+    githubIcon.style.top = ((sh/2)+50)+"px";
+    githubIcon.style.width = (25)+"px";
+    githubIcon.style.height = (25)+"px";
+    githubIcon.style.borderRadius = "50%";
+    githubIcon.style.transform = "rotateZ(-90deg)";
+    githubIcon.style.zIndex = "5";
+    document.body.appendChild(githubIcon);
+
     baseTile = document.createElement("span");
     baseTile.innerText = resolution+"x";
     baseTile.style.lineHeight = (100)+"px";
@@ -317,10 +332,10 @@ $(document).ready(function() {
     document.body.appendChild(baseTile);
 
     baseTile.onclick= function(e) {
-        canvas.style.outlineOffset = 
+        /*canvas.style.outlineOffset = 
         (5)+"px";
         canvas.style.outline = 
-        (5)+"px solid yellow";
+        (5)+"px solid yellow";*/
 
         timeStarted = new Date().getTime();
         stopwatch.innerText = "00:00";
