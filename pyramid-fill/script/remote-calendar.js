@@ -1238,9 +1238,9 @@ var drawSquare = function() {
     }
 
     var ctx;
-    if (layerNo == 0) canvas.getContext("2d");
-    else if (layerNo == 1)canvas1.getContext("2d");
-    else if (layerNo == 2)canvas2.getContext("2d");
+    if (layerNo == 0) ctx = canvas.getContext("2d");
+    else if (layerNo == 1) ctx = canvas1.getContext("2d");
+    else if (layerNo == 2) ctx = canvas2.getContext("2d");
 
     var resolutionCanvas = document.createElement("canvas");
     resolutionCanvas.imageSmoothingEnabled = false;
