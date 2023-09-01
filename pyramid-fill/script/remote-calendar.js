@@ -144,6 +144,20 @@ $(document).ready(function() {
 
     canvasTool.getContext("2d").imageSmoothingEnabled = false;
 
+    canvasPosition = document.createElement("img");
+    canvasPosition.style.position = "absolute";
+    canvasPosition.style.display = "none";
+    canvasPosition.style.objectFit = "cover";
+    canvasPosition.style.opacity = "0.5";
+    canvasPosition.style.left = ((sw/2)-150)+"px";
+    canvasPosition.style.top = ((sh/2)-150)+"px";
+    canvasPosition.style.width = (300)+"px";
+    canvasPosition.style.height = (300)+"px";
+    canvasPosition.style.transform = "scale(0.8)";
+    canvasPosition.src = "img/position-0.png";
+    canvasPosition.style.zIndex = "5";
+    document.body.appendChild(canvasPosition);
+
     /*canvas.style.outlineOffset = 
     (5)+"px";
     canvas.style.outline = 
@@ -477,7 +491,7 @@ $(document).ready(function() {
     targetPixel = document.createElement("div");
     targetPixel.style.position = "absolute";
     targetPixel.innerText = "0";
-    targetPixel.style.color = "rgba(0,0,0,0)";
+    targetPixel.style.color = "#000";
     targetPixel.style.fontSize = ((300/resolution)*0.8)+"px";
     targetPixel.style.lineHeight = ((300/resolution)*0.8)+"px";
     targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
@@ -589,11 +603,13 @@ $(document).ready(function() {
     showPositionButton.onclick = function() {
         showPosition = !showPosition;
         if (showPosition) {
-            targetPixel.style.color = "rgba(0,0,0,1)";
+            //targetPixel.style.color = "rgba(0,0,0,1)";
+            canvasPosition.style.display = "initial";
             showPositionButton.style.color = "#fff";
         }
         else {
-            targetPixel.style.color = "rgba(0,0,0,0)";
+            //targetPixel.style.color = "rgba(0,0,0,0)";
+            canvasPosition.style.display = "none";
             showPositionButton.style.color = "#333";
         }
     };
