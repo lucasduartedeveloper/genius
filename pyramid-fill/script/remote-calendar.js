@@ -540,7 +540,7 @@ $(document).ready(function() {
     leftMenu.style.background = buttonColor;
     leftMenu.style.left = -((112.5-(112.5*0.8))/2)+"px";
     leftMenu.style.top = ((sh/2)-150)+"px";
-    leftMenu.style.width = (112.5)+"px";
+    leftMenu.style.width = (125)+"px";
     leftMenu.style.height = (300)+"px";
     leftMenu.style.transform = "scale(0.8)";
     leftMenu.style.borderRadius = "0px 25px 25px 0px";
@@ -551,7 +551,7 @@ $(document).ready(function() {
     closeButton.style.position = "absolute";
     closeButton.className = "fa-solid fa-close";
     closeButton.style.color = "#fff";
-    closeButton.style.left = 75+"px";
+    closeButton.style.left = 87.5+"px";
     closeButton.style.top = 12.5+"px";
     closeButton.style.width = (25)+"px";
     closeButton.style.height = (25)+"px";
@@ -714,6 +714,32 @@ $(document).ready(function() {
         else
         gridButton.style.color = "#333";
         updateGrid();
+    };
+
+    qrcodeButton = document.createElement("i");
+    qrcodeButton.style.position = "absolute";
+    qrcodeButton.className = 
+    "fa-solid fa-link";
+    qrcodeButton.style.color = "#fff";
+    qrcodeButton.style.left = 50+"px";
+    qrcodeButton.style.top = 12.5+"px";
+    qrcodeButton.style.width = (25)+"px";
+    qrcodeButton.style.height = (25)+"px";
+    qrcodeButton.style.zIndex = "5";
+    leftMenu.appendChild(qrcodeButton);
+
+    qrcodeButton.onclick = function() {
+        var ctx;
+        if (layerNo == 0) ctx = canvas.getContext("2d");
+        else if (layerNo == 1) ctx = canvas1.getContext("2d");
+        else if (layerNo == 2) ctx = canvas2.getContext("2d");
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, 300, 300);
+        ctx.drawImage(img_list[5], 0, 0, 300, 300);
+
+        var texture = drawTexture(calibration);
+        eye.loadTexture(texture);
     };
 
     menuButton = document.createElement("i");
@@ -931,6 +957,7 @@ var img_list = [
     "img/human-icon-2.png",
     "img/human-icon-3.png",
     "img/human-icon-4.png",
+    "img/qr-code-0.png",
 ];
 
 var createSwitch = function(background, x, y, value, callback) {
@@ -1289,6 +1316,9 @@ var drawSquare = function() {
     canvas.style.outline = 
     (5)+"px solid limegreen";*/
     //_say("image created");
+
+    var texture = drawTexture(calibration);
+    eye.loadTexture(texture);
 };
 
 var applyEffect = function(n) {
@@ -1327,7 +1357,7 @@ var updateGrid = function() {
     }
 };
 
-var clipLayers = function() {
+var clipLayers = function(elem=false) {
     var finalCanvas = document.createElement("canvas");
     finalCanvas.imageSmoothingEnabled = false;
     finalCanvas.width = 300;
@@ -1338,6 +1368,9 @@ var clipLayers = function() {
     finalCtx.drawImage(canvas1, 0, 0, 300, 300);
     finalCtx.drawImage(canvasEffect, 0, 0, 300, 300);
 
+    if (elem)
+    return finalCanvas;
+    else
     return finalCanvas.toDataURL();
 };
 
@@ -1635,6 +1668,7 @@ var _say = function(text) {
     window.speechSynthesis.speak(msg);
 };
 
+var calibration = 0.5;
 window.addEventListener('devicelight', function(e) {
     if (vw > vh) {
         var temp = vw;
@@ -1643,9 +1677,9 @@ window.addEventListener('devicelight', function(e) {
     }
     if (!eye) return;
 
-    var calibration = (1/1000)*e.value;
-    calibration = calibration > 1 ? 1 : calibration;
-    calibration = calibration < 0.25 ? 0.25 : calibration;
+    var temp = (1/1000)*e.value;
+    temp = temp > 1 ? 1 : temp;
+    temp = temp < 0.25 ? 0.25 : temp;
 
     var texture = drawTexture(calibration);
     eye.loadTexture(texture);
