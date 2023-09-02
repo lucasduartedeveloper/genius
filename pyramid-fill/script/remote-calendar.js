@@ -1636,6 +1636,11 @@ var _say = function(text) {
 };
 
 window.addEventListener('devicelight', function(e) {
+    if (vw > vh) {
+        var temp = vw;
+        vw = vh;
+        vh = temp;
+    }
     if (!eye) return;
 
     var calibration = (1/1000)*e.value;

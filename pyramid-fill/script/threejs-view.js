@@ -175,6 +175,12 @@ var drawTexture = function(sensor=0.5) {
     ctx.arc(canvas.width/2, canvas.height/2, radius, 0, Math.PI*2);
     ctx.fill();
 
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.beginPath();
+    ctx.rect(canvas.width/2-(radius/2), 
+         canvas.height/2-(radius/2), radius, radius);
+    ctx.fill();
+
     var result = document.createElement("canvas");
     result.width = 512;
     result.height = 512;
