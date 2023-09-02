@@ -1190,6 +1190,9 @@ var paintPixel = function(e=false) {
         else {
             navigator.vibrate(500);
         }
+
+        var texture = drawTexture(calibration);
+        eye.loadTexture(texture);
         return;
     }
 
@@ -1366,6 +1369,7 @@ var clipLayers = function(elem=false) {
     var finalCtx = finalCanvas.getContext("2d");
     finalCtx.drawImage(canvas, 0, 0, 300, 300);
     finalCtx.drawImage(canvas1, 0, 0, 300, 300);
+    finalCtx.drawImage(canvas2, 0, 0, 300, 300);
     finalCtx.drawImage(canvasEffect, 0, 0, 300, 300);
 
     if (elem)
@@ -1394,25 +1398,8 @@ var restoreCanvas = function() {
     ctx.fillStyle = fillStyle;
     ctx.fillRect(0, 0, 300, 300);
 
-    return;
-    if (layerNo == 1) {
-    ctx.clearRect(0, 0, 300, 300);
-    for (var n = 0; n < pixelCount; n++) {
-        var x = n % resolution;
-        var y = Math.floor(n / resolution);
-
-        var r = Math.floor(Math.random()*255);
-        var g = Math.floor(Math.random()*255);
-        var b = Math.floor(Math.random()*255);
-        var fillStyle = "rgba("+r+","+g+","+b+",0.5)";
-        ctx.fillStyle = fillStyle;
-        ctx.fillRect(
-        Math.round(x*(300/resolution)),
-        Math.round(y*(300/resolution)),
-        Math.round((300/resolution)),
-        Math.round((300/resolution)));
-    }
-    }
+    var texture = drawTexture(calibration);
+    eye.loadTexture(texture);
 };
 
 var applyMask = function(destinationCanvas, maskCanvas) {

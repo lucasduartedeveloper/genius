@@ -175,10 +175,15 @@ var drawTexture = function(sensor=0.5) {
     ctx.arc(canvas.width/2, canvas.height/2, radius, 0, Math.PI*2);
     ctx.fill();
 
+    ctx.save();
+    ctx.translate((canvas.width/2), (canvas.height/2));
+    ctx.rotate(Math.PI/2);
+    ctx.translate(-(canvas.width/2), -(canvas.height/2));
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.drawImage(clipLayers(true),
-         canvas.width/2-(radius/2), 
-         canvas.height/2-(radius/2), radius, radius);
+         canvas.width/2-(radius), 
+         canvas.height/2-(radius), radius*2, radius*2);
+    ctx.restore();
 
     var result = document.createElement("canvas");
     result.width = 512;
