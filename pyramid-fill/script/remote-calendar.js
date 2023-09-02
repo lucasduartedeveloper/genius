@@ -32,7 +32,7 @@ $(document).ready(function() {
     icon.style.height = (50)+"px";
     icon.style.transform = "scale(0.5)";
     icon.style.zIndex = "5";
-    document.body.appendChild(icon);
+    //document.body.appendChild(icon);
 
     camera = document.createElement("video");
     camera.style.position = "absolute";
@@ -877,6 +877,9 @@ $(document).ready(function() {
             baseCanvas.height = resolution;
             drawSquare();
         }
+
+        eye.rotation.z = (-Math.PI*1.5) + 
+        (((1/9.8)*gyro.accX)*(Math.PI/4));
     };
     moveLoop();
 
@@ -918,6 +921,7 @@ $(document).ready(function() {
     };
 
     imgNo = Math.floor(Math.random()*img_list.length);
+    load3D();
 });
 
 var imgNo = 0;
@@ -1625,8 +1629,19 @@ var formatTime = function() {
 
 var language = "en-US";
 var _say = function(text) {
-     var msg = new SpeechSynthesisUtterance();
-     msg.lang = language;
-     msg.text = text;
-     window.speechSynthesis.speak(msg);
+    var msg = new SpeechSynthesisUtterance();
+    msg.lang = language;
+    msg.text = text;
+    window.speechSynthesis.speak(msg);
 };
+
+window.addEventListener('devicelight', function(e) {
+    if (!eye) return;
+
+    var calibration = (1/1000)*e.value;
+    calibration = calibration > 1 ? 1 : calibration;
+    calibration = calibration < 0.25 ? 0.25 : calibration;
+
+    var texture = drawTexture(calibration);
+    eye.loadTexture(texture);
+});
