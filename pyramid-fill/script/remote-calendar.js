@@ -738,8 +738,8 @@ $(document).ready(function() {
         ctx.fillRect(0, 0, 300, 300);
         ctx.drawImage(img_list[5], 0, 0, 300, 300);
 
-        var texture = drawTexture(calibration);
-        eye.loadTexture(texture);
+        var texture = drawTexture1(calibration);
+        plane.loadTexture(texture);
     };
 
     menuButton = document.createElement("i");
@@ -1192,7 +1192,7 @@ var paintPixel = function(e=false) {
         }
 
         var texture = drawTexture(calibration);
-        eye.loadTexture(texture);
+        plane.loadTexture1(texture);
         return;
     }
 
@@ -1320,8 +1320,8 @@ var drawSquare = function() {
     (5)+"px solid limegreen";*/
     //_say("image created");
 
-    var texture = drawTexture(calibration);
-    eye.loadTexture(texture);
+    var texture = drawTexture1(calibration);
+    plane.loadTexture(texture);
 };
 
 var applyEffect = function(n) {
@@ -1398,8 +1398,8 @@ var restoreCanvas = function() {
     ctx.fillStyle = fillStyle;
     ctx.fillRect(0, 0, 300, 300);
 
-    var texture = drawTexture(calibration);
-    eye.loadTexture(texture);
+    var texture = drawTexture1(calibration);
+    plane.loadTexture(texture);
 };
 
 var applyMask = function(destinationCanvas, maskCanvas) {
@@ -1668,6 +1668,6 @@ window.addEventListener('devicelight', function(e) {
     temp = temp > 1 ? 1 : temp;
     temp = temp < 0.25 ? 0.25 : temp;
 
-    var texture = drawTexture(calibration);
-    eye.loadTexture(texture);
+    var texture = drawTexture1(calibration);
+    plane.loadTexture(texture);
 });

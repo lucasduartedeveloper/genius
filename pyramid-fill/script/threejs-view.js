@@ -255,9 +255,9 @@ var drawTexture1 = function(sensor=0.5) {
     ctx.fill();
 
     ctx.save();
-    ctx.translate((canvas.width/2), (canvas.height/2));
-    ctx.rotate(Math.PI/2);
-    ctx.translate(-(canvas.width/2), -(canvas.height/2));
+    //ctx.translate((canvas.width/2), (canvas.height/2));
+    //ctx.rotate(Math.PI/2);
+    //ctx.translate(-(canvas.width/2), -(canvas.height/2));
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.drawImage(clipLayers(true),
          canvas.width/2-(radius), 
