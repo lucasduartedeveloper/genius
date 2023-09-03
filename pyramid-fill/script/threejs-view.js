@@ -108,7 +108,7 @@ var load3D = function() {
     plane = new THREE.Mesh( geometry, material );
     group.add(plane);
     plane.position.x = 0;
-    plane.position.y = 2
+    plane.position.y = 2;
     plane.position.z = 0;
 
     plane.rotation.x = -(Math.PI/2);
@@ -219,6 +219,9 @@ var drawTexture1 = function(sensor=0.5) {
     canvas.height = 512;
 
     var ctx = canvas.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#000";
+    //ctx.strokeRect(256-50, 256-50, 100, 100);
 
     var gradient = 
     ctx.createRadialGradient(256, 256, 40, 256, 256, 15);
@@ -259,9 +262,9 @@ var drawTexture1 = function(sensor=0.5) {
     //ctx.rotate(Math.PI/2);
     //ctx.translate(-(canvas.width/2), -(canvas.height/2));
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.drawImage(clipLayers(true),
+    /*ctx.drawImage(clipLayers(true),
          canvas.width/2-(radius), 
-         canvas.height/2-(radius), radius*2, radius*2);
+         canvas.height/2-(radius), radius*2, radius*2);*/
     ctx.restore();
 
     //drawToSquare(canvas);
