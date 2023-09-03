@@ -74,23 +74,48 @@ var load3D = function() {
     scene.add(lightObj);
     scene.add(virtualCamera);
 
+    group = new THREE.Group();
+    //group.rotation.x = -(Math.PI/2);
+    scene.add(group);
+
     geometry = new THREE.SphereGeometry(2, 64); 
     var material = 
         new THREE.MeshStandardMaterial( { 
             color: 0xFFFFFF,
+            side: THREE.DoubleSide,
             opacity: 1,
             transparent: true
     } );
     eye = new THREE.Mesh( geometry, material );
-    scene.add(eye);
+    group.add(eye);
     eye.position.x = 0;
     eye.position.y = 0;
     eye.position.z = 0;
 
     eye.rotation.z = -Math.PI*1.5;
 
-    var texture = drawTexture();
+    var texture = drawTexture0();
     eye.loadTexture(texture);
+    //eye.loadTexture("img/eye-normal-map-0.png", "N");
+
+    geometry = new THREE.PlaneGeometry(12, 12); 
+    var material = 
+        new THREE.MeshStandardMaterial( { 
+            color: 0xFFFFFF,
+            opacity: 1,
+            transparent: true
+    } );
+    plane = new THREE.Mesh( geometry, material );
+    group.add(plane);
+    plane.position.x = 0;
+    plane.position.y = 2
+    plane.position.z = 0;
+
+    plane.rotation.x = -(Math.PI/2);
+
+    var texture = drawTexture1(calibration);
+    plane.loadTexture(texture);
+    //eye.loadTexture("img/eye-normal-map-0.png", "N");
 
     virtualCamera.position.set(0, 5, 0);
     virtualCamera.lookAt(0, 0, 0);
@@ -109,33 +134,21 @@ var load3D = function() {
 }
 
 THREE.Object3D.prototype.loadTexture = 
-function(url, n=0, type="D") {
+function(url, type="D") {
 var rnd = Math.random();
 new THREE.TextureLoader().load(url, 
     texture => {
         //Update Texture
-        if (this.material && 
+        if (type == "D" && this.material && 
             typeof this.material.length == "undefined") {
             this.material.transparent = true;
             this.material.map = texture;
             this.material.needsUpdate = true;
         }
-        else if (this.material) {
-            this.material[n].transparent = true;
-            this.material[n].map = texture;
-            this.material[n].needsUpdate = true;
-        }
-        else {
-            if (type == "D") {
-                this.children[n].material.transparent = true;
-                this.children[n].material.map = texture;
-                this.children[n].material.needsUpdate = true;
-            }
-            else {
-                this.children[n].material.transparent = true;
-                this.children[n].material.normalMap = texture;
-                this.children[n].material.needsUpdate = true;
-            }
+        else if (type == "N") {
+            this.material.transparent = true;
+            this.material.normalMap = texture;
+            this.material.needsUpdate = true;
         }
     },
     xhr => {
@@ -148,14 +161,64 @@ new THREE.TextureLoader().load(url,
     });
 };
 
-var drawTexture = function(sensor=0.5) {
+var drawTexture0 = function() {
     var canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 512;
 
     var ctx = canvas.getContext("2d");
+    ctx.globalCompositeOperation = "source-out";
     ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#f00";
+
+    var c = { x: 256, y: 256 };
+    var p = { x: 256, y: 256-40 };
+
+    ctx.beginPath();
+    ctx.moveTo(256, 0);
+    //ctx.moveTo(256, p.y);
+
+    for (var n = 0; n <= 100; n++) {
+        var a = ((Math.PI*2)/100)*n;
+        var v = _rotate2d(c, p, a, false);
+        ctx.lineTo(v.x, v.y);
+    }
+
+    ctx.lineTo(256, 0);
+    ctx.lineTo(512, 0);
+    ctx.lineTo(512, 512);
+    ctx.lineTo(0, 512);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(256, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    //ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //drawToSquare(canvas);
+
+    var result = document.createElement("canvas");
+    result.width = 512;
+    result.height = 512;
+
+    var resultCtx = result.getContext("2d");
+
+    resultCtx.drawImage(
+        canvas, 0, (result.height/4), result.width, (result.height/2),
+        0, 0, result.width, result.height
+    );
+
+    return result.toDataURL();
+};
+
+var drawTexture1 = function(sensor=0.5) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+
+    var ctx = canvas.getContext("2d");
 
     var gradient = 
     ctx.createRadialGradient(256, 256, 40, 256, 256, 15);
@@ -170,6 +233,22 @@ var drawTexture = function(sensor=0.5) {
     ctx.fill();
 
     var radius = 30*sensor;
+    var c = { x: 256, y: 256 };
+    var p0 = { x: 256, y: 256-40 };
+    var p1 = { x: 256, y: 256-radius };
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(0,0,0,0.5)";
+    for (var n = 0; n < 50; n++) {
+        var a = ((-Math.PI*2)/50)*n;
+        var v0 = _rotate2d(c, p0, a, false);
+        var v1 = _rotate2d(c, p1, a, false);
+        ctx.beginPath();
+        ctx.moveTo(v0.x, v0.y);
+        ctx.lineTo(v1.x, v1.y);
+        ctx.stroke();
+    }
+
     ctx.fillStyle = "#000";
     ctx.beginPath();
     ctx.arc(canvas.width/2, canvas.height/2, radius, 0, Math.PI*2);
@@ -185,18 +264,12 @@ var drawTexture = function(sensor=0.5) {
          canvas.height/2-(radius), radius*2, radius*2);
     ctx.restore();
 
-    var result = document.createElement("canvas");
-    result.width = 512;
-    result.height = 512;
+    //drawToSquare(canvas);
 
-    var resultCtx = result.getContext("2d");
-    resultCtx.fillStyle = "#fff";
-    resultCtx.fillRect(0, 0, canvas.width, canvas.height);
-
-    resultCtx.drawImage(
-        canvas, 0, result.height/4, result.width, result.height/2,
-        0, 0, result.width, result.height
-    );
-
-    return result.toDataURL();
+    return canvas.toDataURL();
 };
+
+var drawToSquare = function(data) {
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(data, 0, 0, 300, 300);
+}

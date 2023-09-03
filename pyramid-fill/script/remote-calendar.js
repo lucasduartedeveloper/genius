@@ -218,7 +218,7 @@ $(document).ready(function() {
     saveContainer.onclick = function() {
         var dataURL = canvas.toDataURL();
         var hiddenElement = document.createElement('a');
-        hiddenElement.href = clipLayers();
+        hiddenElement.href = drawTexture0(); //clipLayers();
         hiddenElement.target = "_blank";
         hiddenElement.download = 
         resolution+"x_zoom.png";
@@ -904,7 +904,7 @@ $(document).ready(function() {
             drawSquare();
         }
 
-        eye.rotation.z = (-Math.PI*1.5) + 
+        group.rotation.z = 
         (((1/9.8)*gyro.accX)*(Math.PI/4));
     };
     moveLoop();

@@ -1,3 +1,16 @@
+var _rotate2d = function(c, p, angle, deg=true) {
+    var cx = c.x;
+    var cy = c.y;
+    var x = p.x;
+    var y = p.y;
+    var radians = deg ? (Math.PI / 180) * angle : angle,
+    cos = Math.cos(parseFloat(radians.toFixed(2))),
+    sin = Math.sin(parseFloat(radians.toFixed(2))),
+    nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+    ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+    return { x: nx, y: ny };
+};
+
 var _angle2d = function(co, ca) {
     var h = Math.sqrt(
     Math.abs(Math.pow(co, 2)) + 
