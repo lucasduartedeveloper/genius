@@ -353,14 +353,14 @@ var animateTree = function() {
     var p = { x: 150, y: 300 };
 
     ctx.translate(p.x, p.y);
-    drawTree(ctx, { x: 0, y: 0 }, 0, 50);
+    drawTree(ctx, { x: 0, y: 0 }, 0, 50, 5);
 };
 
 var positionArr = [];
 var sequence = 0;
 var position = { x: 0, y: 0 };
 var rotation = 0;
-var drawTree = function(ctx, p, angle, len, from) {
+var drawTree = function(ctx, p, angle, len, w, from) {
     setTimeout(function() {
         ctx.lineWidth = 1;
         ctx.strokeStyle = "#000";
@@ -379,10 +379,10 @@ var drawTree = function(ctx, p, angle, len, from) {
         { x: positionArr[from-1].x, y: positionArr[from-1].y-len } : 
         { x: 0, y: -len };
         p0 = _rotate2d(c, p0, angle);
-        console.log(sequence + " < " + (from-1));
+        //console.log(sequence + " < " + (from-1));
 
         var rc = { x: 150+c.x, y: 300+c.y };
-        console.log(rc, angle);
+        //console.log(rc, angle);
 
         positionArr[sequence] = { x: p0.x, y: p0.y };
 
@@ -391,10 +391,10 @@ var drawTree = function(ctx, p, angle, len, from) {
         ctx.lineTo(p0.x, p0.y);
         ctx.stroke();
 
-        ctx.fillStyle = "purple";
+        ctx.fillStyle = [ "purple", "orange", "yellow" ][w];
         ctx.beginPath();
         ctx.arc(p0.x, p0.y, 2, 0, Math.PI*2);
-        //ctx.fill();
+        ctx.fill();
         //ctx.restore();
 
         if(len < 5) {
@@ -402,9 +402,13 @@ var drawTree = function(ctx, p, angle, len, from) {
            return;
         }
 
+        var amt = 1+Math.floor(Math.random()*3);
+
         var v = { x: p0.x-c.x, y: p0.y-c.y };
-        drawTree(ctx, v, angle-35, len*0.8, sequence+1);
-        drawTree(ctx, v, angle+35, len*0.8, sequence+1);
+        for (var n = 0; n < amt; n++) {
+             var offset = -50+Math.floor(Math.random()*100);
+             drawTree(ctx, v, angle+offset, len*0.8, n, sequence+1);
+        }
 
         sequence += 1;
     }, (1000/60));
