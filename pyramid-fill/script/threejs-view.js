@@ -96,9 +96,11 @@ var load3D = function() {
 
     var texture = drawTexture0();
     eye.loadTexture(texture);
+    var map = drawOpacityMap();
+    eye.loadTexture(map, "O");
     //eye.loadTexture("img/eye-normal-map-0.png", "N");
 
-    geometry = new THREE.PlaneGeometry(12, 12); 
+    geometry = new THREE.PlaneGeometry(10, 10); 
     var material = 
         new THREE.MeshStandardMaterial( { 
             color: 0xFFFFFF,
@@ -126,6 +128,10 @@ var load3D = function() {
         iterations -= 1;
         if (iterations > 0)
         req = requestAnimationFrame( animate );
+
+        //if (!motionSensorAvailable)
+        //group.rotation.z += 0.01;
+
         if (render) {
             renderer.render( scene, virtualCamera );
         }
@@ -148,6 +154,11 @@ new THREE.TextureLoader().load(url,
         else if (type == "N") {
             this.material.transparent = true;
             this.material.normalMap = texture;
+            this.material.needsUpdate = true;
+        }
+        else if (type == "O") {
+            this.material.transparent = true;
+            this.material.alphaMap = texture;
             this.material.needsUpdate = true;
         }
     },
@@ -193,6 +204,62 @@ var drawTexture0 = function() {
     ctx.lineTo(0, 0);
     ctx.lineTo(256, 0);
     ctx.closePath();
+    ctx.fill();
+
+    //ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //drawToSquare(canvas);
+
+    var result = document.createElement("canvas");
+    result.width = 512;
+    result.height = 512;
+
+    var resultCtx = result.getContext("2d");
+
+    resultCtx.drawImage(
+        canvas, 0, (result.height/4), result.width, (result.height/2),
+        0, 0, result.width, result.height
+    );
+
+    return result.toDataURL();
+};
+
+var drawOpacityMap = function() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#f00";
+
+    var c = { x: 256, y: 256 };
+    var p = { x: 256, y: 256-40 };
+
+    ctx.beginPath();
+    ctx.moveTo(256, 0);
+    //ctx.moveTo(256, p.y);
+
+    for (var n = 0; n <= 100; n++) {
+        var a = ((Math.PI*2)/100)*n;
+        var v = _rotate2d(c, p, a, false);
+        ctx.lineTo(v.x, v.y);
+    }
+
+    ctx.lineTo(256, 0);
+    ctx.lineTo(512, 0);
+    ctx.lineTo(512, 512);
+    ctx.lineTo(0, 512);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(256, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(256, 256, 40, 0, Math.PI*2);
     ctx.fill();
 
     //ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -276,3 +343,69 @@ var drawToSquare = function(data) {
     var ctx = canvas.getContext("2d");
     ctx.drawImage(data, 0, 0, 300, 300);
 }
+
+var animateTree = function() {
+    var ctx = canvas.getContext("2d");
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#000";
+
+    var max = 15;
+    var p = { x: 150, y: 300 };
+
+    ctx.translate(p.x, p.y);
+    drawTree(ctx, { x: 0, y: 0 }, 0, 50);
+};
+
+var positionArr = [];
+var sequence = 0;
+var position = { x: 0, y: 0 };
+var rotation = 0;
+var drawTree = function(ctx, p, angle, len, from) {
+    setTimeout(function() {
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "#000";
+
+        position.x += p.x;
+        position.y += p.y;
+        rotation += angle;
+
+        //ctx.save();
+        //ctx.translate(p.x, p.y);
+        //ctx.rotate(angle);
+
+        //console.log(p);
+        var c = from ? positionArr[from-1] : { x: 0, y: 0 };
+        var p0 = from ? 
+        { x: positionArr[from-1].x, y: positionArr[from-1].y-len } : 
+        { x: 0, y: -len };
+        p0 = _rotate2d(c, p0, angle);
+        console.log(sequence + " < " + (from-1));
+
+        var rc = { x: 150+c.x, y: 300+c.y };
+        console.log(rc, angle);
+
+        positionArr[sequence] = { x: p0.x, y: p0.y };
+
+        ctx.beginPath();
+        ctx.moveTo(c.x, c.y);
+        ctx.lineTo(p0.x, p0.y);
+        ctx.stroke();
+
+        ctx.fillStyle = "purple";
+        ctx.beginPath();
+        ctx.arc(p0.x, p0.y, 2, 0, Math.PI*2);
+        //ctx.fill();
+        //ctx.restore();
+
+        if(len < 5) {
+           console.log("done");
+           return;
+        }
+
+        var v = { x: p0.x-c.x, y: p0.y-c.y };
+        drawTree(ctx, v, angle-35, len*0.8, sequence+1);
+        drawTree(ctx, v, angle+35, len*0.8, sequence+1);
+
+        sequence += 1;
+    }, (1000/60));
+};

@@ -886,8 +886,12 @@ $(document).ready(function() {
     document.body.appendChild(colorInput);
 
     landscape = false;
+    motionSensorAvailable = false;
     motion = true;
     gyroUpdated = function(gyro) {
+        if (!motionSensorAvailable)
+        motionSensorAvailable = true;
+
         landscape = (gyro.accX > 5);
         if (landscape)
         moveContainer.style.transform = "rotateZ(90deg)";
@@ -948,6 +952,8 @@ $(document).ready(function() {
 
     imgNo = Math.floor(Math.random()*img_list.length);
     load3D();
+
+    animateTree();
 });
 
 var imgNo = 0;
