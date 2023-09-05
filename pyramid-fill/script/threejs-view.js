@@ -82,12 +82,12 @@ var load3D = function() {
     var material = 
         new THREE.MeshStandardMaterial( { 
             color: 0xFFFFFF,
-            side: THREE.DoubleSide,
+            //side: THREE.DoubleSide,
             opacity: 1,
             transparent: true
     } );
     eye = new THREE.Mesh( geometry, material );
-    group.add(eye);
+    //group.add(eye);
     eye.position.x = 0;
     eye.position.y = 0;
     eye.position.z = 0;
@@ -95,22 +95,69 @@ var load3D = function() {
     eye.rotation.z = -Math.PI*1.5;
 
     var texture = drawTexture0();
-    eye.loadTexture(texture);
+    //eye.loadTexture(texture);
     var map = drawOpacityMap();
-    eye.loadTexture(map, "O");
+    //eye.loadTexture(map, "O");
     //eye.loadTexture("img/eye-normal-map-0.png", "N");
 
-    geometry = new THREE.PlaneGeometry(10, 10); 
+    var meshA = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2));
+    var meshB = new THREE.Mesh(geometry)
+
+    meshA.position.y = 2.82;
+    meshA.updateMatrix();
+
+    //group.add(meshA);
+
+    var box = CSG.fromMesh(meshA);
+    var sphere = CSG.fromMesh(meshB);
+    //console.log(box);
+
+    var result = sphere.subtract(box)
+
+    var mesh = CSG.toMesh(result, meshA.matrix, material);
+    group.add(mesh);
+
+    loadedObj = null;
+    loadOBJ("img/sphere-0.obj",
+    function ( object ) {
+        object = object;
+        loadedObj = object;
+
+        object.scale.x = 5;
+        object.scale.y = 5;
+        object.scale.z = 5;
+
+        object.rotation.x = -(Math.PI/2);
+
+        var material = 
+        new THREE.MeshStandardMaterial( { 
+            color: 0x00FF00,
+            side: THREE.DoubleSide,
+            opacity: 1,
+            transparent: true
+        } );
+        object.children[0].material = material;
+
+        var texture = drawTexture0();
+        object.loadTexture(texture);
+        var map = drawOpacityMap();
+        object.loadTexture(map, "O");
+
+        //group.add( object );
+   });
+
+    geometry = new THREE.CircleGeometry(0.85, 32); 
     var material = 
         new THREE.MeshStandardMaterial( { 
             color: 0xFFFFFF,
             opacity: 1,
-            transparent: true
+            transparent: true,
+            //wireframe: true
     } );
     plane = new THREE.Mesh( geometry, material );
     group.add(plane);
     plane.position.x = 0;
-    plane.position.y = 2;
+    plane.position.y = 1.85;
     plane.position.z = 0;
 
     plane.rotation.x = -(Math.PI/2);
@@ -145,8 +192,9 @@ var rnd = Math.random();
 new THREE.TextureLoader().load(url, 
     texture => {
         //Update Texture
-        if (type == "D" && this.material && 
-            typeof this.material.length == "undefined") {
+        if (this.material) {
+        if (type == "D") {
+            console.log("loaded texture");
             this.material.transparent = true;
             this.material.map = texture;
             this.material.needsUpdate = true;
@@ -160,6 +208,25 @@ new THREE.TextureLoader().load(url,
             this.material.transparent = true;
             this.material.alphaMap = texture;
             this.material.needsUpdate = true;
+        }
+        }
+        else {
+        if (type == "D") {
+            console.log("loaded texture obj");
+            this.children[0].material.transparent = true;
+            this.children[0].material.map = texture;
+            this.children[0].material.needsUpdate = true;
+        }
+        else if (type == "N") {
+            this.children[0].material.transparent = true;
+            this.children[0].material.normalMap = texture;
+            this.children[0].material.needsUpdate = true;
+        }
+        else if (type == "O") {
+            this.children[0].material.transparent = true;
+            this.children[0].material.alphaMap = texture;
+            this.children[0].material.needsUpdate = true;
+        }
         }
     },
     xhr => {
@@ -291,7 +358,7 @@ var drawTexture1 = function(sensor=0.5) {
     //ctx.strokeRect(256-50, 256-50, 100, 100);
 
     var gradient = 
-    ctx.createRadialGradient(256, 256, 40, 256, 256, 15);
+    ctx.createRadialGradient(256, 256, 256, 256, 256, 50);
 
     // Add three color stops
     gradient.addColorStop(0, "#000");
@@ -299,18 +366,18 @@ var drawTexture1 = function(sensor=0.5) {
 
     ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(canvas.width/2, canvas.height/2, 40, 0, Math.PI*2);
+    ctx.arc(canvas.width/2, canvas.height/2, 256, 0, Math.PI*2);
     ctx.fill();
 
-    var radius = 30*sensor;
+    var radius = 128*sensor;
     var c = { x: 256, y: 256 };
-    var p0 = { x: 256, y: 256-40 };
+    var p0 = { x: 256, y: 256-256 };
     var p1 = { x: 256, y: 256-radius };
 
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "rgba(0,0,0,0.5)";
-    for (var n = 0; n < 50; n++) {
-        var a = ((-Math.PI*2)/50)*n;
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#fff"; //"rgba(0,0,0,0.5)";
+    for (var n = 0; n < 30; n++) {
+        var a = ((-Math.PI*2)/30)*n;
         var v0 = _rotate2d(c, p0, a, false);
         var v1 = _rotate2d(c, p1, a, false);
         ctx.beginPath();
@@ -397,7 +464,7 @@ var drawTree = function(ctx, p, angle, len, w, from) {
         ctx.fill();
         //ctx.restore();
 
-        if(len < 5) {
+        if(len < 30) {
            console.log("done");
            return;
         }
@@ -412,4 +479,21 @@ var drawTree = function(ctx, p, angle, len, w, from) {
 
         sequence += 1;
     }, (1000/60));
+};
+
+var loadOBJ = function(path, callback) {
+    var loader = new THREE.OBJLoader();
+    // load a resource
+    // resource URL
+    // called when resource is loaded
+    loader.load(path, callback,
+    // called when loading is in progresses
+        function ( xhr ) {
+            console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+        },
+    // called when loading has errors
+        function ( error ) {
+            console.log( 'An error happened' );
+        }
+    );
 };
