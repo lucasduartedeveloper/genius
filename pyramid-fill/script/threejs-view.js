@@ -486,10 +486,19 @@ var animateTree = function() {
     ctx.lineWidth = 1;
     ctx.strokeStyle = "#000";
 
+    ctx.beginPath();
+    ctx.arc(150, 150, 150, 0, (Math.PI*2));
+    ctx.stroke();
+
     var max = 15;
     var p = { x: 150, y: 300 };
 
     ctx.translate(p.x, p.y);
+
+    ctx.beginPath();
+    ctx.arc(0, -150, 140, 0, (Math.PI*2));
+    ctx.stroke();
+
     drawTree(ctx, { x: 0, y: 0 }, 0, 50, 0);
     ctx.translate(-p.x, -p.y);
 };
@@ -498,7 +507,11 @@ var positionArr = [];
 var sequence = 0;
 var position = { x: 0, y: 0 };
 var rotation = 0;
-var drawTree = function(ctx, p, angle, len, w, from) {
+var drawTree = function(ctx, p, angle, len, w, from=0) {
+    ctx.beginPath();
+    ctx.arc(0, -150, (13-from)*10, 0, (Math.PI*2));
+    ctx.stroke();
+
     setTimeout(function() {
         ctx.lineWidth = 1;
         ctx.strokeStyle = "#000";
@@ -517,10 +530,10 @@ var drawTree = function(ctx, p, angle, len, w, from) {
         { x: positionArr[from-1].x, y: positionArr[from-1].y-len } : 
         { x: 0, y: -len };
         p0 = _rotate2d(c, p0, angle);
-        //console.log(sequence + " < " + (from-1));
+        console.log(sequence + " < " + (from-1));
 
         var rc = { x: 150+c.x, y: 300+c.y };
-        //console.log(rc, angle);
+        console.log("x: "+rc.x.toFixed(2)+", y: "+rc.y.toFixed(2), angle);
 
         positionArr[sequence] = { x: p0.x, y: p0.y };
 
@@ -532,11 +545,11 @@ var drawTree = function(ctx, p, angle, len, w, from) {
         var fillStyle = [ "purple", "orange", "yellow" ][w];
         ctx.fillStyle = fillStyle;
         ctx.beginPath();
-        ctx.arc(p0.x, p0.y, 5, 0, Math.PI*2);
+        ctx.arc(p0.x, p0.y, 2, 0, Math.PI*2);
         ctx.fill();
         //ctx.restore();
 
-        if(len < 15) {
+        if(len < 30) {
            console.log("done");
            return;
         }
@@ -550,7 +563,7 @@ var drawTree = function(ctx, p, angle, len, w, from) {
         }
 
         sequence += 1;
-    }, (1000/60));
+    }, (1000));
 };
 
 var loadOBJ = function(path, callback) {

@@ -8,7 +8,6 @@
 // Holds a binary space partition tree representing a 3D solid. Two solids can
 // be combined using the `union()`, `subtract()`, and `intersect()` methods.
 
-
 class CSG {
     constructor() {
         this.polygons = [];
@@ -431,47 +430,3 @@ class Node {
 CSG.fromJSON=function(json){
     return CSG.fromPolygons(json.polygons.map(p=>new Polygon(p.vertices.map(v=> new Vertex(v.pos,v.normal,v.uv)),p.shared)))
 }
-
-// Return a new CSG solid representing space in either this solid or in the
-// solid `csg`. Neither this solid nor the solid `csg` are modified.
-// 
-//     A.union(B)
-// 
-//     +-------+            +-------+
-//     |       |            |       |
-//     |   A   |            |       |
-//     |    +--+----+   =   |       +----+
-//     +----+--+    |       +----+       |
-//          |   B   |            |       |
-//          |       |            |       |
-//          +-------+            +-------+
-// 
-// Return a new CSG solid representing space in this solid but not in the
-// solid `csg`. Neither this solid nor the solid `csg` are modified.
-// 
-//     A.subtract(B)
-// 
-//     +-------+            +-------+
-//     |       |            |       |
-//     |   A   |            |       |
-//     |    +--+----+   =   |    +--+
-//     +----+--+    |       +----+
-//          |   B   |
-//          |       |
-//          +-------+
-// 
-// Return a new CSG solid representing space both this solid and in the
-// solid `csg`. Neither this solid nor the solid `csg` are modified.
-// 
-//     A.intersect(B)
-// 
-//     +-------+
-//     |       |
-//     |   A   |
-//     |    +--+----+   =   +--+
-//     +----+--+    |       +--+
-//          |   B   |
-//          |       |
-//          +-------+
-// 
-
