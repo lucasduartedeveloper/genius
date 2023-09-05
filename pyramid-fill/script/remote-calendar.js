@@ -32,7 +32,7 @@ $(document).ready(function() {
     icon.style.height = (50)+"px";
     icon.style.transform = "scale(0.5)";
     icon.style.zIndex = "5";
-    //document.body.appendChild(icon);
+    document.body.appendChild(icon);
 
     camera = document.createElement("video");
     camera.style.position = "absolute";
@@ -961,7 +961,7 @@ $(document).ready(function() {
     };
 
     imgNo = Math.floor(Math.random()*img_list.length);
-    load3D();
+    //load3D();
 
     animateTree();
 });
