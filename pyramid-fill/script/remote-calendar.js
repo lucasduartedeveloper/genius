@@ -61,22 +61,6 @@ $(document).ready(function() {
     zoomContainer.style.overflow = "hidden";
     document.body.appendChild(zoomContainer);
 
-    zoomPosition = document.createElement("canvas");
-    zoomPosition.style.position = "absolute";
-    zoomPosition.style.display = "none";
-    zoomPosition.width = 300;
-    zoomPosition.height = 300;
-    zoomPosition.style.left = ((sw/2)-150)+"px";
-    zoomPosition.style.top = ((sh/2)-150)+"px";
-    zoomPosition.style.width = (300)+"px";
-    zoomPosition.style.height = (300)+"px";
-    zoomPosition.style.border = "1px solid lightblue";
-    zoomPosition.style.transform = "scale(0.8)";
-    zoomPosition.style.zIndex = "5";
-    document.body.appendChild(zoomPosition);
-
-    zoomPosition.getContext("2d").imageSmoothingEnabled = false;
-
     zoomControl = document.createElement("div");
     zoomControl.style.position = "absolute";
     zoomControl.style.display = "none";
@@ -87,6 +71,36 @@ $(document).ready(function() {
     zoomControl.style.transform = "scale(0.8)";
     zoomControl.style.zIndex = "5";
     document.body.appendChild(zoomControl);
+
+    zoomPosition = document.createElement("canvas");
+    zoomPosition.style.position = "absolute";
+    zoomPosition.style.display = "none";
+    zoomPosition.width = 300;
+    zoomPosition.height = 300;
+    zoomPosition.style.left = (0)+"px";
+    zoomPosition.style.top = (0)+"px";
+    zoomPosition.style.width = (300)+"px";
+    zoomPosition.style.height = (300)+"px";
+    zoomPosition.style.border = "1px solid lightblue";
+    zoomPosition.style.zIndex = "5";
+    zoomControl.appendChild(zoomPosition);
+
+    zoomPosition.getContext("2d").imageSmoothingEnabled = false;
+
+    var ctxZoom = zoomPosition.getContext("2d");
+    ctxZoom.lineWidth = 1;
+    ctxZoom.strokeStyle = "lightblue";
+    ctxZoom.clearRect(0, 0, 300, 300);
+
+    ctxZoom.beginPath();
+    ctxZoom.moveTo(150, 150-25);
+    ctxZoom.lineTo(150, 150+25);
+    ctxZoom.stroke();
+
+    ctxZoom.beginPath();
+    ctxZoom.moveTo(150-25, 150);
+    ctxZoom.lineTo(150+25, 150);
+    ctxZoom.stroke();
 
     var zoomX = 0;
     var zoomY = 0;
@@ -117,12 +131,15 @@ $(document).ready(function() {
             Math.floor(((moveY - left)/(300/resolution)))*
             (300/resolution));
 
+            var offset = resolution % 2 != 0 ? 
+            (300/resolution)/2 : 0;
+
             zoomCenter.x = 
-            Math.floor(((moveX - left)/(300/resolution)))*
-            (300/resolution);
+            (Math.floor(((moveX - left)/(300/resolution)))*
+            (300/resolution))-offset;
             zoomCenter.y = 
-            Math.floor(((moveY - top)/(300/resolution)))*
-            (300/resolution);
+            (Math.floor(((moveY - top)/(300/resolution)))*
+            (300/resolution))-offset;
         }
         else if (e.touches.length == 2) {
             var moveX = e.touches[0].clientX;
@@ -132,7 +149,9 @@ $(document).ready(function() {
 
             var hyp = Math.sqrt(
             Math.pow(Math.abs(moveX2-moveX), 2)+
-            Math.pow(Math.abs(moveX2-moveX), 2));
+            Math.pow(Math.abs(moveY2-moveY), 2));
+
+            console.log(hyp);
 
             if (hyp > stretch) zoom += 1;
             else zoom -= 1;
@@ -1476,21 +1495,6 @@ var updateZoom = function() {
     var top = zoomContainer.style.top;
     top = parseInt(top.replace("px", ""));
 
-    var ctxZoom = zoomPosition.getContext("2d");
-    ctxZoom.lineWidth = 1;
-    ctxZoom.strokeStyle = "lightblue";
-    ctxZoom.clearRect(0, 0, 300, 300);
-
-    ctxZoom.beginPath();
-    ctxZoom.moveTo(150, 150-25);
-    ctxZoom.lineTo(150, 150+25);
-    ctxZoom.stroke();
-
-    ctxZoom.beginPath();
-    ctxZoom.moveTo(150-25, 150);
-    ctxZoom.lineTo(150+25, 150);
-    ctxZoom.stroke();
-
     canvas.style.left = ((zoomCenter.x-(size/2)))+"px";
     canvas.style.top = ((zoomCenter.y-(size/2)))+"px";
     canvas.style.width = (size)+"px";
@@ -1526,10 +1530,8 @@ var updateZoom = function() {
     canvasPosition.style.width = (size)+"px";
     canvasPosition.style.height = (size)+"px";
 
-    zoomPosition.style.left = 
-    (left+((zoomCenter.x-(size/2))*0.8))+"px";
-    zoomPosition.style.top = 
-    (top+((zoomCenter.y-(size/2))*0.8))+"px";
+    zoomPosition.style.left = ((zoomCenter.x-(size/2)))+"px";
+    zoomPosition.style.top = ((zoomCenter.y-(size/2)))+"px";
     zoomPosition.style.width = (size)+"px";
     zoomPosition.style.height = (size)+"px";
 };
