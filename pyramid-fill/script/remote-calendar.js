@@ -48,21 +48,115 @@ $(document).ready(function() {
     camera.style.zIndex = "5";
     document.body.appendChild(camera);
 
+    zoomContainer = document.createElement("div");
+    zoomContainer.style.position = "absolute";
+    zoomContainer.style.background = "#000";
+    zoomContainer.style.left = ((sw/2)-150)+"px";
+    zoomContainer.style.top = ((sh/2)-150)+"px";
+    zoomContainer.style.width = (300)+"px";
+    zoomContainer.style.height = (300)+"px";
+    zoomContainer.style.transform = "scale(0.8)";
+    zoomContainer.style.boxShadow = "0px 0px 25px #000";
+    zoomContainer.style.zIndex = "5";
+    zoomContainer.style.overflow = "hidden";
+    document.body.appendChild(zoomContainer);
+
+    zoomPosition = document.createElement("canvas");
+    zoomPosition.style.position = "absolute";
+    zoomPosition.style.display = "none";
+    zoomPosition.width = 300;
+    zoomPosition.height = 300;
+    zoomPosition.style.left = ((sw/2)-150)+"px";
+    zoomPosition.style.top = ((sh/2)-150)+"px";
+    zoomPosition.style.width = (300)+"px";
+    zoomPosition.style.height = (300)+"px";
+    zoomPosition.style.border = "1px solid lightblue";
+    zoomPosition.style.transform = "scale(0.8)";
+    zoomPosition.style.zIndex = "5";
+    document.body.appendChild(zoomPosition);
+
+    zoomPosition.getContext("2d").imageSmoothingEnabled = false;
+
+    zoomControl = document.createElement("div");
+    zoomControl.style.position = "absolute";
+    zoomControl.style.display = "none";
+    zoomControl.style.left = ((sw/2)-150)+"px";
+    zoomControl.style.top = ((sh/2)-150)+"px";
+    zoomControl.style.width = (300)+"px";
+    zoomControl.style.height = (300)+"px";
+    zoomControl.style.transform = "scale(0.8)";
+    zoomControl.style.zIndex = "5";
+    document.body.appendChild(zoomControl);
+
+    var zoomX = 0;
+    var zoomY = 0;
+    var zoomX2 = 0;
+    var zoomY2 = 0;
+    var stretch = 0;
+    zoomControl.ontouchstart = function(e) {
+        zoomX = e.touches[0].clientX;
+        zoomY = e.touches[0].clientY;
+        if (e.touches.length > 1) {
+            zoomX2 = e.touches[1].clientX;
+            zoomY2 = e.touches[1].clientY;
+        }
+    };
+    zoomControl.ontouchmove = function(e) {
+        if (e.touches.length == 1) {
+            var moveX = e.touches[0].clientX;
+            var moveY = e.touches[0].clientY;
+
+            var left = zoomContainer.style.left;
+            left = parseInt(left.replace("px", ""));
+            var top = zoomContainer.style.top;
+            top = parseInt(top.replace("px", ""));
+
+            console.log(
+            Math.floor(((moveX - left)/(300/resolution)))*
+            (300/resolution),
+            Math.floor(((moveY - left)/(300/resolution)))*
+            (300/resolution));
+
+            zoomCenter.x = 
+            Math.floor(((moveX - left)/(300/resolution)))*
+            (300/resolution);
+            zoomCenter.y = 
+            Math.floor(((moveY - top)/(300/resolution)))*
+            (300/resolution);
+        }
+        else if (e.touches.length == 2) {
+            var moveX = e.touches[0].clientX;
+            var moveY = e.touches[0].clientY;
+            var moveX2 = e.touches[1].clientX;
+            var moveY2 = e.touches[1].clientY;
+
+            var hyp = Math.sqrt(
+            Math.pow(Math.abs(moveX2-moveX), 2)+
+            Math.pow(Math.abs(moveX2-moveX), 2));
+
+            if (hyp > stretch) zoom += 1;
+            else zoom -= 1;
+            zoom = zoom < 1 ? 1 : zoom;
+
+            stretch = hyp;
+        }
+
+        updateZoom();
+    };
+
     canvas = document.createElement("canvas");
     canvas.style.position = "absolute";
     canvas.style.background = canvasBackgroundColor;
     canvas.width = 300;
     canvas.height = 300;
-    canvas.style.left = ((sw/2)-150)+"px";
-    canvas.style.top = ((sh/2)-150)+"px";
+    canvas.style.left = (0)+"px";
+    canvas.style.top = (0)+"px";
     canvas.style.width = (300)+"px";
     canvas.style.height = (300)+"px";
-    canvas.style.transform = "scale(0.8)";
-    canvas.style.boxShadow = "0px 0px 25px #000";
     canvas.style.zIndex = "5";
     canvas.ontouchstart = paintPixel;
     canvas.ontouchmove = paintPixel;
-    document.body.appendChild(canvas);
+    zoomContainer.appendChild(canvas);
 
     canvas.getContext("2d").imageSmoothingEnabled = false;
 
@@ -70,15 +164,14 @@ $(document).ready(function() {
     canvasPortal.style.position = "absolute";
     canvasPortal.width = 300;
     canvasPortal.height = 300;
-    canvasPortal.style.left = ((sw/2)-150)+"px";
-    canvasPortal.style.top = ((sh/2)-150)+"px";
+    canvasPortal.style.left = (0)+"px";
+    canvasPortal.style.top = (0)+"px";
     canvasPortal.style.width = (300)+"px";
     canvasPortal.style.height = (300)+"px";
-    canvasPortal.style.transform = "scale(0.8)";
     canvasPortal.style.zIndex = "5";
     canvasPortal.ontouchstart = paintPixel;
     canvasPortal.ontouchmove = paintPixel;
-    document.body.appendChild(canvasPortal);
+    zoomContainer.appendChild(canvasPortal);
 
     canvasPortal.getContext("2d").imageSmoothingEnabled = false;
 
@@ -86,15 +179,14 @@ $(document).ready(function() {
     canvas1.style.position = "absolute";
     canvas1.width = 300;
     canvas1.height = 300;
-    canvas1.style.left = ((sw/2)-150)+"px";
-    canvas1.style.top = ((sh/2)-150)+"px";
+    canvas1.style.left = (0)+"px";
+    canvas1.style.top = (0)+"px";
     canvas1.style.width = (300)+"px";
     canvas1.style.height = (300)+"px";
-    canvas1.style.transform = "scale(0.8)";
     canvas1.style.zIndex = "6";
     canvas1.ontouchstart = paintPixel;
     canvas1.ontouchmove = paintPixel;
-    document.body.appendChild(canvas1);
+    zoomContainer.appendChild(canvas1);
 
     canvas1.getContext("2d").imageSmoothingEnabled = false;
 
@@ -102,15 +194,14 @@ $(document).ready(function() {
     canvas2.style.position = "absolute";
     canvas2.width = 300;
     canvas2.height = 300;
-    canvas2.style.left = ((sw/2)-150)+"px";
-    canvas2.style.top = ((sh/2)-150)+"px";
+    canvas2.style.left = (0)+"px";
+    canvas2.style.top = (0)+"px";
     canvas2.style.width = (300)+"px";
     canvas2.style.height = (300)+"px";
-    canvas2.style.transform = "scale(0.8)";
     canvas2.style.zIndex = "7";
     canvas2.ontouchstart = paintPixel;
     canvas2.ontouchmove = paintPixel;
-    document.body.appendChild(canvas2);
+    zoomContainer.appendChild(canvas2);
 
     canvas2.getContext("2d").imageSmoothingEnabled = false;
 
@@ -119,15 +210,14 @@ $(document).ready(function() {
     canvasEffect.style.display = "none";
     canvasEffect.width = 300;
     canvasEffect.height = 300;
-    canvasEffect.style.left = ((sw/2)-150)+"px";
-    canvasEffect.style.top = ((sh/2)-150)+"px";
+    canvasEffect.style.left = (0)+"px";
+    canvasEffect.style.top = (0)+"px";
     canvasEffect.style.width = (300)+"px";
     canvasEffect.style.height = (300)+"px";
-    canvasEffect.style.transform = "scale(0.8)";
     canvasEffect.style.zIndex = "8";
     canvasEffect.ontouchstart = paintPixel;
     canvasEffect.ontouchmove = paintPixel;
-    document.body.appendChild(canvasEffect);
+    zoomContainer.appendChild(canvasEffect);
 
     canvasEffect.getContext("2d").imageSmoothingEnabled = false;
 
@@ -136,13 +226,12 @@ $(document).ready(function() {
     canvasGrid.style.display = "none";
     canvasGrid.width = 300;
     canvasGrid.height = 300;
-    canvasGrid.style.left = ((sw/2)-150)+"px";
-    canvasGrid.style.top = ((sh/2)-150)+"px";
+    canvasGrid.style.left = (0)+"px";
+    canvasGrid.style.top = (0)+"px";
     canvasGrid.style.width = (300)+"px";
     canvasGrid.style.height = (300)+"px";
-    canvasGrid.style.transform = "scale(0.8)";
     canvasGrid.style.zIndex = "9";
-    document.body.appendChild(canvasGrid);
+    zoomContainer.appendChild(canvasGrid);
 
     canvasGrid.getContext("2d").imageSmoothingEnabled = false;
 
@@ -151,15 +240,14 @@ $(document).ready(function() {
     canvasTool.style.display = "none";
     canvasTool.width = 300;
     canvasTool.height = 300;
-    canvasTool.style.left = ((sw/2)-150)+"px";
-    canvasTool.style.top = ((sh/2)-150)+"px";
+    canvasTool.style.left = (0)+"px";
+    canvasTool.style.top = (0)+"px";
     canvasTool.style.width = (300)+"px";
     canvasTool.style.height = (300)+"px";
-    canvasTool.style.transform = "scale(0.8)";
     canvasTool.style.zIndex = "10";
     canvasTool.ontouchstart = paintPixel;
     canvasTool.ontouchmove = paintPixel;
-    document.body.appendChild(canvasTool);
+    zoomContainer.appendChild(canvasTool);
 
     canvasTool.getContext("2d").imageSmoothingEnabled = false;
 
@@ -170,14 +258,13 @@ $(document).ready(function() {
     canvasPosition.style.display = "none";
     canvasPosition.style.objectFit = "cover";
     canvasPosition.style.opacity = "0.5";
-    canvasPosition.style.left = ((sw/2)-150)+"px";
-    canvasPosition.style.top = ((sh/2)-150)+"px";
+    canvasPosition.style.left = (0)+"px";
+    canvasPosition.style.top = (0)+"px";
     canvasPosition.style.width = (300)+"px";
     canvasPosition.style.height = (300)+"px";
-    canvasPosition.style.transform = "scale(0.8)";
     canvasPosition.src = "img/position-0.png?rnd="+rnd;
     canvasPosition.style.zIndex = "5";
-    document.body.appendChild(canvasPosition);
+    zoomContainer.appendChild(canvasPosition);
 
     /*canvas.style.outlineOffset = 
     (5)+"px";
@@ -581,6 +668,32 @@ $(document).ready(function() {
 
     undoButton.onclick = function() {
         restoreCanvas();
+    };
+
+    zoomControlActive = false;
+    zoomButton = document.createElement("i");
+    zoomButton.style.position = "absolute";
+    zoomButton.className = "fa-solid fa-search";
+    zoomButton.style.color = "#333";
+    zoomButton.style.left = 50+"px";
+    zoomButton.style.top = 200+"px";
+    zoomButton.style.width = (25)+"px";
+    zoomButton.style.height = (25)+"px";
+    zoomButton.style.zIndex = "5";
+    leftMenu.appendChild(zoomButton);
+
+    zoomButton.onclick = function() {
+        zoomControlActive = !zoomControlActive;
+        if (zoomControlActive) {
+            zoomPosition.style.display = "initial";
+            zoomControl.style.display = "initial";
+            zoomButton.style.color = "#fff";
+        }
+        else {
+            zoomPosition.style.display = "none";
+            zoomControl.style.display = "none";
+            zoomButton.style.color = "#333";
+        }
     };
 
     drawCircle = false;
@@ -1225,7 +1338,8 @@ var paintPixel = function(e=false) {
 
             var ctxPortal = canvasPortal.getContext("2d");
             ctxPortal.clearRect(0, 0, 300, 300);
-            ctxPortal.drawImage(resolutionCanvas, 0, 0, 300, 300);
+            ctxPortal.drawImage(resolutionCanvas, 
+            0, 0, (300/zoom), (300/zoom));
 
             listPixels(canvasPortal);
             applyMask(canvas1, canvasPortal);
@@ -1233,9 +1347,6 @@ var paintPixel = function(e=false) {
         else {
             navigator.vibrate(500);
         }
-
-        var texture = drawTexture1(calibration);
-        plane.loadTexture(texture);
         return;
     }
 
@@ -1354,17 +1465,73 @@ var drawSquare = function() {
     ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
 
     navigator.vibrate(500);
+};
 
-    //if (layerNo < 2) layerTile.click();
+var zoom = 1;
+var zoomCenter = { x: 150, y: 150 };
+var updateZoom = function() {
+    var size = (300*zoom);
+    var left = zoomContainer.style.left;
+    left = parseInt(left.replace("px", ""));
+    var top = zoomContainer.style.top;
+    top = parseInt(top.replace("px", ""));
 
-    /*canvas.style.outlineOffset = 
-    (5)+"px";
-    canvas.style.outline = 
-    (5)+"px solid limegreen";*/
-    //_say("image created");
+    var ctxZoom = zoomPosition.getContext("2d");
+    ctxZoom.lineWidth = 1;
+    ctxZoom.strokeStyle = "lightblue";
+    ctxZoom.clearRect(0, 0, 300, 300);
 
-    var texture = drawTexture1(calibration);
-    plane.loadTexture(texture);
+    ctxZoom.beginPath();
+    ctxZoom.moveTo(150, 150-25);
+    ctxZoom.lineTo(150, 150+25);
+    ctxZoom.stroke();
+
+    ctxZoom.beginPath();
+    ctxZoom.moveTo(150-25, 150);
+    ctxZoom.lineTo(150+25, 150);
+    ctxZoom.stroke();
+
+    canvas.style.left = ((zoomCenter.x-(size/2)))+"px";
+    canvas.style.top = ((zoomCenter.y-(size/2)))+"px";
+    canvas.style.width = (size)+"px";
+    canvas.style.height = (size)+"px";
+
+    canvasPortal.style.left = ((zoomCenter.x-(size/2)))+"px";
+    canvasPortal.style.top = ((zoomCenter.y-(size/2)))+"px";
+    canvasPortal.style.width = (size)+"px";
+    canvasPortal.style.height = (size)+"px";
+
+    canvas1.style.left = ((zoomCenter.x-(size/2)))+"px";
+    canvas1.style.top = ((zoomCenter.y-(size/2)))+"px";
+    canvas1.style.width = (size)+"px";
+    canvas1.style.height = (size)+"px";
+
+    canvas2.style.left = ((zoomCenter.x-(size/2)))+"px";
+    canvas2.style.top = ((zoomCenter.y-(size/2)))+"px";
+    canvas2.style.width = (size)+"px";
+    canvas2.style.height = (size)+"px";
+
+    canvasEffect.style.left = ((zoomCenter.x-(size/2)))+"px";
+    canvasEffect.style.top = ((zoomCenter.y-(size/2)))+"px";
+    canvasEffect.style.width = (size)+"px";
+    canvasEffect.style.height = (size)+"px";
+
+    canvasGrid.style.left = ((zoomCenter.x-(size/2)))+"px";
+    canvasGrid.style.top = ((zoomCenter.y-(size/2)))+"px";
+    canvasGrid.style.width = (size)+"px";
+    canvasGrid.style.height = (size)+"px";
+
+    canvasPosition.style.left = ((zoomCenter.x-(size/2)))+"px";
+    canvasPosition.style.top = ((zoomCenter.y-(size/2)))+"px";
+    canvasPosition.style.width = (size)+"px";
+    canvasPosition.style.height = (size)+"px";
+
+    zoomPosition.style.left = 
+    (left+((zoomCenter.x-(size/2))*0.8))+"px";
+    zoomPosition.style.top = 
+    (top+((zoomCenter.y-(size/2))*0.8))+"px";
+    zoomPosition.style.width = (size)+"px";
+    zoomPosition.style.height = (size)+"px";
 };
 
 var applyEffect = function(n) {
@@ -1447,9 +1614,6 @@ var restoreCanvas = function() {
 
     ctx.fillStyle = fillStyle;
     ctx.fillRect(0, 0, 300, 300);
-
-    var texture = drawTexture1(calibration);
-    plane.loadTexture(texture);
 };
 
 var applyMask = function(destinationCanvas, maskCanvas) {
