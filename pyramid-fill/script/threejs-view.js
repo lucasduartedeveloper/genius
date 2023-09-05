@@ -486,21 +486,12 @@ var animateTree = function() {
     ctx.lineWidth = 1;
     ctx.strokeStyle = "#000";
 
-    ctx.beginPath();
-    ctx.arc(150, 150, 150, 0, (Math.PI*2));
-    ctx.stroke();
-
     var max = 15;
     var p = { x: 150, y: 300 };
 
+    ctx.save();
     ctx.translate(p.x, p.y);
-
-    ctx.beginPath();
-    ctx.arc(0, -150, 140, 0, (Math.PI*2));
-    ctx.stroke();
-
     drawTree(ctx, { x: 0, y: 0 }, 0, 50, 0);
-    ctx.translate(-p.x, -p.y);
 };
 
 var positionArr = [];
@@ -508,10 +499,6 @@ var sequence = 0;
 var position = { x: 0, y: 0 };
 var rotation = 0;
 var drawTree = function(ctx, p, angle, len, w, from=0) {
-    ctx.beginPath();
-    ctx.arc(0, -150, (13-from)*10, 0, (Math.PI*2));
-    ctx.stroke();
-
     setTimeout(function() {
         ctx.lineWidth = 1;
         ctx.strokeStyle = "#000";
@@ -520,11 +507,6 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         position.y += p.y;
         rotation += angle;
 
-        //ctx.save();
-        //ctx.translate(p.x, p.y);
-        //ctx.rotate(angle);
-
-        //console.log(p);
         var c = from ? positionArr[from-1] : { x: 0, y: 0 };
         var p0 = from ? 
         { x: positionArr[from-1].x, y: positionArr[from-1].y-len } : 
@@ -547,10 +529,10 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         ctx.beginPath();
         ctx.arc(p0.x, p0.y, 2, 0, Math.PI*2);
         ctx.fill();
-        //ctx.restore();
 
-        if(len < 30) {
+        if(len < 15) {
            console.log("done");
+           ctx.restore();
            return;
         }
 
@@ -563,7 +545,7 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         }
 
         sequence += 1;
-    }, (1000));
+    }, (1000/60));
 };
 
 var loadOBJ = function(path, callback) {
