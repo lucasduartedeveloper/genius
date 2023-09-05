@@ -20,8 +20,15 @@ var load3D = function() {
 
     eyePosition = {
         x: 0,
-        y: 0
+        y: 0,
+        offsetX: 0,
+        offsetY: 0
     };
+    var cooldown = 0;
+    var startTime = 0;
+    var mode = -1;
+    var startX = 0;
+    var startY = 0;
     renderer.enable3d = 1;
     renderer.domElement.style.position = "absolute";
     renderer.domElement.style.left = ((sw/2)-50)+"px";
@@ -29,23 +36,86 @@ var load3D = function() {
     renderer.domElement.style.width = (100)+"px";
     renderer.domElement.style.height = (100)+"px";
     //renderer.domElement.style.border = "1px solid #fff";
-    renderer.domElement.style.zIndex = "999";
+    renderer.domElement.style.borderRadius = "50%";
+    renderer.domElement.style.border = "2px solid #ccc";
+    renderer.domElement.style.zIndex = "5";
     renderer.domElement.ontouchstart = function(e) {
-        eyePosition.x = e.touches[0].clientX - 50;
-        eyePosition.y = e.touches[0].clientY - 50;
-        renderer.domElement.style.left = (eyePosition.x-50)+"px";
-        renderer.domElement.style.top = (eyePosition.y-50)+"px";
+        if (mode == 0) {
+            var left = renderer.domElement.style.left;
+            left = parseInt(left.replace("px",""));
+            var top = renderer.domElement.style.top;
+            top = parseInt(top.replace("px",""));
+
+            eyePosition.x = e.touches[0].clientX;
+            eyePosition.y = e.touches[0].clientY;
+
+            eyePosition.offsetX = e.touches[0].clientX - left;
+            eyePosition.offsetY = e.touches[0].clientY - top;
+        }
+        else if (mode == 1) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }
+        else if (mode == 2) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }
+        startTime = new Date().getTime();
     };
     renderer.domElement.ontouchmove = function(e) {
-        eyePosition.x = e.touches[0].clientX - 50;
-        eyePosition.y = e.touches[0].clientY - 50;
-        renderer.domElement.style.left = (eyePosition.x-50)+"px";
-        renderer.domElement.style.top = (eyePosition.y-50)+"px";
+        cooldownReset = false;
+        if (mode == 0) {
+            eyePosition.x = e.touches[0].clientX;
+            eyePosition.y = e.touches[0].clientY;
+
+            renderer.domElement.style.left = 
+            (eyePosition.x-eyePosition.offsetX)+"px";
+            renderer.domElement.style.top = 
+            (eyePosition.y-eyePosition.offsetY)+"px";
+        }
+        else if (mode == 1) {
+            var moveX = e.touches[0].clientX - startX;
+            var moveY = e.touches[0].clientY - startY;
+            group.rotateZ(-((1/300)*moveX)*(Math.PI/45));
+            group.rotateX(((1/300)*moveY)*(Math.PI/45));
+        }
+        else if (mode == 2) {
+            var moveX = e.touches[0].clientX - startX;
+            var moveY = e.touches[0].clientY - startY;
+            var hyp = Math.sqrt(
+            Math.pow(Math.abs(moveX),2)+
+            Math.pow(Math.abs(moveY),2));
+
+            var scale = ((1/150)*hyp);
+            virtualCamera.position.y = 5+(scale*5);
+        }
+    };
+    renderer.domElement.ontouchend = function(e) {
+        cooldown = setTimeout(function() {
+            if (cooldownReset) return;
+            mode = -1;
+            renderer.domElement.style.border = "2px solid #ccc";
+        }, 3000);
+    };
+
+    var cooldownReset = false;
+    renderer.domElement.ondblclick = function(e) {
+        cooldownReset = true;
+        mode = (mode+1) < 3 ? (mode+1) : 0;
+        if (mode == 0) {
+            renderer.domElement.style.border = "2px solid limegreen";
+        }
+        else if (mode == 1) {
+            renderer.domElement.style.border = "2px solid yellow";
+        }
+        else if (mode == 2) {
+            renderer.domElement.style.border = "2px solid orange";
+        }
     };
 
     scene = new THREE.Scene();
     scene.background = null;
-    //scene.background = new THREE.Color("#000");
+    //scene.background = new THREE.Color("#000"); 
 
     light = new THREE.PointLight(
         lightParams.color,

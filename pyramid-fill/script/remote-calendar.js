@@ -91,7 +91,7 @@ $(document).ready(function() {
     canvas1.style.width = (300)+"px";
     canvas1.style.height = (300)+"px";
     canvas1.style.transform = "scale(0.8)";
-    canvas1.style.zIndex = "5";
+    canvas1.style.zIndex = "6";
     canvas1.ontouchstart = paintPixel;
     canvas1.ontouchmove = paintPixel;
     document.body.appendChild(canvas1);
@@ -107,7 +107,7 @@ $(document).ready(function() {
     canvas2.style.width = (300)+"px";
     canvas2.style.height = (300)+"px";
     canvas2.style.transform = "scale(0.8)";
-    canvas2.style.zIndex = "5";
+    canvas2.style.zIndex = "7";
     canvas2.ontouchstart = paintPixel;
     canvas2.ontouchmove = paintPixel;
     document.body.appendChild(canvas2);
@@ -116,6 +116,7 @@ $(document).ready(function() {
 
     canvasEffect = document.createElement("canvas");
     canvasEffect.style.position = "absolute";
+    canvasEffect.style.display = "none";
     canvasEffect.width = 300;
     canvasEffect.height = 300;
     canvasEffect.style.left = ((sw/2)-150)+"px";
@@ -123,7 +124,7 @@ $(document).ready(function() {
     canvasEffect.style.width = (300)+"px";
     canvasEffect.style.height = (300)+"px";
     canvasEffect.style.transform = "scale(0.8)";
-    canvasEffect.style.zIndex = "5";
+    canvasEffect.style.zIndex = "8";
     canvasEffect.ontouchstart = paintPixel;
     canvasEffect.ontouchmove = paintPixel;
     document.body.appendChild(canvasEffect);
@@ -132,6 +133,7 @@ $(document).ready(function() {
 
     canvasGrid = document.createElement("canvas");
     canvasGrid.style.position = "absolute";
+    canvasGrid.style.display = "none";
     canvasGrid.width = 300;
     canvasGrid.height = 300;
     canvasGrid.style.left = ((sw/2)-150)+"px";
@@ -139,13 +141,14 @@ $(document).ready(function() {
     canvasGrid.style.width = (300)+"px";
     canvasGrid.style.height = (300)+"px";
     canvasGrid.style.transform = "scale(0.8)";
-    canvasGrid.style.zIndex = "5";
+    canvasGrid.style.zIndex = "9";
     document.body.appendChild(canvasGrid);
 
     canvasGrid.getContext("2d").imageSmoothingEnabled = false;
 
     canvasTool = document.createElement("canvas");
     canvasTool.style.position = "absolute";
+    canvasTool.style.display = "none";
     canvasTool.width = 300;
     canvasTool.height = 300;
     canvasTool.style.left = ((sw/2)-150)+"px";
@@ -153,7 +156,7 @@ $(document).ready(function() {
     canvasTool.style.width = (300)+"px";
     canvasTool.style.height = (300)+"px";
     canvasTool.style.transform = "scale(0.8)";
-    canvasTool.style.zIndex = "5";
+    canvasTool.style.zIndex = "10";
     canvasTool.ontouchstart = paintPixel;
     canvasTool.ontouchmove = paintPixel;
     document.body.appendChild(canvasTool);
@@ -660,12 +663,15 @@ $(document).ready(function() {
         polygonMode = (polygonMode+1) < 3 ? 
         (polygonMode+1) : 0;
         if (polygonMode == 1) {
+            canvasTool.style.display = "initial";
             polygonButton.style.color = "#fff";
         }
         else if (polygonMode == 2) {
+            canvasTool.style.display = "initial";
             polygonButton.style.color = "blue";
         }
         else {
+            canvasTool.style.display = "none";
             polygonButton.style.color = "#333";
             polygon = [];
             polygonConnectButton.style.display = "none";
@@ -709,11 +715,15 @@ $(document).ready(function() {
 
     gridButton.onclick = function() {
         showGrid = !showGrid;
-        if (showGrid)
-        gridButton.style.color = "#fff";
-        else
-        gridButton.style.color = "#333";
-        updateGrid();
+        if (showGrid) {
+            canvasGrid.style.display = "initial";
+            gridButton.style.color = "#fff";
+            updateGrid();
+        }
+        else {
+            canvasGrid.style.display = "none";
+            gridButton.style.color = "#333";
+        }
     };
 
     qrcodeButton = document.createElement("i");
@@ -1048,6 +1058,7 @@ var loadImages = function(callback) {
 var buttonsPreviousStates = [];
 var buttons = [];
 var moveLoop = function() {
+    if (!navigator.getGamepads) return;
     var gamepad = navigator.getGamepads()[0];
     buttons = gamepad ? gamepad.buttons : [];
 
@@ -1197,8 +1208,8 @@ var paintPixel = function(e=false) {
             navigator.vibrate(500);
         }
 
-        var texture = drawTexture(calibration);
-        plane.loadTexture1(texture);
+        var texture = drawTexture1(calibration);
+        plane.loadTexture(texture);
         return;
     }
 
