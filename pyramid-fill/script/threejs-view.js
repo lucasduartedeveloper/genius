@@ -499,6 +499,12 @@ var sequence = 0;
 var position = { x: 0, y: 0 };
 var rotation = 0;
 var drawTree = function(ctx, p, angle, len, w, from=0) {
+    if(len < 10) {
+        console.log("done");
+        ctx.restore();
+        return;
+    }
+
     setTimeout(function() {
         ctx.lineWidth = 1;
         ctx.strokeStyle = "#000";
@@ -530,18 +536,15 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         ctx.arc(p0.x, p0.y, 2, 0, Math.PI*2);
         ctx.fill();
 
-        if(len < 15) {
-           console.log("done");
-           ctx.restore();
-           return;
-        }
-
         var amt = 1+Math.floor(Math.random()*3);
-
         var v = { x: p0.x-c.x, y: p0.y-c.y };
+
+        drawTree(ctx, v, angle-25, len*0.8, 1-0, sequence+1);
+        drawTree(ctx, v, angle+25, len*0.8, 1-1, sequence+1);
+
         for (var n = 0; n < amt; n++) {
              var offset = -50+Math.floor(Math.random()*100);
-             drawTree(ctx, v, angle+offset, len*0.8, n, sequence+1);
+             //drawTree(ctx, v, angle+offset, len*0.8, n, sequence+1);
         }
 
         sequence += 1;
