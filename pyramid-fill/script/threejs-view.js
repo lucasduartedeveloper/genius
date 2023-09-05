@@ -194,7 +194,7 @@ new THREE.TextureLoader().load(url,
         //Update Texture
         if (this.material) {
         if (type == "D") {
-            console.log("loaded texture");
+            //console.log("loaded texture");
             this.material.transparent = true;
             this.material.map = texture;
             this.material.needsUpdate = true;
@@ -212,7 +212,7 @@ new THREE.TextureLoader().load(url,
         }
         else {
         if (type == "D") {
-            console.log("loaded texture obj");
+            //console.log("loaded texture obj");
             this.children[0].material.transparent = true;
             this.children[0].material.map = texture;
             this.children[0].material.needsUpdate = true;
@@ -420,7 +420,8 @@ var animateTree = function() {
     var p = { x: 150, y: 300 };
 
     ctx.translate(p.x, p.y);
-    drawTree(ctx, { x: 0, y: 0 }, 0, 50, 5);
+    drawTree(ctx, { x: 0, y: 0 }, 0, 50, 0);
+    ctx.translate(-p.x, -p.y);
 };
 
 var positionArr = [];
@@ -458,13 +459,14 @@ var drawTree = function(ctx, p, angle, len, w, from) {
         ctx.lineTo(p0.x, p0.y);
         ctx.stroke();
 
-        ctx.fillStyle = [ "purple", "orange", "yellow" ][w];
+        var fillStyle = [ "purple", "orange", "yellow" ][w];
+        ctx.fillStyle = fillStyle;
         ctx.beginPath();
-        ctx.arc(p0.x, p0.y, 2, 0, Math.PI*2);
+        ctx.arc(p0.x, p0.y, 5, 0, Math.PI*2);
         ctx.fill();
         //ctx.restore();
 
-        if(len < 30) {
+        if(len < 15) {
            console.log("done");
            return;
         }
