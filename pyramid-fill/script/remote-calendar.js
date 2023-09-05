@@ -540,11 +540,13 @@ $(document).ready(function() {
     leftMenuOpen = false;
     leftMenu = document.createElement("div");
     leftMenu.style.position = "absolute";
+    leftMenu.style.display = 
+    leftMenuOpen ? "initial" : "none";
     leftMenu.style.background = buttonColor;
     leftMenu.style.left = -((112.5-(112.5*0.8))/2)+"px";
     leftMenu.style.top = ((sh/2)-150)+"px";
     leftMenu.style.width = (125)+"px";
-    leftMenu.style.height = (300)+"px";
+    leftMenu.style.height = (312.5)+"px";
     leftMenu.style.transform = "scale(0.8)";
     leftMenu.style.borderRadius = "0px 25px 25px 0px";
     leftMenu.style.zIndex = "10";
@@ -579,6 +581,30 @@ $(document).ready(function() {
 
     undoButton.onclick = function() {
         restoreCanvas();
+    };
+
+    drawCircle = false;
+    circleButton = document.createElement("i");
+    circleButton.style.position = "absolute";
+    circleButton.className = "fa-regular fa-circle";
+    circleButton.style.textAlign = "center";
+    circleButton.style.color = "#333";
+    circleButton.style.left = 12.5+"px";
+    circleButton.style.top = 275+"px";
+    circleButton.style.width = (28)+"px";
+    circleButton.style.height = (28)+"px";
+    circleButton.style.zIndex = "5";
+    leftMenu.appendChild(circleButton);
+
+    circleButton.onclick = function() {
+        drawCircle = !drawCircle;
+        if (drawCircle) {
+            circleButton.style.color = "#fff";
+        }
+        else {
+            circleButton.style.color = "#333";
+        }
+        updateGrid();
     };
 
     clipButton = document.createElement("i");
@@ -1364,6 +1390,13 @@ var updateGrid = function() {
     if (!showGrid) return;
     ctxGrid.lineWidth = 1;
     ctxGrid.strokeStyle = "#555";
+
+    if (drawCircle) {
+        ctxGrid.beginPath();
+        ctxGrid.arc(150, 150, 150, 0, (Math.PI*2));
+        ctxGrid.stroke();
+    }
+
     for (var n = 0; n < (resolution+1); n++) {
         ctxGrid.beginPath();
         ctxGrid.moveTo(0, (n*(300/resolution)));
