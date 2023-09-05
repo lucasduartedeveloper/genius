@@ -328,7 +328,7 @@ class Polygon {
 // the front and/or back subtrees. This is not a leafy BSP tree since there is
 // no distinction between internal and leaf nodes.
 
-class Node {
+class Node2 {
     constructor(polygons) {
         this.plane = null;
         this.front = null;
@@ -338,7 +338,7 @@ class Node {
             this.build(polygons);
     }
     clone() {
-        let node = new Node();
+        let node = new Node2();
         node.plane = this.plane && this.plane.clone();
         node.front = this.front && this.front.clone();
         node.back = this.back && this.back.clone();
@@ -415,12 +415,12 @@ class Node {
         }
         if (front.length) {
             if (!this.front)
-                this.front = new Node();
+                this.front = new Node2();
             this.front.build(front);
         }
         if (back.length) {
             if (!this.back)
-                this.back = new Node();
+                this.back = new Node2();
             this.back.build(back);
         }
     }

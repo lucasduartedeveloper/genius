@@ -512,10 +512,10 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         { x: positionArr[from-1].x, y: positionArr[from-1].y-len } : 
         { x: 0, y: -len };
         p0 = _rotate2d(c, p0, angle);
-        console.log(sequence + " < " + (from-1));
+        //console.log(sequence + " < " + (from-1));
 
         var rc = { x: 150+c.x, y: 300+c.y };
-        console.log("x: "+rc.x.toFixed(2)+", y: "+rc.y.toFixed(2), angle);
+        //console.log("x: "+rc.x.toFixed(2)+", y: "+rc.y.toFixed(2), angle);
 
         positionArr[sequence] = { x: p0.x, y: p0.y };
 
