@@ -719,6 +719,43 @@ $(document).ready(function() {
         restoreCanvas();
     };
 
+    eraseMode = false;
+    eraseButton = document.createElement("i");
+    eraseButton.style.position = "absolute";
+    eraseButton.className = "fa-solid fa-eraser";
+    eraseButton.style.color = "#333";
+    eraseButton.style.left = 50+"px";
+    eraseButton.style.top = 237.5+"px";
+    eraseButton.style.width = (25)+"px";
+    eraseButton.style.height = (25)+"px";
+    eraseButton.style.zIndex = "5";
+    leftMenu.appendChild(eraseButton);
+
+    eraseButton.onclick = function() {
+        eraseMode = !eraseMode;
+        if (eraseMode) {
+            eraseButton.style.color = "#fff";
+        }
+        else {
+            eraseButton.style.color = "#333";
+        }
+    };
+
+    applyButton = document.createElement("i");
+    applyButton.style.position = "absolute";
+    applyButton.className = "fa-solid fa-scissors";
+    applyButton.style.color = "#333";
+    applyButton.style.left = 50+"px";
+    applyButton.style.top = 162.5+"px";
+    applyButton.style.width = (25)+"px";
+    applyButton.style.height = (25)+"px";
+    applyButton.style.zIndex = "5";
+    leftMenu.appendChild(applyButton);
+
+    applyButton.onclick = function() {
+        applyMask(canvas1, canvasPortal);
+    };
+
     zoomControlActive = false;
     zoomButton = document.createElement("i");
     zoomButton.style.position = "absolute";
@@ -848,7 +885,7 @@ $(document).ready(function() {
     leftMenu.appendChild(polygonButton);
 
     polygonButton.onclick = function() {
-        polygonMode = (polygonMode+1) < 3 ? 
+        polygonMode = (polygonMode+1) < 2 ? 
         (polygonMode+1) : 0;
         if (polygonMode == 1) {
             canvasTool.style.display = "initial";
@@ -934,7 +971,7 @@ $(document).ready(function() {
 
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, 300, 300);
-        ctx.drawImage(img_list[5], 0, 0, 300, 300);
+        ctx.drawImage(img_list[4], 0, 0, 300, 300);
 
         var texture = drawTexture1(calibration);
         plane.loadTexture(texture);
@@ -954,6 +991,12 @@ $(document).ready(function() {
     menuButton.onclick = function() {
         leftMenuOpen = true;
         leftMenu.style.display = "initial";
+        if (hasMask()) {
+            applyButton.style.color = "#fff";
+        }
+        else {
+            applyButton.style.color = "#333";
+        }
     };
 
     moveContainer = document.createElement("i");
@@ -1207,7 +1250,23 @@ var increasePolygon = function(pol, amt=1) {
     };
 
     return centeredPol;
-}
+};
+
+var getZoomPosition = function() {
+    var left = zoomPosition.style.left;
+    left = parseInt(left.replace("px", ""));
+    var top = zoomPosition.style.top;
+    top = parseInt(top.replace("px", ""));
+
+    var size = (300*zoom);
+
+    var result = {
+        x: (left/zoom)*-1,
+        y: (top/zoom)*-1
+    };
+
+    return result;
+};
 
 var imgNo = 0;
 var img_list = [
@@ -1442,28 +1501,30 @@ var paintPixel = function(e=false) {
 
             removeBlur(resolutionCanvas);
 
-            // zoom = 2
-            // zoomCenter = { x: 300, y: 300 }
-            // x: 0, y: 0
-            // zoomCenter = { x: 250, y: 250 }
-            // x: 50, y: 50
-
-            // zoom = 3
-            // zoomCenter = { x: 300, y: 300 }
-            // x: 0, y: 0
-            // zoomCenter = { x: 250, y: 250 }
-            // x: 50, y: 50
-
             var size = (300/zoom);
-            var ctxPortal = canvasPortal.getContext("2d");
-            ctxPortal.clearRect(0, 0, 300, 300);
-            ctxPortal.drawImage(resolutionCanvas, 
-            ((300-zoomCenter.x)-(size/2)), 
-            ((300-zoomCenter.y)-(size/2)), 
-            (size), (size));
+            var pos = getZoomPosition();
 
-            listPixels(canvasPortal);
-            applyMask(canvas1, canvasPortal);
+            if (eraseMode) {
+                var canvasPolygon = 
+                document.createElement("canvas");
+                canvasPolygon.width = 300;
+                canvasPolygon.height = 300;
+
+                var ctxPolygon = canvasPolygon.getContext("2d");
+                ctxPolygon.clearRect(0, 0, 300, 300);
+                ctxPolygon.drawImage(resolutionCanvas, 
+                pos.x, pos.y, (size), (size));
+
+                applyMask(canvasPortal, canvasPolygon);
+            }
+            else {
+                var ctxPortal = canvasPortal.getContext("2d");
+                ctxPortal.clearRect(0, 0, 300, 300);
+                ctxPortal.drawImage(resolutionCanvas, 
+                pos.x, pos.y, (size), (size));
+
+                listPixels(canvasPortal);
+            }
         }
         else {
             navigator.vibrate(500);
@@ -1492,6 +1553,8 @@ var paintPixel = function(e=false) {
     ctxPortal.clearRect(Math.round(x*(300/resolution)), 
     Math.round(y*(300/resolution)), 
     Math.round(300/resolution), Math.round(300/resolution));
+
+    if (eraseMode) return;
     ctxPortal.fillRect(Math.round(x*(300/resolution)), 
     Math.round(y*(300/resolution)), 
     Math.round(300/resolution), Math.round(300/resolution));
@@ -1547,6 +1610,25 @@ var saveButtons = function() {
         };
         buttonsPreviousStates.push(obj);
     }
+};
+
+var hasMask = function() {
+    var maskCtx = canvasPortal.getContext("2d");
+    var maskImageData = 
+    maskCtx.getImageData(0, 0, 300, 300);
+    var maskArray = maskImageData.data;
+
+    var result = false;
+    for (var n = 0; n < maskArray.length; n += 4) {
+        if (!(maskArray[n] == 0 &&
+        maskArray[n+1] == 0 &&
+        maskArray[n+2] == 0 &&
+        maskArray[n+3] == 0)) {
+            result = true;
+        }
+    };
+
+    return result;
 };
 
 var resolution = 10;
