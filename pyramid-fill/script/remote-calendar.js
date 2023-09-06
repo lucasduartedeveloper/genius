@@ -1154,6 +1154,33 @@ $(document).ready(function() {
     animateTree();
 });
 
+var locateCenter = function(pol) {
+    var minX = pol[0].x;
+    var maxX = 0;
+    var minY = pol[0].y;
+    var maxY = 0;
+    for (var n = 0; n < pol.length; n++) {
+        if (pol[n].x < minX)
+        minX = pol[n].x;
+        if (pol[n].x > maxX)
+        maxX = pol[n].x;
+        if (pol[n].y < minY)
+        minY = pol[n].y;
+        if (pol[n].y > maxY)
+        maxY = pol[n].y;
+    }
+
+    var centerX = minX+((maxX-minX)/2);
+    var centerY = minY+((maxY-minY)/2);
+
+    var result = {
+        x: Math.round(centerX), 
+        y: Math.round(centerY)
+    };
+
+    return result;
+};
+
 var imgNo = 0;
 var img_list = [
     "img/human-icon-0.png",
@@ -1402,6 +1429,16 @@ var paintPixel = function(e=false) {
         }
         else {
             navigator.vibrate(500);
+            var center = locateCenter(polygon);
+            ctxTool.fillStyle = pixelColor;
+            ctxTool.beginPath();
+            ctxTool.arc(
+            Math.round((center.x*(300/resolution))+
+            ((300/resolution)/2)), 
+            Math.round((center.y*(300/resolution))+
+            ((300/resolution)/2)), 
+            5, 0, Math.PI*2);
+            ctxTool.fill();
         }
         return;
     }
