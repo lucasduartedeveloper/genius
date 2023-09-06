@@ -1181,6 +1181,34 @@ var locateCenter = function(pol) {
     return result;
 };
 
+var increasePolygon = function(pol, amt=1) {
+    var centeredPol = [ ...polygon ];
+    var center = locateCenter(pol);
+
+    for (var n = 0; n < centeredPol.length; n++) {
+        centeredPol[n].x -= center.x;
+        centeredPol[n].y -= center.y;
+    };
+
+    for (var n = 0; n < centeredPol.length; n++) {
+        if (centeredPol[n].x < 0)
+        centeredPol[n].x -= amt;
+        if (centeredPol[n].x > 0)
+        centeredPol[n].x += amt;
+        if (centeredPol[n].y < 0)
+        centeredPol[n].y -= amt;
+        if (centeredPol[n].y > 0)
+        centeredPol[n].y += amt;
+    };
+
+    for (var n = 0; n < centeredPol.length; n++) {
+        centeredPol[n].x = center.x + centeredPol[n].x;
+        centeredPol[n].y = center.y + centeredPol[n].y;
+    };
+
+    return centeredPol;
+}
+
 var imgNo = 0;
 var img_list = [
     "img/human-icon-0.png",
@@ -1374,7 +1402,7 @@ var paintPixel = function(e=false) {
             console.log("polygon closed");
             var ctxTool = canvasTool.getContext("2d");
             if (polygonMode == 1) {
-                ctxTool.clearRect(0, 0, 300, 300);
+                //ctxTool.clearRect(0, 0, 300, 300);
             }
 
             var resolutionCanvas = document.
@@ -1394,6 +1422,8 @@ var paintPixel = function(e=false) {
                 ctxResolution.strokeStyle = "yellow";
                 ctxResolution.fillStyle = "yellow";
             }
+            polygon = increasePolygon(polygon, 0.5);
+
             ctxResolution.beginPath();
             ctxResolution.moveTo(
             Math.round(polygon[0].x+0.5), 
