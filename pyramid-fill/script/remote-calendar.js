@@ -920,8 +920,8 @@ $(document).ready(function() {
 
     polygonConnectButton.onclick = function() {
         polygon.push(polygon[0]);
-        pixelPosition.x = polygon[0].x;
-        pixelPosition.y = polygon[0].y;
+        pixelPositionZoom.x = polygon[0].x;
+        pixelPositionZoom.y = polygon[0].y;
         paintPixel();
         updatePixel();
     };
@@ -1393,18 +1393,27 @@ var moveLoop = function() {
     requestAnimationFrame(moveLoop);
 };
 
+var pixelPositionZoom = {
+    x: 0, y: 0
+};
 var polygon = [];
 var pixelColor = "rgba(255, 0, 0, 0.5)";
 var paintPixel = function(e=false) {
+    var size = (300*zoom);
     if (e) {
         var clientX = e.touches[0].clientX;
         var clientY = e.touches[0].clientY;
 
         pixelPosition.x = Math.floor((clientX-((sw/2)-(300/2)*0.8))/
-        ((300/resolution)*0.8));
+        ((size/resolution)*0.8));
         pixelPosition.y = Math.floor((clientY-((sh/2)-(300/2)*0.8))/
+        ((size/resolution)*0.8));
+
+        pixelPositionZoom.x = Math.floor((clientX-((sw/2)-(300/2)*0.8))/
         ((300/resolution)*0.8));
-       updatePixel();
+        pixelPositionZoom.y = Math.floor((clientY-((sh/2)-(300/2)*0.8))/
+        ((300/resolution)*0.8));
+        updatePixel();
     }
 
     var x = pixelPosition.x;
@@ -1415,7 +1424,10 @@ var paintPixel = function(e=false) {
     }
 
     if (polygonMode > 0) {
-        polygon.push({ x: x, y: y });
+        polygon.push({ 
+            x: pixelPositionZoom.x, 
+            y: pixelPositionZoom.y 
+        });
 
         var ctxTool = canvasTool.getContext("2d");
         ctxTool.clearRect(0, 0, 300, 300);
@@ -1460,9 +1472,7 @@ var paintPixel = function(e=false) {
         polygon.length > 1) {
             console.log("polygon closed");
             var ctxTool = canvasTool.getContext("2d");
-            if (polygonMode == 1) {
-                //ctxTool.clearRect(0, 0, 300, 300);
-            }
+            ctxTool.clearRect(0, 0, 300, 300);
 
             var resolutionCanvas = document.
             createElement("canvas");
@@ -1475,11 +1485,6 @@ var paintPixel = function(e=false) {
                 ctxResolution.lineWidth = 1;
                 ctxResolution.strokeStyle = pixelColor;
                 ctxResolution.fillStyle = pixelColor;
-            }
-            else if (polygonMode == 2) {
-                ctxResolution.lineWidth = 1;
-                ctxResolution.strokeStyle = "yellow";
-                ctxResolution.fillStyle = "yellow";
             }
             polygon = increasePolygon(polygon, 0.5);
 
@@ -1544,19 +1549,20 @@ var paintPixel = function(e=false) {
 
     var ctx = canvas1.getContext("2d");
     var ctxPortal = canvasPortal.getContext("2d");
+    var pos = getZoomPosition();
 
     ctx.clearRect(Math.round(x*(300/resolution)), 
     Math.round(y*(300/resolution)), 
     Math.round(300/resolution), Math.round(300/resolution));
 
     ctxPortal.fillStyle = pixelColor;
-    ctxPortal.clearRect(Math.round(x*(300/resolution)), 
-    Math.round(y*(300/resolution)), 
+    ctxPortal.clearRect(pos.x+Math.round(x*(300/resolution)), 
+    pos.y+Math.round(y*(300/resolution)), 
     Math.round(300/resolution), Math.round(300/resolution));
 
     if (eraseMode) return;
-    ctxPortal.fillRect(Math.round(x*(300/resolution)), 
-    Math.round(y*(300/resolution)), 
+    ctxPortal.fillRect(pos.x+Math.round(x*(300/resolution)), 
+    pos.y+Math.round(y*(300/resolution)), 
     Math.round(300/resolution), Math.round(300/resolution));
 };
 
@@ -1577,12 +1583,14 @@ var updatePixel = function() {
     targetPixel.style.fontSize = ((300/resolution)*0.8)+"px";
     targetPixel.style.lineHeight = ((300/resolution)*0.8)+"px";
 
+    var size = (300*zoom);
+
     targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
-    (x*((300/resolution)*0.8))+"px";
+    (x*((size/resolution)*0.8))+"px";
     targetPixel.style.top = (((sh/2)-((300*0.8)/2)))+
-    (y*((300/resolution)*0.8))+"px";
-    targetPixel.style.width = ((300/resolution)*0.8)+"px";
-    targetPixel.style.height = ((300/resolution)*0.8)+"px";
+    (y*((size/resolution)*0.8))+"px";
+    targetPixel.style.width = ((size/resolution)*0.8)+"px";
+    targetPixel.style.height = ((size/resolution)*0.8)+"px";
 };
 
 var mapButton = function(n, action, callback) {
@@ -1684,6 +1692,13 @@ var zoom = 1;
 var zoomCenter = { x: 150, y: 150 };
 var updateZoom = function() {
     var size = (300*zoom);
+
+    targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
+    (x*((300/resolution)*0.8))+"px";
+    targetPixel.style.top = (((sh/2)-((300*0.8)/2)))+
+    (y*((300/resolution)*0.8))+"px";
+    targetPixel.style.width = ((size/resolution)*0.8)+"px";
+    targetPixel.style.height = ((size/resolution)*0.8)+"px";
 
     var left = zoomContainer.style.left;
     left = parseInt(left.replace("px", ""));
