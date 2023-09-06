@@ -148,7 +148,7 @@ $(document).ready(function() {
             Math.floor(((moveY - left)/(300/resolution)))*
             (300/resolution));
 
-            var offset = resolution % 2 != 0 ? 
+            var offset = (resolution*zoom) % 2 != 0 ? 
             (300/resolution)/2 : 0;
 
             var newX = 
@@ -1444,7 +1444,15 @@ var paintPixel = function(e=false) {
 
             // zoom = 2
             // zoomCenter = { x: 300, y: 300 }
-            // x: 75, y: 75
+            // x: 0, y: 0
+            // zoomCenter = { x: 250, y: 250 }
+            // x: 50, y: 50
+
+            // zoom = 3
+            // zoomCenter = { x: 300, y: 300 }
+            // x: 0, y: 0
+            // zoomCenter = { x: 250, y: 250 }
+            // x: 50, y: 50
 
             var size = (300/zoom);
             var ctxPortal = canvasPortal.getContext("2d");
