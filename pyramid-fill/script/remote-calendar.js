@@ -1584,13 +1584,22 @@ var updatePixel = function() {
     targetPixel.style.lineHeight = ((300/resolution)*0.8)+"px";
 
     var size = (300*zoom);
-
-    targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
-    (x*((size/resolution)*0.8))+"px";
-    targetPixel.style.top = (((sh/2)-((300*0.8)/2)))+
-    (y*((size/resolution)*0.8))+"px";
-    targetPixel.style.width = ((size/resolution)*0.8)+"px";
-    targetPixel.style.height = ((size/resolution)*0.8)+"px";
+    if (polygonMode == 0) {
+        targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
+        (x*((size/resolution)*0.8))+"px";
+        targetPixel.style.top = (((sh/2)-((300*0.8)/2)))+
+        (y*((size/resolution)*0.8))+"px";
+        targetPixel.style.width = ((size/resolution)*0.8)+"px";
+        targetPixel.style.height = ((size/resolution)*0.8)+"px";
+    }
+    else {
+        targetPixel.style.left = ((sw/2)-((300*0.8)/2))+
+        (x*((size/resolution)*0.8))+"px";
+        targetPixel.style.top = (((sh/2)-((300*0.8)/2)))+
+        (y*((size/resolution)*0.8))+"px";
+        targetPixel.style.width = ((300/resolution)*0.8)+"px";
+        targetPixel.style.height = ((300/resolution)*0.8)+"px";
+    }
 };
 
 var mapButton = function(n, action, callback) {
