@@ -792,7 +792,6 @@ $(document).ready(function() {
         }
     };
 
-    var swapLevel = 0;
     swapLayers = document.createElement("i");
     swapLayers.style.position = "absolute";
     swapLayers.className = "fa-solid fa-arrow-right-arrow-left";
@@ -815,18 +814,9 @@ $(document).ready(function() {
         var canvas1Ctx = canvas1.getContext("2d");
         var canvas2Ctx = canvas2.getContext("2d");
 
-        if (swapLevel == 0) {
-            swapCtx.drawImage(canvas, 0, 0, 300, 300);
-            canvasCtx.drawImage(canvas1, 0, 0, 300, 300);
-            canvas1Ctx.drawImage(swapCanvas, 0, 0, 300, 300);
-        }
-        else if (swapLevel == 1) {
-            swapCtx.drawImage(canvas2, 0, 0, 300, 300);
-            canvas2Ctx.drawImage(canvas, 0, 0, 300, 300);
-            canvasCtx.drawImage(swapCanvas, 0, 0, 300, 300);
-        }
-
-        swapLevel = (swapLevel+1) < 2 ? (swapLevel+1) : 0;
+        swapCtx.drawImage(canvas, 0, 0, 300, 300);
+        canvasCtx.drawImage(canvas1, 0, 0, 300, 300);
+        canvas1Ctx.drawImage(swapCanvas, 0, 0, 300, 300);
     };
 
     applyButton = document.createElement("i");
@@ -1059,7 +1049,7 @@ $(document).ready(function() {
 
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, 300, 300);
-        ctx.drawImage(img_list[4], 0, 0, 300, 300);
+        ctx.drawImage(img_list[5], 0, 0, 300, 300);
 
         var texture = drawTexture1(calibration);
         plane.loadTexture(texture);
@@ -1363,6 +1353,7 @@ var img_list = [
     //"img/human-icon-2.png",
     "img/human-icon-3.png",
     "img/human-icon-4.png",
+    "img/sea-animal-icon-0.png",
     "img/qr-code-0.png"
 ];
 
