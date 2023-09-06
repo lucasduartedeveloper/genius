@@ -107,16 +107,19 @@ $(document).ready(function() {
     var zoomX2 = 0;
     var zoomY2 = 0;
     var stretch = 0;
+
+    var lockRecenter = false;
     zoomControl.ontouchstart = function(e) {
         zoomX = e.touches[0].clientX;
         zoomY = e.touches[0].clientY;
         if (e.touches.length > 1) {
+            lockRecenter = true;
             zoomX2 = e.touches[1].clientX;
             zoomY2 = e.touches[1].clientY;
         }
     };
     zoomControl.ontouchmove = function(e) {
-        if (e.touches.length == 1) {
+        if (e.touches.length == 1 && !lockRecenter) {
             var moveX = e.touches[0].clientX;
             var moveY = e.touches[0].clientY;
 
@@ -134,12 +137,18 @@ $(document).ready(function() {
             var offset = resolution % 2 != 0 ? 
             (300/resolution)/2 : 0;
 
-            zoomCenter.x = 
+            var newX = 
             (Math.floor(((moveX - left)/(300/resolution)))*
             (300/resolution))-offset;
-            zoomCenter.y = 
+            var newY = 
             (Math.floor(((moveY - top)/(300/resolution)))*
             (300/resolution))-offset;
+
+            if (newX != zoomCenter.x || newY != zoomCenter.y)
+            navigator.vibrate(500);
+
+            zoomCenter.x = newX;
+            zoomCenter.y = newY;
         }
         else if (e.touches.length == 2) {
             var moveX = e.touches[0].clientX;
@@ -151,16 +160,22 @@ $(document).ready(function() {
             Math.pow(Math.abs(moveX2-moveX), 2)+
             Math.pow(Math.abs(moveY2-moveY), 2));
 
-            console.log(hyp);
+            var diff = (hyp - stretch);
 
-            if (hyp > stretch) zoom += 1;
-            else zoom -= 1;
-            zoom = zoom < 1 ? 1 : zoom;
+            if (Math.abs(diff) > (300/resolution)) {
+                if (diff > 0) zoom += 1;
+                else zoom -= 1;
+                zoom = zoom < 1 ? 1 : zoom;
 
-            stretch = hyp;
+                stretch = hyp;
+                navigator.vibrate(500);
+            }
         }
 
         updateZoom();
+    };
+    zoomControl.ontouchend = function(e) {
+        lockRecenter = false;
     };
 
     canvas = document.createElement("canvas");
@@ -1128,10 +1143,10 @@ var imgNo = 0;
 var img_list = [
     "img/human-icon-0.png",
     "img/human-icon-1.png",
-    "img/human-icon-2.png",
+    //"img/human-icon-2.png",
     "img/human-icon-3.png",
     "img/human-icon-4.png",
-    "img/qr-code-0.png",
+    "img/qr-code-0.png"
 ];
 
 var createSwitch = function(background, x, y, value, callback) {
@@ -1355,10 +1370,13 @@ var paintPixel = function(e=false) {
 
             removeBlur(resolutionCanvas);
 
+            var size = (300/zoom);
             var ctxPortal = canvasPortal.getContext("2d");
             ctxPortal.clearRect(0, 0, 300, 300);
             ctxPortal.drawImage(resolutionCanvas, 
-            0, 0, (300/zoom), (300/zoom));
+            ((300-zoomCenter.x)-(size/2)), 
+            ((300-zoomCenter.y)-(size/2)), 
+            (size), (size));
 
             listPixels(canvasPortal);
             applyMask(canvas1, canvasPortal);
