@@ -596,6 +596,35 @@ $(document).ready(function() {
         setResolution(-1);
     };
 
+    drawMode = 0;
+    drawInterval = 0;
+    drawModeButton = document.createElement("span");
+    drawModeButton.style.position = "absolute";
+    drawModeButton.style.color = "#fff";
+    drawModeButton.style.fontSize = "15px";
+    drawModeButton.style.lineHeight = "30px";
+    drawModeButton.innerText = "PASSIVE";
+    drawModeButton.style.left = (25)+"px";
+    drawModeButton.style.top = (100)+"px";
+    drawModeButton.style.width = (50)+"px";
+    drawModeButton.style.height = (25)+"px";
+    drawModeButton.style.zIndex = "5";
+    document.body.appendChild(drawModeButton);
+
+    drawModeButton.onclick = function(e) {
+        drawMode = (drawMode+1) < 2 ? (drawMode+1) : 0;
+        drawModeButton.innerText = drawMode == 0 ? 
+        "PASSIVE" : "AUTO";
+        if (drawMode == 0) {
+            clearInterval(drawInterval);
+        }
+        else {
+            drawInterval = setInterval(function() {
+                baseTile.click();
+            }, 500);
+        }
+    };
+
     rightArrow = document.createElement("i");
     rightArrow.style.position = "absolute";
     rightArrow.className = "fa-solid fa-arrow-right";
@@ -1149,8 +1178,8 @@ $(document).ready(function() {
             drawSquare();
         }
 
-        group.rotation.z = 
-        (((1/9.8)*gyro.accX)*(Math.PI/4));
+        /*group.rotation.z = 
+        (((1/9.8)*gyro.accX)*(Math.PI/4));*/
     };
     moveLoop();
 
