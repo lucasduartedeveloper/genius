@@ -37,6 +37,7 @@ $(document).ready(function() {
 
     camera = document.createElement("video");
     camera.style.position = "absolute";
+    camera.style.display = "none";
     camera.style.objectFit = "cover";
     camera.width = resolution;
     camera.height = resolution;
@@ -367,28 +368,49 @@ $(document).ready(function() {
     inputDevice = document.createElement("span");
     inputDevice.style.position = "absolute";
     inputDevice.style.background = buttonColor;
-    inputDevice.style.lineHeight = (100)+"px";
+    inputDevice.style.lineHeight = (50)+"px";
     inputDevice.style.color = "#fff";
     inputDevice.innerText = "device: "+deviceNo;
     inputDevice.style.right = (0)+"px";
     inputDevice.style.top = (0)+"px";
     inputDevice.style.width = (100)+"px";
-    inputDevice.style.height = (100)+"px";
+    inputDevice.style.height = (50)+"px";
     inputDevice.style.transform = "scale(0.8)";
     inputDevice.style.zIndex = "5";
     document.body.appendChild(inputDevice);
 
     inputDevice.onclick = function() {
-        if (cameraOn) {
-            deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
-            (deviceNo+1) : 0;
-        }
-
-        startCamera();
+        deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
+        (deviceNo+1) : 0;
 
         inputDevice.innerText = "device: "+deviceNo;
         camera.style.transform = deviceNo == 0 ? 
         "rotateY(-180deg)" : "rotateY(0deg)";
+    };
+
+    inputDeviceToggle = document.createElement("span");
+    inputDeviceToggle.style.position = "absolute";
+    inputDeviceToggle.style.background = buttonColor;
+    inputDeviceToggle.style.lineHeight = (50)+"px";
+    inputDeviceToggle.style.color = "#fff";
+    inputDeviceToggle.innerText = "OPEN";
+    inputDeviceToggle.style.right = (0)+"px";
+    inputDeviceToggle.style.top = (50)+"px";
+    inputDeviceToggle.style.width = (100)+"px";
+    inputDeviceToggle.style.height = (50)+"px";
+    inputDeviceToggle.style.transform = "scale(0.8)";
+    inputDeviceToggle.style.zIndex = "5";
+    document.body.appendChild(inputDeviceToggle);
+
+    inputDeviceToggle.onclick = function() {
+        if (cameraOn) {
+            stopCamera();
+            inputDeviceToggle.innerText = "OPEN";
+        }
+        else {
+            startCamera();
+            inputDeviceToggle.innerText = "CLOSE";
+        }
     };
 
     layerNo = 0;
