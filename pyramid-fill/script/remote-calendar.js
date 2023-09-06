@@ -792,6 +792,43 @@ $(document).ready(function() {
         }
     };
 
+    var swapLevel = 0;
+    swapLayers = document.createElement("i");
+    swapLayers.style.position = "absolute";
+    swapLayers.className = "fa-solid fa-arrow-right-arrow-left";
+    swapLayers.style.color = "#fff";
+    swapLayers.style.left = 50+"px";
+    swapLayers.style.top = 275+"px";
+    swapLayers.style.width = (25)+"px";
+    swapLayers.style.height = (25)+"px";
+    swapLayers.style.zIndex = "5";
+    leftMenu.appendChild(swapLayers);
+
+    swapLayers.onclick = function() {
+        var swapCanvas = document.createElement("canvas");
+        swapCanvas.width = 300;
+        swapCanvas.height = 300;
+
+        var swapCtx = swapCanvas.getContext("2d");
+
+        var canvasCtx = canvas.getContext("2d");
+        var canvas1Ctx = canvas1.getContext("2d");
+        var canvas2Ctx = canvas2.getContext("2d");
+
+        if (swapLevel == 0) {
+            swapCtx.drawImage(canvas, 0, 0, 300, 300);
+            canvasCtx.drawImage(canvas1, 0, 0, 300, 300);
+            canvas1Ctx.drawImage(swapCanvas, 0, 0, 300, 300);
+        }
+        else if (swapLevel == 1) {
+            swapCtx.drawImage(canvas2, 0, 0, 300, 300);
+            canvas2Ctx.drawImage(canvas, 0, 0, 300, 300);
+            canvasCtx.drawImage(swapCanvas, 0, 0, 300, 300);
+        }
+
+        swapLevel = (swapLevel+1) < 2 ? (swapLevel+1) : 0;
+    };
+
     applyButton = document.createElement("i");
     applyButton.style.position = "absolute";
     applyButton.className = "fa-solid fa-scissors";

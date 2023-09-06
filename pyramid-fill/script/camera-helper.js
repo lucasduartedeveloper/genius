@@ -46,6 +46,7 @@ function startCamera(color=true) {
 }
 function stopCamera() {
     if (camera.srcObject) {
+         cameraOn = false;
          camera.srcObject.getTracks().forEach(t => t.stop());
          camera.srcObject = null;
     }
