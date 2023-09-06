@@ -15,6 +15,7 @@ var buttonColor = "rgba(75,75,90,1)";
 // Botão de gravação
 $(document).ready(function() {
     $("html, body").css("overscroll-behavior", "none");
+    $("html, body").css("overflow", "hidden");
     $("html, body").css("background", backgroundColor);
     $("#title").css("font-size", "15px");
     $("#title").css("color", "#fff");
@@ -60,6 +61,19 @@ $(document).ready(function() {
     zoomContainer.style.zIndex = "5";
     zoomContainer.style.overflow = "hidden";
     document.body.appendChild(zoomContainer);
+
+    zoomInfo = document.createElement("span");
+    zoomInfo.style.position = "absolute";
+    zoomInfo.style.color = "#fff";
+    zoomInfo.style.textAlign = "left";
+    zoomInfo.style.fontSize = "15px";
+    zoomInfo.innerText = "zoom: 1x";
+    zoomInfo.style.left = ((sw/2)-(150*0.8))+"px";
+    zoomInfo.style.top = ((sh/2)+(150*0.8))+"px";
+    zoomInfo.style.width = (150*0.8)+"px";
+    zoomInfo.style.height = (25)+"px";
+    zoomInfo.style.zIndex = "5";
+    document.body.appendChild(zoomInfo);
 
     zoomControl = document.createElement("div");
     zoomControl.style.position = "absolute";
@@ -108,18 +122,18 @@ $(document).ready(function() {
     var zoomY2 = 0;
     var stretch = 0;
 
-    var lockRecenter = false;
+    var touchCount = 0;
     zoomControl.ontouchstart = function(e) {
         zoomX = e.touches[0].clientX;
         zoomY = e.touches[0].clientY;
         if (e.touches.length > 1) {
-            lockRecenter = true;
+            touchCount = 2;
             zoomX2 = e.touches[1].clientX;
             zoomY2 = e.touches[1].clientY;
         }
     };
     zoomControl.ontouchmove = function(e) {
-        if (e.touches.length == 1 && !lockRecenter) {
+        if (e.touches.length == 1 && touchCount == 0) {
             var moveX = e.touches[0].clientX;
             var moveY = e.touches[0].clientY;
 
@@ -175,7 +189,8 @@ $(document).ready(function() {
         updateZoom();
     };
     zoomControl.ontouchend = function(e) {
-        lockRecenter = false;
+        if (touchCount > 0)
+        touchCount -= 1;
     };
 
     canvas = document.createElement("canvas");
@@ -1370,6 +1385,10 @@ var paintPixel = function(e=false) {
 
             removeBlur(resolutionCanvas);
 
+            // zoom = 2
+            // zoomCenter = { x: 300, y: 300 }
+            // x: 75, y: 75
+
             var size = (300/zoom);
             var ctxPortal = canvasPortal.getContext("2d");
             ctxPortal.clearRect(0, 0, 300, 300);
@@ -1508,10 +1527,13 @@ var zoom = 1;
 var zoomCenter = { x: 150, y: 150 };
 var updateZoom = function() {
     var size = (300*zoom);
+
     var left = zoomContainer.style.left;
     left = parseInt(left.replace("px", ""));
     var top = zoomContainer.style.top;
     top = parseInt(top.replace("px", ""));
+
+    zoomInfo.innerText = "zoom: "+zoom+"x";
 
     canvas.style.left = ((zoomCenter.x-(size/2)))+"px";
     canvas.style.top = ((zoomCenter.y-(size/2)))+"px";
