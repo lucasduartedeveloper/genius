@@ -691,8 +691,6 @@ $(document).ready(function() {
         auxName.innerText = prompt();
     };
 
-    $("*").not("i").css("font-family", "Khand");
-
     ws.onmessage = function(e) {
         var msg = e.data.split("|");
         if (msg[0] == "PAPER" &&
@@ -1049,7 +1047,7 @@ $(document).ready(function() {
 
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, 300, 300);
-        ctx.drawImage(img_list[5], 0, 0, 300, 300);
+        ctx.drawImage(img_list[4], 0, 0, 300, 300);
 
         var texture = drawTexture1(calibration);
         plane.loadTexture(texture);
@@ -1272,6 +1270,27 @@ $(document).ready(function() {
     imgNo = Math.floor(Math.random()*img_list.length);
     //load3D();
 
+    imgNoInfo = document.createElement("span");
+    imgNoInfo.style.position = "absolute";
+    imgNoInfo.innerText = imgNo;
+    imgNoInfo.style.fontSize = "20px";
+    imgNoInfo.style.fontHeight = "35px";
+    imgNoInfo.style.color = "#fff";
+    imgNoInfo.style.left = ((sw/2)-162.5)+"px";
+    imgNoInfo.style.top = (((sh/2)-((300*0.8)/2))-37.5)+"px";
+    imgNoInfo.style.width = (25)+"px";
+    imgNoInfo.style.height = (25)+"px";
+    imgNoInfo.style.zIndex = "5";
+    imgNoInfo.onclick = function() {
+        imgNo = (imgNo+1) < (img_list.length-1) ? 
+        (imgNo+1) : 0;
+        imgNoInfo.innerText = imgNo;
+    };
+    document.body.appendChild(imgNoInfo);
+
+    $("*").not("i").css("font-family", "Khand");
+    targetPixel.style.fontFamily = "'VT323', monospace";
+
     animateTree();
 });
 
@@ -1353,7 +1372,7 @@ var img_list = [
     //"img/human-icon-2.png",
     "img/human-icon-3.png",
     "img/human-icon-4.png",
-    "img/sea-animal-icon-0.png",
+    //"img/sea-animal-icon-0.png",
     "img/qr-code-0.png"
 ];
 
