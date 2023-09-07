@@ -358,7 +358,7 @@ $(document).ready(function() {
     saveContainer.onclick = function() {
         var dataURL = canvas.toDataURL();
         var hiddenElement = document.createElement('a');
-        hiddenElement.href = drawTexture0(); //clipLayers();
+        hiddenElement.href = clipLayers();
         hiddenElement.target = "_blank";
         hiddenElement.download = 
         resolution+"x_zoom.png";
@@ -521,6 +521,28 @@ $(document).ready(function() {
     githubIcon.style.transform = "rotateZ(-90deg)";
     githubIcon.style.zIndex = "5";
     document.body.appendChild(githubIcon);
+
+    threejsMode = false;
+    threejsView = document.createElement("i");
+    threejsView.style.position = "absolute";
+    threejsView.className = "fa-solid fa-chart-line";
+    threejsView.style.color = "#fff";
+    threejsView.style.right = (15)+"px";
+    threejsView.style.top = (225)+"px";
+    threejsView.style.width = (25)+"px";
+    threejsView.style.height = (25)+"px";
+    threejsView.style.zIndex = "5";
+    document.body.appendChild(threejsView);
+
+    threejsView.onclick = function() {
+        threejsMode = !threejsMode;
+        if (threejsMode) {
+            renderer.domElement.style.display = "initial";
+        }
+        else {
+            renderer.domElement.style.display = "none";
+        }
+    };
 
     baseTile = document.createElement("span");
     baseTile.innerText = resolution+"x";
@@ -1268,7 +1290,7 @@ $(document).ready(function() {
     };
 
     imgNo = Math.floor(Math.random()*img_list.length);
-    //load3D();
+    load3D();
 
     imgNoInfo = document.createElement("span");
     imgNoInfo.style.position = "absolute";

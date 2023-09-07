@@ -18,104 +18,22 @@ var load3D = function() {
     renderer.setSize(500, 500);
     document.body.appendChild( renderer.domElement ); 
 
-    eyePosition = {
-        x: 0,
-        y: 0,
-        offsetX: 0,
-        offsetY: 0
-    };
-    var cooldown = 0;
-    var startTime = 0;
-    var mode = -1;
-    var startX = 0;
-    var startY = 0;
     renderer.enable3d = 1;
     renderer.domElement.style.position = "absolute";
-    renderer.domElement.style.left = ((sw/2)-50)+"px";
-    renderer.domElement.style.top = ((sh/2)-225)+"px";
-    renderer.domElement.style.width = (100)+"px";
-    renderer.domElement.style.height = (100)+"px";
+    renderer.domElement.style.display = "none";
+    renderer.domElement.style.left = ((sw/2)-150)+"px";
+    renderer.domElement.style.top = ((sh/2)-150)+"px";
+    renderer.domElement.style.width = (300)+"px";
+    renderer.domElement.style.height = (300)+"px";
     //renderer.domElement.style.border = "1px solid #fff";
-    renderer.domElement.style.borderRadius = "50%";
+    //renderer.domElement.style.borderRadius = "50%";
+    renderer.domElement.style.scale = "0.8";
     renderer.domElement.style.border = "2px solid #ccc";
     renderer.domElement.style.zIndex = "5";
-    renderer.domElement.ontouchstart = function(e) {
-        if (mode == 0) {
-            var left = renderer.domElement.style.left;
-            left = parseInt(left.replace("px",""));
-            var top = renderer.domElement.style.top;
-            top = parseInt(top.replace("px",""));
-
-            eyePosition.x = e.touches[0].clientX;
-            eyePosition.y = e.touches[0].clientY;
-
-            eyePosition.offsetX = e.touches[0].clientX - left;
-            eyePosition.offsetY = e.touches[0].clientY - top;
-        }
-        else if (mode == 1) {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        }
-        else if (mode == 2) {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-        }
-        startTime = new Date().getTime();
-    };
-    renderer.domElement.ontouchmove = function(e) {
-        cooldownReset = false;
-        if (mode == 0) {
-            eyePosition.x = e.touches[0].clientX;
-            eyePosition.y = e.touches[0].clientY;
-
-            renderer.domElement.style.left = 
-            (eyePosition.x-eyePosition.offsetX)+"px";
-            renderer.domElement.style.top = 
-            (eyePosition.y-eyePosition.offsetY)+"px";
-        }
-        else if (mode == 1) {
-            var moveX = e.touches[0].clientX - startX;
-            var moveY = e.touches[0].clientY - startY;
-            group.rotateZ(-((1/300)*moveX)*(Math.PI/45));
-            group.rotateX(((1/300)*moveY)*(Math.PI/45));
-        }
-        else if (mode == 2) {
-            var moveX = e.touches[0].clientX - startX;
-            var moveY = e.touches[0].clientY - startY;
-            var hyp = Math.sqrt(
-            Math.pow(Math.abs(moveX),2)+
-            Math.pow(Math.abs(moveY),2));
-
-            var scale = ((1/150)*hyp);
-            virtualCamera.position.y = 5+(scale*5);
-        }
-    };
-    renderer.domElement.ontouchend = function(e) {
-        cooldown = setTimeout(function() {
-            if (cooldownReset) return;
-            mode = -1;
-            renderer.domElement.style.border = "2px solid #ccc";
-        }, 3000);
-    };
-
-    var cooldownReset = false;
-    renderer.domElement.ondblclick = function(e) {
-        cooldownReset = true;
-        mode = (mode+1) < 3 ? (mode+1) : 0;
-        if (mode == 0) {
-            renderer.domElement.style.border = "2px solid limegreen";
-        }
-        else if (mode == 1) {
-            renderer.domElement.style.border = "2px solid yellow";
-        }
-        else if (mode == 2) {
-            renderer.domElement.style.border = "2px solid orange";
-        }
-    };
 
     scene = new THREE.Scene();
-    scene.background = null;
-    //scene.background = new THREE.Color("#000"); 
+    //scene.background = null;
+    scene.background = new THREE.Color("#000"); 
 
     light = new THREE.PointLight(
         lightParams.color,
@@ -148,93 +66,25 @@ var load3D = function() {
     //group.rotation.x = -(Math.PI/2);
     scene.add(group);
 
-    geometry = new THREE.SphereGeometry(2, 64); 
-    var material = 
-        new THREE.MeshStandardMaterial( { 
-            color: 0xFFFFFF,
-            //side: THREE.DoubleSide,
-            opacity: 1,
-            transparent: true
+    var geometry = new THREE.ConeGeometry( 5, 5, 4 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        color: 0xffff00,
+        opacity: 0.5,
+        transparent: true
     } );
-    eye = new THREE.Mesh( geometry, material );
-    //group.add(eye);
-    eye.position.x = 0;
-    eye.position.y = 0;
-    eye.position.z = 0;
+    var cone = new THREE.Mesh(geometry, material ); 
+    group.add( cone );
 
-    eye.rotation.z = -Math.PI*1.5;
+    cone.rotation.y = -(Math.PI/4);
 
-    var texture = drawTexture0();
-    //eye.loadTexture(texture);
-    var map = drawOpacityMap();
-    //eye.loadTexture(map, "O");
-    //eye.loadTexture("img/eye-normal-map-0.png", "N");
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+color: 0xffff00 } );
+    var plane = new THREE.Mesh(geometry, material ); 
+    group.add( plane );
 
-    var meshA = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2));
-    var meshB = new THREE.Mesh(geometry)
-
-    meshA.position.y = 2.82;
-    meshA.updateMatrix();
-
-    //group.add(meshA);
-
-    var box = CSG.fromMesh(meshA);
-    var sphere = CSG.fromMesh(meshB);
-    //console.log(box);
-
-    var result = sphere.subtract(box)
-
-    var mesh = CSG.toMesh(result, meshA.matrix, material);
-    group.add(mesh);
-
-    loadedObj = null;
-    loadOBJ("img/sphere-0.obj",
-    function ( object ) {
-        object = object;
-        loadedObj = object;
-
-        object.scale.x = 5;
-        object.scale.y = 5;
-        object.scale.z = 5;
-
-        object.rotation.x = -(Math.PI/2);
-
-        var material = 
-        new THREE.MeshStandardMaterial( { 
-            color: 0x00FF00,
-            side: THREE.DoubleSide,
-            opacity: 1,
-            transparent: true
-        } );
-        object.children[0].material = material;
-
-        var texture = drawTexture0();
-        object.loadTexture(texture);
-        var map = drawOpacityMap();
-        object.loadTexture(map, "O");
-
-        //group.add( object );
-   });
-
-    geometry = new THREE.CircleGeometry(0.85, 32); 
-    var material = 
-        new THREE.MeshStandardMaterial( { 
-            color: 0xFFFFFF,
-            opacity: 1,
-            transparent: true,
-            //wireframe: true
-    } );
-    plane = new THREE.Mesh( geometry, material );
-    group.add(plane);
-    plane.position.x = 0;
-    plane.position.y = 1.85;
-    plane.position.z = 0;
-
+    plane.position.y = -2.5;
     plane.rotation.x = -(Math.PI/2);
-
-    var texture = drawTexture1(calibration);
-    plane.loadTexture(texture);
-    //eye.loadTexture("img/eye-normal-map-0.png", "N");
 
     virtualCamera.position.set(0, 5, 0);
     virtualCamera.lookAt(0, 0, 0);
@@ -248,6 +98,8 @@ var load3D = function() {
 
         //if (!motionSensorAvailable)
         //group.rotation.z += 0.01;
+
+        group.rotation.x -= 0.01;
 
         if (render) {
             renderer.render( scene, virtualCamera );
