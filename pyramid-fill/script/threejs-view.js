@@ -86,7 +86,7 @@ color: 0xffff00 } );
     plane.position.y = -2.5;
     plane.rotation.x = -(Math.PI/2);
 
-    virtualCamera.position.set(0, 5, 0);
+    virtualCamera.position.set(0, 7.5, 0);
     virtualCamera.lookAt(0, 0, 0);
 
    render = true;
@@ -99,7 +99,7 @@ color: 0xffff00 } );
         //if (!motionSensorAvailable)
         //group.rotation.z += 0.01;
 
-        group.rotation.x -= 0.01;
+        //group.rotation.x -= 0.01;
 
         if (render) {
             renderer.render( scene, virtualCamera );

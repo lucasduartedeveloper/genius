@@ -1247,8 +1247,10 @@ $(document).ready(function() {
             drawSquare();
         }
 
-        /*group.rotation.z = 
-        (((1/9.8)*gyro.accX)*(Math.PI/4));*/
+        group.rotation.x =
+        -(((1/9.8)*gyro.accY)*(Math.PI/4));
+        group.rotation.z =
+        -(((1/9.8)*gyro.accX)*(Math.PI/4));
     };
     moveLoop();
 
