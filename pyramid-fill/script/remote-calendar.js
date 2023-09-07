@@ -76,6 +76,19 @@ $(document).ready(function() {
     zoomInfo.style.zIndex = "5";
     document.body.appendChild(zoomInfo);
 
+    squareInfo = document.createElement("span");
+    squareInfo.style.position = "absolute";
+    squareInfo.style.color = "#fff";
+    squareInfo.style.textAlign = "right";
+    squareInfo.style.fontSize = "15px";
+    squareInfo.innerText = "100%";
+    squareInfo.style.left = ((sw/2))+"px";
+    squareInfo.style.top = ((sh/2)+(150*0.8))+"px";
+    squareInfo.style.width = (150*0.8)+"px";
+    squareInfo.style.height = (25)+"px";
+    squareInfo.style.zIndex = "5";
+    document.body.appendChild(squareInfo);
+
     zoomControl = document.createElement("div");
     zoomControl.style.position = "absolute";
     zoomControl.style.display = "none";
@@ -851,7 +864,17 @@ $(document).ready(function() {
     leftMenu.appendChild(applyButton);
 
     applyButton.onclick = function() {
-        applyMask(canvas1, canvasPortal);
+        var ctx;
+        if (layerNo == 0) 
+        ctx = canvas.getContext("2d");
+        else if (layerNo == 1) 
+        ctx = canvas1.getContext("2d");
+        else if (layerNo == 2) 
+        ctx = canvas2.getContext("2d");
+
+        applyMask(ctx.canvas, canvasPortal);
+
+        updateThreejsView(false);
     };
 
     zoomControlActive = false;
@@ -1584,7 +1607,7 @@ var paintPixel = function(e=false) {
             Math.round((polygon[n].x*(300/resolution))+
             ((300/resolution)/2)), 
             Math.round((polygon[n].y*(300/resolution))+
-            ((300/resolution)/2)), 5, 
+            ((300/resolution)/2)), 2.5, 
             0, Math.PI*2);
             ctxTool.fill();
         }
@@ -1770,6 +1793,7 @@ var hasMask = function() {
     return result;
 };
 
+//var striped = false;
 var resolution = 10;
 var drawSquare = function() {
     if (layerNo >= 3) {
@@ -1816,7 +1840,18 @@ var drawSquare = function() {
     ctx.clearRect(0, 0, 300, 300);
     ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
 
+    updateThreejsView();
+
     navigator.vibrate(500);
+};
+
+var updateThreejsView = function(mask=true) {
+    plane.loadTexture(canvas.toDataURL());
+    plane1.loadTexture(canvas1.toDataURL());
+    plane2.loadTexture(canvas2.toDataURL());
+
+    if (mask)
+    planeMask.loadTexture(canvasPortal.toDataURL());
 };
 
 var zoom = 1;
@@ -1988,6 +2023,9 @@ var applyMask = function(destinationCanvas, maskCanvas) {
         }
     };
 
+    squareInfo.innerText = 
+    (100-((100/(newArray.length/4))*preserveCount)).toFixed(2)+"%";
+
     //destinationCtx.clearRect(0, 0, 300, 300);
 
     var newImageData = new ImageData(newArray, 
@@ -2019,7 +2057,11 @@ var listPixels = function(canvas) {
         }
     };
 
-    console.log("selected "+visibleCount+" pixels");
+    squareInfo.innerText = 
+    ((100/(newArray.length/4))*visibleCount).toFixed(2)+"%";
+
+    console.log("selected "+visibleCount+
+    " from "+newArray.length+" pixels");
 }
 
 var removeBlur = function(destinationCanvas) {

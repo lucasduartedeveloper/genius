@@ -62,6 +62,10 @@ var load3D = function() {
     scene.add(lightObj);
     scene.add(virtualCamera);
 
+    var controls = new THREE.OrbitControls(virtualCamera,
+    renderer.domElement);
+    controls.update();
+
     group = new THREE.Group();
     //group.rotation.x = -(Math.PI/2);
     scene.add(group);
@@ -73,18 +77,49 @@ var load3D = function() {
         transparent: true
     } );
     var cone = new THREE.Mesh(geometry, material ); 
-    group.add( cone );
+    //group.add( cone );
 
     cone.rotation.y = -(Math.PI/4);
 
     var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
     var material = new THREE.MeshStandardMaterial( {
-color: 0xffff00 } );
-    var plane = new THREE.Mesh(geometry, material ); 
+        //color: 0xffff00 
+    } );
+    plane = new THREE.Mesh(geometry, material ); 
     group.add( plane );
 
     plane.position.y = -2.5;
     plane.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //color: 0xffff00 
+    } );
+    plane1 = new THREE.Mesh(geometry, material ); 
+    group.add( plane1 );
+
+    plane1.position.y = -2;
+    plane1.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //color: 0xffff00 
+    } );
+    plane2 = new THREE.Mesh(geometry, material ); 
+    group.add( plane2 );
+
+    plane2.position.y = -1.5;
+    plane2.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //color: 0xffff00 
+    } );
+    planeMask = new THREE.Mesh(geometry, material ); 
+    group.add( planeMask );
+
+    planeMask.position.y = -1;
+    planeMask.rotation.x = -(Math.PI/2);
 
     virtualCamera.position.set(0, 7.5, 0);
     virtualCamera.lookAt(0, 0, 0);
@@ -100,6 +135,8 @@ color: 0xffff00 } );
         //group.rotation.z += 0.01;
 
         //group.rotation.x -= 0.01;
+
+        controls.update();
 
         if (render) {
             renderer.render( scene, virtualCamera );

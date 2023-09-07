@@ -20,8 +20,9 @@ $style = [
 $thirdpart_script = [
     0 => "/genius/script/thirdpart/three.min.js",
     1 => "script/thirdpart/OBJLoader.min.js",
-    2 => "script/thirdpart/csg-lib.js",
-    3 => "script/thirdpart/three-csg.js"
+    2 => "script/thirdpart/OrbitControls.js",
+    3 => "script/thirdpart/csg-lib.js",
+    4 => "script/thirdpart/three-csg.js"
 ];
 $script = [
     0 => "script/camera-helper.js",
