@@ -94,6 +94,15 @@ var load3D = function() {
     center.rotation.x = -(Math.PI/2);
     center.rotation.z = -(Math.PI/2);
 
+    loadOBJ("img/head.obj", function(object) {
+        object.position.z = 1.5;
+        object.rotation.x = -(Math.PI/2);
+
+        object.scale.set(0.5, 0.5, 0.5);
+
+        group.add(object);
+    });
+
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
     var material = new THREE.MeshBasicMaterial( {
         color: 0x555555
