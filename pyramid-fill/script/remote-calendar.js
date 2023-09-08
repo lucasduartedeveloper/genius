@@ -502,14 +502,15 @@ $(document).ready(function() {
     author = document.createElement("span");
     author.style.position = "absolute";
     author.innerText = "GITHUB";
+    author.style.lineHeight = "35px";
     author.fontSize = "15px";
     author.textAlign = "center";
     author.style.color = "#fff";
     author.width = resolution;
     author.height = resolution;
-    author.style.left = ((sw/2)+25)+"px";
+    author.style.left = ((sw/2)+85)+"px";
     author.style.top = ((sh/2)-10)+"px";
-    author.style.width = (300*0.8)+"px";
+    author.style.width = (150*0.8)+"px";
     author.style.height = (25)+"px";
     author.style.transform = "rotateZ(-90deg)";
     author.style.zIndex = "5";
@@ -1272,10 +1273,10 @@ $(document).ready(function() {
             drawSquare();
         }
 
-        /*group.rotation.x =
-        -(((1/9.8)*gyro.accY)*(Math.PI/4));
+        group.rotation.x = -(Math.PI)
+        -(((1/9.8)*gyro.accY)*(Math.PI));
         group.rotation.z =
-        -(((1/9.8)*gyro.accX)*(Math.PI/4));*/
+        -(((1/9.8)*gyro.accX)*(Math.PI/4));
     };
     moveLoop();
 

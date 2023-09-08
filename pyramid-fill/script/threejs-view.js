@@ -1,5 +1,5 @@
 var cameraParams = {
-   fov: 75, aspectRatio: 1, near: 0.1, far: 50
+   fov: 75, aspectRatio: 0.5, near: 0.1, far: 50
 };
 var lightParams = {
    color: 0xffffff, intensity: 1, distance: 100, decay: 3
@@ -15,16 +15,16 @@ var load3D = function() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
     // default THREE.PCFShadowMap
-    renderer.setSize(500, 500);
+    renderer.setSize(500, 1000);
     document.body.appendChild( renderer.domElement ); 
 
     renderer.enable3d = 1;
     renderer.domElement.style.position = "absolute";
     renderer.domElement.style.display = "none";
     renderer.domElement.style.left = ((sw/2)-150)+"px";
-    renderer.domElement.style.top = ((sh/2)-150)+"px";
+    renderer.domElement.style.top = ((sh/2)-300)+"px";
     renderer.domElement.style.width = (300)+"px";
-    renderer.domElement.style.height = (300)+"px";
+    renderer.domElement.style.height = (600)+"px";
     //renderer.domElement.style.border = "1px solid #fff";
     //renderer.domElement.style.borderRadius = "50%";
     renderer.domElement.style.scale = "0.8";
@@ -94,11 +94,12 @@ var load3D = function() {
     center.rotation.x = -(Math.PI/2);
     center.rotation.z = -(Math.PI/2);
 
-    loadOBJ("img/head.obj", function(object) {
+    loadOBJ("img/skelet.obj", function(object) {
         object.position.z = 1.5;
         object.rotation.x = -(Math.PI/2);
+        object.rotation.y = -(Math.PI);
 
-        object.scale.set(0.5, 0.5, 0.5);
+        //object.scale.set(0.5, 0.5, 0.5);
 
         group.add(object);
     });
@@ -183,7 +184,7 @@ var load3D = function() {
         color: 0xffffff
     } );
     plane = new THREE.Mesh(geometry, material ); 
-    group.add( plane );
+    //group.add( plane );
 
     plane.position.y = -2.5;
     plane.rotation.x = -(Math.PI/2);
@@ -194,7 +195,7 @@ var load3D = function() {
         color: 0xffffff
     } );
     plane1 = new THREE.Mesh(geometry, material ); 
-    group.add( plane1 );
+    //group.add( plane1 );
 
     plane1.position.y = -2;
     plane1.rotation.x = -(Math.PI/2);
@@ -205,7 +206,7 @@ var load3D = function() {
         color: 0xffffff
     } );
     plane2 = new THREE.Mesh(geometry, material ); 
-    group.add( plane2 );
+    //group.add( plane2 );
 
     plane2.position.y = -1.5;
     plane2.rotation.x = -(Math.PI/2);
@@ -215,12 +216,12 @@ var load3D = function() {
         //color: 0xffff00 
     } );
     planeMask = new THREE.Mesh(geometry, material ); 
-    group.add( planeMask );
+    //group.add( planeMask );
 
     planeMask.position.y = -1;
     planeMask.rotation.x = -(Math.PI/2);
 
-    virtualCamera.position.set(0, 7.5, 0);
+    virtualCamera.position.set(0, 2.5, 0);
     virtualCamera.lookAt(0, 0, 0);
 
     render = true;
