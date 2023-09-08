@@ -83,7 +83,7 @@ var load3D = function() {
 
     var geometry = new THREE.SphereGeometry( 0.2, 32 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0x880088
+        color: 0x555555
     } );
     center = new THREE.Mesh(geometry, material ); 
     group.add( center );
@@ -96,7 +96,7 @@ var load3D = function() {
 
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0xff0088
+        color: 0x555555
     } );
     axisX = new THREE.Mesh(geometry, material ); 
     group.add( axisX );
@@ -109,7 +109,7 @@ var load3D = function() {
 
     var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0xff0088,
+        color: 0x555555,
     } );
     var axisXend = new THREE.Mesh(geometry, material ); 
     group.add( axisXend );
@@ -122,7 +122,7 @@ var load3D = function() {
 
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0x0000ff
+        color: 0x555555
     } );
     axisY = new THREE.Mesh(geometry, material ); 
     group.add( axisY );
@@ -134,7 +134,7 @@ var load3D = function() {
 
     var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0x0000ff,
+        color: 0x555555,
     } );
     var axisYend = new THREE.Mesh(geometry, material ); 
     group.add( axisYend );
@@ -146,7 +146,7 @@ var load3D = function() {
 
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0x00ff00 
+        color: 0x555555 
     } );
     axisZ = new THREE.Mesh(geometry, material ); 
     group.add( axisZ );
@@ -158,7 +158,7 @@ var load3D = function() {
 
     var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0x00ff00,
+        color: 0x555555,
     } );
     var axisZend = new THREE.Mesh(geometry, material ); 
     group.add( axisZend );
@@ -170,7 +170,8 @@ var load3D = function() {
 
     var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
     var material = new THREE.MeshStandardMaterial( {
-        //color: 0xffff00 
+        //side: THREE.DoubleSide,
+        color: 0xffffff
     } );
     plane = new THREE.Mesh(geometry, material ); 
     group.add( plane );
@@ -180,7 +181,8 @@ var load3D = function() {
 
     var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
     var material = new THREE.MeshStandardMaterial( {
-        //color: 0xffff00 
+        //side: THREE.DoubleSide,
+        color: 0xffffff
     } );
     plane1 = new THREE.Mesh(geometry, material ); 
     group.add( plane1 );
@@ -190,7 +192,8 @@ var load3D = function() {
 
     var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
     var material = new THREE.MeshStandardMaterial( {
-        //color: 0xffff00 
+        //side: THREE.DoubleSide,
+        color: 0xffffff
     } );
     plane2 = new THREE.Mesh(geometry, material ); 
     group.add( plane2 );
