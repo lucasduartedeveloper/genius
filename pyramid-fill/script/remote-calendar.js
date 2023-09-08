@@ -550,9 +550,11 @@ $(document).ready(function() {
     threejsView.onclick = function() {
         threejsMode = !threejsMode;
         if (threejsMode) {
+            startAnimation();
             renderer.domElement.style.display = "initial";
         }
         else {
+            pauseAnimation();
             renderer.domElement.style.display = "none";
         }
     };
@@ -1841,7 +1843,6 @@ var drawSquare = function() {
     ctx.drawImage(resolutionCanvas, 0, 0, 300, 300);
 
     updateThreejsView();
-
     navigator.vibrate(500);
 };
 

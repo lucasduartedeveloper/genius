@@ -81,6 +81,93 @@ var load3D = function() {
 
     cone.rotation.y = -(Math.PI/4);
 
+    var geometry = new THREE.SphereGeometry( 0.2, 32 ); 
+    var material = new THREE.MeshBasicMaterial( {
+        color: 0x880088
+    } );
+    center = new THREE.Mesh(geometry, material ); 
+    group.add( center );
+
+    center.position.x = -4;
+    center.position.y = -0.5;
+    center.position.z = 4;
+    center.rotation.x = -(Math.PI/2);
+    center.rotation.z = -(Math.PI/2);
+
+    var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
+    var material = new THREE.MeshBasicMaterial( {
+        color: 0xff0088
+    } );
+    axisX = new THREE.Mesh(geometry, material ); 
+    group.add( axisX );
+
+    axisX.position.x = -1.5;
+    axisX.position.y = -0.5;
+    axisX.position.z = 4;
+    axisX.rotation.x = -(Math.PI/2);
+    axisX.rotation.z = -(Math.PI/2);
+
+    var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
+    var material = new THREE.MeshBasicMaterial( {
+        color: 0xff0088,
+    } );
+    var axisXend = new THREE.Mesh(geometry, material ); 
+    group.add( axisXend );
+
+    axisXend.position.x = 1;
+    axisXend.position.y = -0.5;
+    axisXend.position.z = 4;
+    axisXend.rotation.x = -(Math.PI/2);
+    axisXend.rotation.z = -(Math.PI/2);
+
+    var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
+    var material = new THREE.MeshBasicMaterial( {
+        color: 0x0000ff
+    } );
+    axisY = new THREE.Mesh(geometry, material ); 
+    group.add( axisY );
+
+    axisY.position.x = -4;
+    axisY.position.y = -0.5;
+    axisY.position.z = 1.5;
+    axisY.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
+    var material = new THREE.MeshBasicMaterial( {
+        color: 0x0000ff,
+    } );
+    var axisYend = new THREE.Mesh(geometry, material ); 
+    group.add( axisYend );
+
+    axisYend.position.x = -4;
+    axisYend.position.y = -0.5;
+    axisYend.position.z = -1;
+    axisYend.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
+    var material = new THREE.MeshBasicMaterial( {
+        color: 0x00ff00 
+    } );
+    axisZ = new THREE.Mesh(geometry, material ); 
+    group.add( axisZ );
+
+    axisZ.position.x = -4;
+    axisZ.position.y = -3;
+    axisZ.position.z = 4;
+    //axisZ.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
+    var material = new THREE.MeshBasicMaterial( {
+        color: 0x00ff00,
+    } );
+    var axisZend = new THREE.Mesh(geometry, material ); 
+    group.add( axisZend );
+
+    axisZend.position.x = -4;
+    axisZend.position.y = -5.5;
+    axisZend.position.z = 4;
+    axisZend.rotation.x = -(Math.PI);
+
     var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
     var material = new THREE.MeshStandardMaterial( {
         //color: 0xffff00 
@@ -124,11 +211,11 @@ var load3D = function() {
     virtualCamera.position.set(0, 7.5, 0);
     virtualCamera.lookAt(0, 0, 0);
 
-   render = true;
-   iterations = 9999999999;
-   animate = function() {
+    render = true;
+    iterations = 9999999999;
+    animate = function() {
         iterations -= 1;
-        if (iterations > 0)
+        if (iterations > 0 && render)
         req = requestAnimationFrame( animate );
 
         //if (!motionSensorAvailable)
@@ -137,13 +224,19 @@ var load3D = function() {
         //group.rotation.x -= 0.01;
 
         controls.update();
-
-        if (render) {
-            renderer.render( scene, virtualCamera );
-        }
+        renderer.render( scene, virtualCamera );
     };
-   animate();
+    //animate();
 }
+
+var startAnimation = function() {
+    render = true;
+    animate();
+};
+
+var pauseAnimation = function() {
+    render = false;
+};
 
 THREE.Object3D.prototype.loadTexture = 
 function(url, type="D") {
