@@ -62,6 +62,8 @@ $(document).ready(function() {
     undoView.style.zIndex = "5";
     document.body.appendChild(undoView);
 
+    $("*").css("font-family", "Khand");
+
     leftColumn = document.createElement("div");
     leftColumn.style.position = "absolute";
     leftColumn.style.color = "#fff";
@@ -94,8 +96,7 @@ $(document).ready(function() {
     currentLineView.style.zIndex = "5";
     document.body.appendChild(currentLineView);
 
-    fillList();
-    $("*").css("font-family", "Khand");
+    fillListBin();
 
     circleView.onclick = function() {
         solve();
@@ -117,24 +118,8 @@ var solve = function() {
         ((((sh-(15*25))/2)+25)+((currentLine+1)*25)+3)+"px";
 
         var obj = leftList[currentLine];
-        switch (obj.operator) {
-            case "+":
-                rightColumn.children[currentLine].innerText = 
-                obj.a + obj.b;
-                break;
-            case "-":
-                rightColumn.children[currentLine].innerText = 
-                obj.a - obj.b;
-                break;
-            case "÷":
-                rightColumn.children[currentLine].innerText = 
-                (obj.a / obj.b);
-                break;
-            case "×":
-                rightColumn.children[currentLine].innerText = 
-                (obj.a * obj.b);
-                break;
-        }
+        rightColumn.children[currentLine].innerText = 
+        toBinary(obj);
 
         navigator.vibrate(500);
         currentLine +=1;
@@ -151,7 +136,7 @@ var undo = function() {
         console.log("undo", currentLine);
 
         var obj = leftList[currentLine];
-        leftColumn.children[currentLine].innerText = obj.a + " " + obj.operator + " " + obj.b;
+        leftColumn.children[currentLine].innerText = obj;
         rightColumn.children[currentLine].innerText = "";
 
         currentLineView.style.top = 
@@ -171,77 +156,24 @@ var operators = [
 var leftList = [];
 var rightList = [];
 
-var findInteger = function(a) {
-    var start = 1000;
-    var list = [];
-    while (start > 0) {
-       if ((a / start)-Math.floor((a/ start)) == 0)
-       list.push(start);
-       //console.log(a + "÷" + start, (a / start));
-
-       start -= 1;
-    }
-
-    var n = Math.floor(Math.random()*list.length);
-
-    //console.log(a, list, n);
-    return list[n];
+var toBinary = function(n) {
+    var result = n.toString(2);
+    result = result.padStart(8, "0");
+    return result;
 };
 
-var findMultiplier = function(a) {
-    var start = 1000;
-    var list = [];
-    while (start > 0) {
-       if ((a * start) < 2000)
-       list.push(start);
-       //console.log(a + "÷" + start, (a / start));
-
-       start -= 1;
-    }
-
-    var n = Math.floor(Math.random()*list.length);
-
-    //console.log(a, list, n);
-    return list[n];
-};
-
-var findSubtractor = function(a) {
-    var start = 1000;
-    var list = [];
-    while (start > 0) {
-       if ((a - start) > 0)
-       list.push(start);
-       //console.log(a + "÷" + start, (a / start));
-
-       start -= 1;
-    }
-
-    var n = Math.floor(Math.random()*list.length);
-
-    //console.log(a, list, n);
-    return list[n];
-};
-
-var fillList = function() {
+var fillListBin = function() {
     for (var n = 0; n < 15; n++) {
-        var a = Math.floor(Math.random()*1000);
-        var b = Math.floor(Math.random()*1000);
-        var k = Math.floor(Math.random()*4);
+        var a = Math.floor(Math.random()*255);
 
-        b = (k != 1 ? b : findSubtractor(a));
-        b = (k != 2 ? b : findInteger(a));
-        b = (k != 3 ? b : findMultiplier(a));
-
-        var obj = {
-            a: a, b: b, operator: operators[k]
-        };
-        leftList.push(obj);
+        leftList.push(a);
 
         var span = document.createElement("span");
         span.style.position = "absolute";
         span.style.color = "#fff";
         span.style.fontSize = "25px";
         span.style.textAlign = "left";
+        span.style.fontFamily = "Khand";
         span.style.left = (0)+"px";
         span.style.top = (n*25)+"px";
         span.style.width = (sw/2)+"px";
@@ -249,14 +181,14 @@ var fillList = function() {
         span.style.zIndex = "5";
         leftColumn.appendChild(span);
 
-        span.innerText = a + " " + operators[k] + " " + b;
+        span.innerText = a;
 
         var span = document.createElement("span");
         span.style.position = "absolute";
         span.style.color = "limegreen";
         span.style.fontSize = "25px";
         span.style.textAlign = "left";
-        span.style.fontFamily = "Khand";
+        span.style.fontFamily = "'VT323', monospace !important";
         span.style.left = (0)+"px";
         span.style.top = (n*25)+"px";
         span.style.width = (sw/2)+"px";
