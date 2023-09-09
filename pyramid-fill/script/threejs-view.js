@@ -107,7 +107,7 @@ var load3D = function() {
     group.add( center );
 
     center.position.x = -4;
-    center.position.y = -0.5;
+    center.position.y = 0;
     center.position.z = 4;
     center.rotation.x = -(Math.PI/2);
     center.rotation.z = -(Math.PI/2);
@@ -140,7 +140,7 @@ var load3D = function() {
     group.add( axisX );
 
     axisX.position.x = -1.5;
-    axisX.position.y = -0.5;
+    axisX.position.y = 0;
     axisX.position.z = 4;
     axisX.rotation.x = -(Math.PI/2);
     axisX.rotation.z = -(Math.PI/2);
@@ -153,7 +153,7 @@ var load3D = function() {
     group.add( axisXend );
 
     axisXend.position.x = 1;
-    axisXend.position.y = -0.5;
+    axisXend.position.y = 0;
     axisXend.position.z = 4;
     axisXend.rotation.x = -(Math.PI/2);
     axisXend.rotation.z = -(Math.PI/2);
@@ -166,7 +166,7 @@ var load3D = function() {
     group.add( axisY );
 
     axisY.position.x = -4;
-    axisY.position.y = 2;
+    axisY.position.y = 2.5;
     axisY.position.z = 4;
     //axisY.rotation.x = -(Math.PI/2);
 
@@ -178,7 +178,7 @@ var load3D = function() {
     group.add( axisYend );
 
     axisYend.position.x = -4;
-    axisYend.position.y = 4.5;
+    axisYend.position.y = 5;
     axisYend.position.z = 4;
     //axisYend.rotation.x = -(Math.PI);
 
@@ -190,7 +190,7 @@ var load3D = function() {
     group.add( axisZ );
 
     axisZ.position.x = -4;
-    axisZ.position.y = -0.5;
+    axisZ.position.y = 0;
     axisZ.position.z = 1.5;
     axisZ.rotation.x = -(Math.PI/2);
 
@@ -202,52 +202,19 @@ var load3D = function() {
     group.add( axisZend );
 
     axisZend.position.x = -4;
-    axisZend.position.y = -0.5;
+    axisZend.position.y = 0;
     axisZend.position.z = -1;
     axisZend.rotation.x = -(Math.PI/2);
 
-    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        //side: THREE.DoubleSide,
-        color: 0xffffff
-    } );
-    plane = new THREE.Mesh(geometry, material ); 
-    //group.add( plane );
-
-    plane.position.y = -2.5;
-    plane.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        //side: THREE.DoubleSide,
-        color: 0xffffff
-    } );
-    plane1 = new THREE.Mesh(geometry, material ); 
-    //group.add( plane1 );
-
-    plane1.position.y = -2;
-    plane1.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        //side: THREE.DoubleSide,
-        color: 0xffffff
-    } );
-    plane2 = new THREE.Mesh(geometry, material ); 
-    //group.add( plane2 );
-
-    plane2.position.y = -1.5;
-    plane2.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
     var material = new THREE.MeshStandardMaterial( {
         //color: 0xffff00 
     } );
-    planeMask = new THREE.Mesh(geometry, material ); 
-    //group.add( planeMask );
+    plane = new THREE.Mesh(geometry, material ); 
+    group.add( plane );
 
-    planeMask.position.y = -1;
-    planeMask.rotation.x = -(Math.PI/2);
+    plane.position.y = 0;
+    plane.rotation.x = -(Math.PI/2);
 
     loadRectangle("img/texture-4.png");
 
@@ -281,6 +248,106 @@ var pauseAnimation = function() {
     render = false;
 };
 
+var get_polygon_centroid = function(pts) {
+   var first = pts[0], last = pts[pts.length-1];
+   if (first.x != last.x || first.y != last.y) pts.push(first);
+   var twicearea=0,
+   x=0, y=0,
+   nPts = pts.length,
+   p1, p2, f;
+   for ( var i=0, j=nPts-1 ; i<nPts ; j=i++ ) {
+      p1 = pts[i]; p2 = pts[j];
+      f = p1.x*p2.y - p2.x*p1.y;
+      twicearea += f;          
+      x += ( p1.x + p2.x ) * f;
+      y += ( p1.y + p2.y ) * f;
+   }
+   f = twicearea * 3;
+   return { x:x/f, y:y/f };
+}
+
+var readImage = function(img) {
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    var imageData = ctx.getImageData(0, 0, 
+    canvas.width, canvas.height);
+    var imageArray = imageData.data;
+
+    var polygon = [];
+
+    var currentY = 0;
+    var leftOutline = [];
+    for (var n = 0; n < imageArray.length; n+=4) {
+        var k = n/4;
+        var x = k % imageData.width;
+        var y = Math.floor(k / imageData.width);
+
+        var r = imageArray[n];
+        var g = imageArray[n+1];
+        var b = imageArray[n+2];
+        var a = imageArray[n+3];
+
+        if (a == 255 && currentY != y) {
+            var p = { x: x, y: y };
+            leftOutline.push(p);
+            currentY = y;
+        }
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.translate(-canvas.width, 0);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    ctx.restore();
+
+    var imageData = ctx.getImageData(0, 0, 
+    canvas.width, canvas.height);
+    var imageArray = imageData.data;
+
+    var polygon = [];
+
+    var currentY = 0;
+    var rightOutline = [];
+    for (var n = 0; n < imageArray.length; n+=4) {
+        var k = n/4;
+        var x = k % imageData.width;
+        var y = Math.floor(k / imageData.width);
+
+        var r = imageArray[n];
+        var g = imageArray[n+1];
+        var b = imageArray[n+2];
+        var a = imageArray[n+3];
+
+        if (a == 255 && currentY != y) {
+            var p = { x: imageData.width-x, y: y };
+            rightOutline.push(p);
+            currentY = y;
+        }
+    }
+    rightOutline = rightOutline.reverse();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    polygon = [ ...leftOutline ];
+    polygon = [ ...polygon, ...rightOutline ];
+
+    ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+    ctx.beginPath();
+    ctx.moveTo(polygon[0].x, polygon[0].y);
+    for (var n = 1; n < polygon.length; n++) {
+        ctx.lineTo(polygon[n].x, polygon[n].y);
+    };
+    ctx.closePath();
+    ctx.fill();
+
+    return get_polygon_centroid(polygon);
+};
+
 var loadRectangle = function(url) {
     var img = document.createElement("img");
     img.onload = function() {
@@ -293,7 +360,15 @@ var loadRectangle = function(url) {
        rectangle = new THREE.Mesh(geometry, material ); 
        group.add( rectangle );
 
-       rectangle.position.y = -0.5 + (height/2);
+       var centroid = readImage(this);
+       console.log(centroid, this.width);
+
+       var p = (1/this.width)*centroid.x;
+       p = (5-(p*5))/2;
+       console.log(p);
+
+       rectangle.position.y = (height/2);
+       rectangle.position.x = p;
        //rectangle.rotation.x = -(Math.PI/2);
        rectangle.loadTexture(url);
     };
