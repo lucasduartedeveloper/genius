@@ -554,11 +554,13 @@ $(document).ready(function() {
             startAnimation();
             sceneBackground.style.display = "initial";
             renderer.domElement.style.display = "initial";
+            saveComposition.style.display = "initial";
         }
         else {
             pauseAnimation();
             sceneBackground.style.display = "none";
             renderer.domElement.style.display = "none";
+            saveComposition.style.display = "none";
         }
     };
 
@@ -1341,6 +1343,46 @@ $(document).ready(function() {
     };
     document.body.appendChild(imgNoInfo);
 
+    saveComposition = document.createElement("span");
+    saveComposition.style.position = "absolute";
+    saveComposition.style.display = "none";
+    saveComposition.style.background = "rgba(50, 50, 65, 1)";
+    saveComposition.style.color = "#fff";
+    saveComposition.innerText = "SAVE";
+    saveComposition.style.fontSize = "30px";
+    saveComposition.style.lineHeight = "50px";
+    saveComposition.style.left = ((sw/2)-(150*0.8))+"px";
+    saveComposition.style.top = ((sh/2)+(300*0.8))+"px";
+    saveComposition.style.width = (300*0.8)+"px";
+    saveComposition.style.height = (50)+"px";
+    saveComposition.style.border = "2px solid #fff";
+    saveComposition.style.zIndex = "5";
+    document.body.appendChild(saveComposition);
+
+    saveComposition.onclick = function() {
+        var result = document.createElement("canvas");
+        result.width = (300);
+        result.height = (600);
+
+        var resultCtx = result.getContext("2d");
+
+        var image = { width: vw, height: vh };
+        var format = fitImageCover(image, result);
+        resultCtx.drawImage(cameraElem, format.left, format.top, format.width, format.height);
+
+        pauseAnimation();
+        resultCtx.drawImage(renderer.domElement, 
+        0, 0, 300, 600);
+
+        var dataURL = canvas.toDataURL();
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = result.toDataURL();
+        hiddenElement.target = "_blank";
+        hiddenElement.download = 
+        resolution+"x_zoom.png";
+        hiddenElement.click();
+    };
+
     $("*").not("i").css("font-family", "Khand");
     targetPixel.style.fontFamily = "'VT323', monospace";
 
@@ -1486,43 +1528,6 @@ var createSwitch = function(background, x, y, value, callback) {
 
         this.button.innerText = this.button.active;
         callback(this.button.active);
-    };
-
-    saveComposition = document.createElement("i");
-    saveComposition.style.position = "absolute";
-    saveComposition.style.background = "rgba(50, 50, 65, 1)";
-    saveComposition.style.color = "#fff";
-    saveComposition.className = "fa-solid fa-save";
-    saveComposition.style.fontSize = "35px";
-    saveComposition.style.left = ((sw/2)+(150*0.8))+"px";
-    saveComposition.style.top = ((sh/2)+(250*0.8))+"px";
-    saveComposition.style.width = (50)+"px";
-    saveComposition.style.height = (50)+"px";
-    saveComposition.style.zIndex = "5";
-    document.body.appendChild(saveComposition);
-
-    saveComposition.onclick = function() {
-        var result = document.createElement("canvas");
-        result.width = (300);
-        result.height = (600);
-
-        var resultCtx = result.getContext("2d");
-
-        var image = { width: vw, height: vh };
-        var format = fitImageCover(image, result);
-        resultCtx.drawImage(cameraElem, format.left, format.top, format.width, format.height);
-
-        pauseAnimation();
-        resultCtx.drawImage(renderer.domElement, 
-        0, 0, 300, 600);
-
-        var dataURL = canvas.toDataURL();
-        var hiddenElement = document.createElement('a');
-        hiddenElement.href = result.toDataURL();
-        hiddenElement.target = "_blank";
-        hiddenElement.download = 
-        resolution+"x_zoom.png";
-        hiddenElement.click();
     };
 };
 
