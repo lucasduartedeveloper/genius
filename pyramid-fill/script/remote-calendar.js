@@ -552,10 +552,12 @@ $(document).ready(function() {
         threejsMode = !threejsMode;
         if (threejsMode) {
             startAnimation();
+            sceneBackground.style.display = "initial";
             renderer.domElement.style.display = "initial";
         }
         else {
             pauseAnimation();
+            sceneBackground.style.display = "none";
             renderer.domElement.style.display = "none";
         }
     };
@@ -1273,10 +1275,10 @@ $(document).ready(function() {
             drawSquare();
         }
 
-        group.rotation.x = -(Math.PI)
+        /*group.rotation.x = -(Math.PI)
         -(((1/9.8)*gyro.accY)*(Math.PI));
         group.rotation.z =
-        -(((1/9.8)*gyro.accX)*(Math.PI/4));
+        -(((1/9.8)*gyro.accX)*(Math.PI/4));*/
     };
     moveLoop();
 
@@ -1299,13 +1301,17 @@ $(document).ready(function() {
         drawSquare();
     });
 
-    camera.onplay = function() {
+    imgNo = Math.floor(Math.random()*img_list.length);
+    load3D();
+
+    cameraElem = sceneBackground;
+    sceneBackground.onplay = function() {
         console.log("onplay");
         var frame = { width: 50, height: 50 };
         var content = { width: vw, height: vh };
         frame = resizeFrame(frame, content);
 
-        console.log(frame);
+        //console.log(frame);
         camera.style.left = ((sw/2)-(frame.width/2))+"px";
         camera.style.top = ((sh/2)-(262.5+(frame.height/2)))+"px";
         camera.style.width = frame.width+"px";
@@ -1316,9 +1322,6 @@ $(document).ready(function() {
         _say("camera connected");
         drawSquare();
     };
-
-    imgNo = Math.floor(Math.random()*img_list.length);
-    load3D();
 
     imgNoInfo = document.createElement("span");
     imgNoInfo.style.position = "absolute";
@@ -1483,6 +1486,43 @@ var createSwitch = function(background, x, y, value, callback) {
 
         this.button.innerText = this.button.active;
         callback(this.button.active);
+    };
+
+    saveComposition = document.createElement("i");
+    saveComposition.style.position = "absolute";
+    saveComposition.style.background = "rgba(50, 50, 65, 1)";
+    saveComposition.style.color = "#fff";
+    saveComposition.className = "fa-solid fa-save";
+    saveComposition.style.fontSize = "35px";
+    saveComposition.style.left = ((sw/2)+(150*0.8))+"px";
+    saveComposition.style.top = ((sh/2)+(250*0.8))+"px";
+    saveComposition.style.width = (50)+"px";
+    saveComposition.style.height = (50)+"px";
+    saveComposition.style.zIndex = "5";
+    document.body.appendChild(saveComposition);
+
+    saveComposition.onclick = function() {
+        var result = document.createElement("canvas");
+        result.width = (300);
+        result.height = (600);
+
+        var resultCtx = result.getContext("2d");
+
+        var image = { width: vw, height: vh };
+        var format = fitImageCover(image, result);
+        resultCtx.drawImage(cameraElem, format.left, format.top, format.width, format.height);
+
+        pauseAnimation();
+        resultCtx.drawImage(renderer.domElement, 
+        0, 0, 300, 600);
+
+        var dataURL = canvas.toDataURL();
+        var hiddenElement = document.createElement('a');
+        hiddenElement.href = result.toDataURL();
+        hiddenElement.target = "_blank";
+        hiddenElement.download = 
+        resolution+"x_zoom.png";
+        hiddenElement.click();
     };
 };
 
@@ -1836,7 +1876,7 @@ var drawSquare = function() {
         var image = { width: vw, height: vh };
         var format = fitImageCover(image, resolutionCanvas);
         //console.log(format);
-        resolutionCtx.drawImage(camera, format.left, format.top, format.width, format.height);
+        resolutionCtx.drawImage(cameraElem, format.left, format.top, format.width, format.height);
         resolutionCtx.restore();
     }
 

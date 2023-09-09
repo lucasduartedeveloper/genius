@@ -1,6 +1,7 @@
 var vw = 0;
 var vh = 0;
 
+var cameraElem = null;
 var cameraOn = false;
 var videoDevices = [];
 var deviceNo = 0;
@@ -36,7 +37,7 @@ function startCamera(color=true) {
           audio: false })
           .then((stream) => {
                cameraOn = true;
-               camera.srcObject = stream;
+               cameraElem.srcObject = stream;
                var display = stream.
                getVideoTracks()[0].getSettings();
                vw = display.width;
@@ -45,10 +46,10 @@ function startCamera(color=true) {
     }
 }
 function stopCamera() {
-    if (camera.srcObject) {
+    if (sceneBackground.srcObject) {
          cameraOn = false;
-         camera.srcObject.getTracks().forEach(t => t.stop());
-         camera.srcObject = null;
+         cameraElem.srcObject.getTracks().forEach(t => t.stop());
+         cameraElem.srcObject = null;
     }
 }
 

@@ -11,12 +11,28 @@ var renderer, scene, light, camera, box, eye;
 //import { Interaction } from 'three.interaction';
 
 var load3D = function() {
-    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false, preserveDrawingBuffer: true });
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
     // default THREE.PCFShadowMap
     renderer.setSize(500, 1000);
-    document.body.appendChild( renderer.domElement ); 
+
+    sceneBackground = document.createElement("video");
+    sceneBackground.style.position = "absolute";
+    sceneBackground.autoplay = true;
+    sceneBackground.style.objectFit = "cover";
+    sceneBackground.style.display = "none";
+    sceneBackground.style.background = "#000";
+    sceneBackground.width = (300);
+    sceneBackground.height = (600);
+    sceneBackground.style.left = ((sw/2)-150)+"px";
+    sceneBackground.style.top = ((sh/2)-300)+"px";
+    sceneBackground.style.width = (300)+"px";
+    sceneBackground.style.height = (600)+"px";
+    sceneBackground.style.scale = "0.8";
+    sceneBackground.style.border = "2px solid #ccc";
+    sceneBackground.style.zIndex = "5";
+    document.body.appendChild(sceneBackground);
 
     renderer.enable3d = 1;
     renderer.domElement.style.position = "absolute";
@@ -30,10 +46,11 @@ var load3D = function() {
     renderer.domElement.style.scale = "0.8";
     renderer.domElement.style.border = "2px solid #ccc";
     renderer.domElement.style.zIndex = "5";
+    document.body.appendChild( renderer.domElement ); 
 
     scene = new THREE.Scene();
-    //scene.background = null;
-    scene.background = new THREE.Color("#000"); 
+    scene.background = null;
+    //scene.background = new THREE.Color("#000"); 
 
     light = new THREE.PointLight(
         lightParams.color,
@@ -42,7 +59,7 @@ var load3D = function() {
         lightParams.decay
     );
 
-    light.position.set(-2, 5, -2);
+    light.position.set(0, 2.5, 2.5);
     light.castShadow = true;
 
     //Set up shadow properties for the light
@@ -50,7 +67,7 @@ var load3D = function() {
     light.shadow.mapSize.height = 512; // default
 
     lightObj = new THREE.Group();
-    lightObj.add(light);
+    //lightObj.add(light);
 
     virtualCamera = new THREE.PerspectiveCamera( 
         cameraParams.fov, 
@@ -58,6 +75,7 @@ var load3D = function() {
         cameraParams.near, 
         cameraParams.far 
     );
+    virtualCamera.add(light);
 
     scene.add(lightObj);
     scene.add(virtualCamera);
@@ -94,14 +112,24 @@ var load3D = function() {
     center.rotation.x = -(Math.PI/2);
     center.rotation.z = -(Math.PI/2);
 
-    loadOBJ("img/skelet.obj", function(object) {
+    loadOBJ("img/dracovenator.obj", function(object) {
         object.position.z = 1.5;
         object.rotation.x = -(Math.PI/2);
-        object.rotation.y = -(Math.PI);
+        object.rotation.z = -(Math.PI);
 
         //object.scale.set(0.5, 0.5, 0.5);
 
-        group.add(object);
+        //group.add(object)
+    });
+
+    loadOBJ("img/frame-0.obj", function(object) {
+        object.position.z = 1.5;
+        //object.rotation.x = -(Math.PI/2);
+        //object.rotation.y = -(Math.PI/2);
+
+        //object.scale.set(0.5, 0.5, 0.5);
+
+        //group.add(object)
     });
 
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
@@ -132,15 +160,15 @@ var load3D = function() {
 
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0x555555
+        color: 0x555555 
     } );
     axisY = new THREE.Mesh(geometry, material ); 
     group.add( axisY );
 
     axisY.position.x = -4;
-    axisY.position.y = -0.5;
-    axisY.position.z = 1.5;
-    axisY.rotation.x = -(Math.PI/2);
+    axisY.position.y = 2;
+    axisY.position.z = 4;
+    //axisY.rotation.x = -(Math.PI/2);
 
     var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
     var material = new THREE.MeshBasicMaterial( {
@@ -150,21 +178,21 @@ var load3D = function() {
     group.add( axisYend );
 
     axisYend.position.x = -4;
-    axisYend.position.y = -0.5;
-    axisYend.position.z = -1;
-    axisYend.rotation.x = -(Math.PI/2);
+    axisYend.position.y = 4.5;
+    axisYend.position.z = 4;
+    //axisYend.rotation.x = -(Math.PI);
 
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
     var material = new THREE.MeshBasicMaterial( {
-        color: 0x555555 
+        color: 0x555555
     } );
     axisZ = new THREE.Mesh(geometry, material ); 
     group.add( axisZ );
 
     axisZ.position.x = -4;
-    axisZ.position.y = -3;
-    axisZ.position.z = 4;
-    //axisZ.rotation.x = -(Math.PI/2);
+    axisZ.position.y = -0.5;
+    axisZ.position.z = 1.5;
+    axisZ.rotation.x = -(Math.PI/2);
 
     var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
     var material = new THREE.MeshBasicMaterial( {
@@ -174,9 +202,9 @@ var load3D = function() {
     group.add( axisZend );
 
     axisZend.position.x = -4;
-    axisZend.position.y = -5.5;
-    axisZend.position.z = 4;
-    axisZend.rotation.x = -(Math.PI);
+    axisZend.position.y = -0.5;
+    axisZend.position.z = -1;
+    axisZend.rotation.x = -(Math.PI/2);
 
     var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
     var material = new THREE.MeshStandardMaterial( {
@@ -221,7 +249,9 @@ var load3D = function() {
     planeMask.position.y = -1;
     planeMask.rotation.x = -(Math.PI/2);
 
-    virtualCamera.position.set(0, 2.5, 0);
+    loadRectangle("img/texture-4.png");
+
+    virtualCamera.position.set(0, 0, 2.5);
     virtualCamera.lookAt(0, 0, 0);
 
     render = true;
@@ -249,6 +279,25 @@ var startAnimation = function() {
 
 var pauseAnimation = function() {
     render = false;
+};
+
+var loadRectangle = function(url) {
+    var img = document.createElement("img");
+    img.onload = function() {
+        var height = 5*(this.height/this.width);
+        var geometry = new THREE.PlaneGeometry( 5, height ); 
+        var material = new THREE.MeshBasicMaterial( {
+            side: THREE.DoubleSide,
+            color: 0xffffff
+        } );
+       rectangle = new THREE.Mesh(geometry, material ); 
+       group.add( rectangle );
+
+       rectangle.position.y = -0.5 + (height/2);
+       //rectangle.rotation.x = -(Math.PI/2);
+       rectangle.loadTexture(url);
+    };
+    img.src = url;
 };
 
 THREE.Object3D.prototype.loadTexture = 
@@ -489,16 +538,34 @@ var animateTree = function() {
     drawTree(ctx, { x: 0, y: 0 }, 0, 50, 0);
 };
 
+var findDistance = function(len) {
+    var startLen = 50;
+    var result = 1;
+    while (startLen != len) {
+        startLen *= 0.8;
+        result += 1;
+    }
+    return result;
+};
+
+var endTimeout = 0;
+
 var positionArr = [];
 var sequence = 0;
 var position = { x: 0, y: 0 };
 var rotation = 0;
 var drawTree = function(ctx, p, angle, len, w, from=0) {
     if(len < 10) {
-        console.log("done");
-        ctx.restore();
+        //console.log(from, "done");
+        clearTimeout(endTimeout);
+        endTimeout = setTimeout(function() {
+            ctx.restore();
+            console.log("context restored");
+        }, 1000);
         return;
     }
+
+    var distance = findDistance(len);
 
     setTimeout(function() {
         ctx.lineWidth = 1;
@@ -526,10 +593,16 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         ctx.stroke();
 
         var fillStyle = [ "purple", "orange", "yellow" ][w];
-        ctx.fillStyle = fillStyle;
+        ctx.fillStyle = "#000";
         ctx.beginPath();
-        ctx.arc(p0.x, p0.y, 2, 0, Math.PI*2);
+        ctx.arc(p0.x, p0.y, 7, 0, Math.PI*2);
         ctx.fill();
+
+        ctx.fillStyle = "#fff";
+        ctx.font = "10px sans-serif";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "center";
+        ctx.fillText(distance, p0.x, p0.y);
 
         var amt = 1+Math.floor(Math.random()*3);
         var v = { x: p0.x-c.x, y: p0.y-c.y };
