@@ -39,7 +39,8 @@ $script = [
     11 => "script/math-helper.js",
     12 => "script/coloris.js",
     13 => "script/threejs-view.js",
-    14 => "script/remote-calendar.js"
+    14 => "script/remote-calendar.js",
+    15 => "script/html-recorder.js"
 ];
 
 $module = [];

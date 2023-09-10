@@ -216,7 +216,99 @@ var load3D = function() {
     plane.position.y = 0;
     plane.rotation.x = -(Math.PI/2);
 
-    loadRectangle("img/texture-4.png");
+    loadRectangle("img/texture-5.png");
+
+    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 0.3,
+        transparent: true
+    } );
+    planeTop = new THREE.Mesh(geometry, material ); 
+    group.add( planeTop );
+
+    planeTop.position.y = 15;
+    planeTop.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 0.3,
+        transparent: true
+    } );
+    planeLeft = new THREE.Mesh(geometry, material ); 
+    group.add( planeLeft );
+
+    planeLeft.position.y = 7.5;
+    planeLeft.position.x = -2.5;
+    ///planeLeft.rotation.x = -(Math.PI/2);
+    planeLeft.rotation.y = -(Math.PI/2);
+
+   var geometry = new THREE.PlaneGeometry( 5, 15 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 0.3,
+        transparent: true
+    } );
+    planeRight = new THREE.Mesh(geometry, material ); 
+    group.add( planeRight );
+
+    planeRight.position.y = 7.5;
+    planeRight.position.x = +2.5;
+    //planeRight.rotation.x = -(Math.PI/2);
+    planeRight.rotation.y = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 0.3,
+        transparent: true
+    } );
+    planeBack = new THREE.Mesh(geometry, material ); 
+    group.add( planeBack );
+
+    planeBack.position.y = 7.5;
+    planeBack.position.z = -2.5;
+    //planeBack.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 0.3,
+        transparent: true
+    } );
+    planeFront = new THREE.Mesh(geometry, material ); 
+    group.add( planeFront );
+
+    planeFront.position.y = 7.5;
+    planeFront.position.z = 2.5;
+    //planeFront.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5, 1 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 1,
+        transparent: true
+    } );
+    label = new THREE.Mesh(geometry, material ); 
+    group.add( label );
+
+    label.position.x = 0;
+    label.position.y = 14.5;
+    label.position.z = 2.55;
+    //planeFront.rotation.x = -(Math.PI/2);
+
+    drawLabel("anakmayer", function(url) {
+        label.loadTexture(url);
+    });
+
+    rec = new Recorder(renderer.domElement, 30); /// fps is optional and defaults to 30.
 
     virtualCamera.position.set(0, 0, 2.5);
     virtualCamera.lookAt(0, 0, 0);
@@ -246,6 +338,31 @@ var startAnimation = function() {
 
 var pauseAnimation = function() {
     render = false;
+};
+
+var drawLabel = function(nick, callback) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 500;
+    canvas.height = 100;
+
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, 500, 100);
+
+    ctx.fillStyle = "#000";
+    ctx.font = "50px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(nick, 300, 50);
+
+    var img = document.createElement("img");
+    img.canvas = canvas;
+    img.ctx = ctx;
+    img.onload = function() {
+       this.ctx.drawImage(this, 0, 0, 100, 100);
+       callback(this.canvas.toDataURL());
+    };
+    img.src = "img/ig-logo.png";
 };
 
 var get_polygon_centroid = function(pts) {
@@ -368,7 +485,7 @@ var loadRectangle = function(url) {
        console.log(p);
 
        rectangle.position.y = (height/2);
-       rectangle.position.x = p;
+       rectangle.position.x = 0;
        //rectangle.rotation.x = -(Math.PI/2);
        rectangle.loadTexture(url);
     };
@@ -671,13 +788,13 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         ctx.fillStyle = "#000";
         ctx.beginPath();
         ctx.arc(p0.x, p0.y, 7, 0, Math.PI*2);
-        ctx.fill();
+        //ctx.fill();
 
         ctx.fillStyle = "#fff";
         ctx.font = "10px sans-serif";
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";
-        ctx.fillText(distance, p0.x, p0.y);
+        //ctx.fillText(distance, p0.x, p0.y);
 
         var amt = 1+Math.floor(Math.random()*3);
         var v = { x: p0.x-c.x, y: p0.y-c.y };

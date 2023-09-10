@@ -555,12 +555,14 @@ $(document).ready(function() {
             sceneBackground.style.display = "initial";
             renderer.domElement.style.display = "initial";
             saveComposition.style.display = "initial";
+            startButton.style.display = "initial";
         }
         else {
             pauseAnimation();
             sceneBackground.style.display = "none";
             renderer.domElement.style.display = "none";
             saveComposition.style.display = "none";
+            startButton.style.display = "none";
         }
     };
 
@@ -1381,6 +1383,36 @@ $(document).ready(function() {
         hiddenElement.download = 
         resolution+"x_zoom.png";
         hiddenElement.click();
+    };
+
+    var isRecording = false;
+    startButton = document.createElement("span");
+    startButton.style.position = "absolute";
+    startButton.style.display = "none";
+    startButton.style.background = "rgba(50, 50, 65, 1)";
+    startButton.style.color = "#fff";
+    startButton.innerText = "REC";
+    startButton.style.fontSize = "30px";
+    startButton.style.lineHeight = "50px";
+    startButton.style.left = ((sw/2)-(150*0.8))+"px";
+    startButton.style.top = ((sh/2)-(300*0.8)-50)+"px";
+    startButton.style.width = (100*0.8)+"px";
+    startButton.style.height = (50)+"px";
+    startButton.style.border = "2px solid #fff";
+    startButton.style.zIndex = "5";
+    document.body.appendChild(startButton);
+
+    startButton.onclick = function() {
+        isRecording = !isRecording;
+        if (isRecording) {
+            rec.start();
+            startButton.innerText = "STOP";
+        }
+        else {
+            rec.stop();
+            rec.download("filename.mp4");
+            startButton.innerText = "REC";
+        }
     };
 
     $("*").not("i").css("font-family", "Khand");

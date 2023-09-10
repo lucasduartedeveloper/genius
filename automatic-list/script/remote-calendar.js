@@ -43,7 +43,7 @@ $(document).ready(function() {
     circleView.style.top = (2.5)+"px";
     circleView.style.width = (75)+"px";
     circleView.style.height = (75)+"px";
-    circleView.style.borderRadius = "50%";
+    //circleView.style.borderRadius = "50%";
     circleView.style.zIndex = "5";
     document.body.appendChild(circleView);
 
@@ -58,7 +58,7 @@ $(document).ready(function() {
     undoView.style.top = ((sh-75)-2.5)+"px";
     undoView.style.width = (75)+"px";
     undoView.style.height = (75)+"px";
-    undoView.style.borderRadius = "50%";
+    //undoView.style.borderRadius = "50%";
     undoView.style.zIndex = "5";
     document.body.appendChild(undoView);
 
