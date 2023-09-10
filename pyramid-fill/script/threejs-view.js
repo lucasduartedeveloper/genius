@@ -80,10 +80,6 @@ var load3D = function() {
     scene.add(lightObj);
     scene.add(virtualCamera);
 
-    var controls = new THREE.OrbitControls(virtualCamera,
-    renderer.domElement);
-    controls.update();
-
     group = new THREE.Group();
     //group.rotation.x = -(Math.PI/2);
     scene.add(group);
@@ -216,7 +212,7 @@ var load3D = function() {
     plane.position.y = 0;
     plane.rotation.x = -(Math.PI/2);
 
-    loadRectangle("img/texture-5.png");
+    loadRectangle("img/texture-1.png");
 
     var geometry = new THREE.PlaneGeometry( 5, 5 ); 
     var material = new THREE.MeshStandardMaterial( {
@@ -304,14 +300,19 @@ var load3D = function() {
     label.position.z = 2.55;
     //planeFront.rotation.x = -(Math.PI/2);
 
-    drawLabel("anakmayer", function(url) {
+    drawLabel("nicolediretora", function(url) {
         label.loadTexture(url);
     });
 
     rec = new CanvasRecorder(renderer.domElement);
 
-    virtualCamera.position.set(0, 0, 2.5);
-    virtualCamera.lookAt(0, 0, 0);
+    virtualCamera.position.set(0, 7.5, 17.5);
+    virtualCamera.lookAt(0, 7.5, 0);
+
+    controls = new THREE.OrbitControls(virtualCamera,
+    renderer.domElement);
+    controls.target = new THREE.Vector3(0, 7.5, 0);
+    controls.update();
 
     render = true;
     iterations = 9999999999;
