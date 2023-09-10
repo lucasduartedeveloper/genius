@@ -202,107 +202,12 @@ var load3D = function() {
     axisZend.position.z = -1;
     axisZend.rotation.x = -(Math.PI/2);
 
-    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        //color: 0xffff00 
-    } );
-    plane = new THREE.Mesh(geometry, material ); 
-    group.add( plane );
-
-    plane.position.y = 0;
-    plane.rotation.x = -(Math.PI/2);
-
-    loadRectangle("img/texture-1.png");
-
-    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeTop = new THREE.Mesh(geometry, material ); 
-    group.add( planeTop );
-
-    planeTop.position.y = 15;
-    planeTop.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeLeft = new THREE.Mesh(geometry, material ); 
-    group.add( planeLeft );
-
-    planeLeft.position.y = 7.5;
-    planeLeft.position.x = -2.5;
-    ///planeLeft.rotation.x = -(Math.PI/2);
-    planeLeft.rotation.y = -(Math.PI/2);
-
-   var geometry = new THREE.PlaneGeometry( 5, 15 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeRight = new THREE.Mesh(geometry, material ); 
-    group.add( planeRight );
-
-    planeRight.position.y = 7.5;
-    planeRight.position.x = +2.5;
-    //planeRight.rotation.x = -(Math.PI/2);
-    planeRight.rotation.y = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeBack = new THREE.Mesh(geometry, material ); 
-    group.add( planeBack );
-
-    planeBack.position.y = 7.5;
-    planeBack.position.z = -2.5;
-    //planeBack.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeFront = new THREE.Mesh(geometry, material ); 
-    group.add( planeFront );
-
-    planeFront.position.y = 7.5;
-    planeFront.position.z = 2.5;
-    //planeFront.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 1 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        //side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 1,
-        transparent: true
-    } );
-    label = new THREE.Mesh(geometry, material ); 
-    group.add( label );
-
-    label.position.x = 0;
-    label.position.y = 14.5;
-    label.position.z = 2.55;
-    //planeFront.rotation.x = -(Math.PI/2);
-
-    drawLabel("nicolediretora", function(url) {
-        label.loadTexture(url);
-    });
+    var pos = new THREE.Vector3();
+    createPackaging(
+    "nicolediretora", "img/rect/texture-1.png", 1, pos);
+    pos.x = 5.5;
+    createPackaging(
+    "jinjinn00_", "img/rect/texture-2.png", 2, pos);
 
     rec = new CanvasRecorder(renderer.domElement);
 
@@ -360,135 +265,138 @@ var drawLabel = function(nick, callback) {
     img.canvas = canvas;
     img.ctx = ctx;
     img.onload = function() {
-       this.ctx.drawImage(this, 0, 0, 100, 100);
-       callback(this.canvas.toDataURL());
+        this.ctx.drawImage(this, 0, 0, 100, 100);
+        callback(this.canvas.toDataURL());
     };
     img.src = "img/ig-logo.png";
 };
 
-var get_polygon_centroid = function(pts) {
-   var first = pts[0], last = pts[pts.length-1];
-   if (first.x != last.x || first.y != last.y) pts.push(first);
-   var twicearea=0,
-   x=0, y=0,
-   nPts = pts.length,
-   p1, p2, f;
-   for ( var i=0, j=nPts-1 ; i<nPts ; j=i++ ) {
-      p1 = pts[i]; p2 = pts[j];
-      f = p1.x*p2.y - p2.x*p1.y;
-      twicearea += f;          
-      x += ( p1.x + p2.x ) * f;
-      y += ( p1.y + p2.y ) * f;
-   }
-   f = twicearea * 3;
-   return { x:x/f, y:y/f };
-}
+var createPackaging = function(nick, url, size, offset) {
+    var pos = offset.clone();
 
-var readImage = function(img) {
-    var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
+    var group = new THREE.Group();
+    group.position.x = pos.x;
+    group.position.y = pos.y;
+    group.position.z = pos.z;
 
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //color: 0xffff00 
+    } );
+    plane = new THREE.Mesh(geometry, material ); 
+    group.add( plane );
 
-    var imageData = ctx.getImageData(0, 0, 
-    canvas.width, canvas.height);
-    var imageArray = imageData.data;
+    plane.position.y = 0;
+    plane.rotation.x = -(Math.PI/2);
 
-    var polygon = [];
+    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 0.3,
+        transparent: true
+    } );
+    planeTop = new THREE.Mesh(geometry, material ); 
+    group.add( planeTop );
 
-    var currentY = 0;
-    var leftOutline = [];
-    for (var n = 0; n < imageArray.length; n+=4) {
-        var k = n/4;
-        var x = k % imageData.width;
-        var y = Math.floor(k / imageData.width);
+    planeTop.position.y = 15;
+    planeTop.rotation.x = -(Math.PI/2);
 
-        var r = imageArray[n];
-        var g = imageArray[n+1];
-        var b = imageArray[n+2];
-        var a = imageArray[n+3];
+    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        side: THREE.DoubleSide,
+        color: 0xffffff,
+        opacity: 0.3,
+        transparent: true
+    } );
+    planeLeft = new THREE.Mesh(geometry, material ); 
+    group.add( planeLeft );
 
-        if (a == 255 && currentY != y) {
-            var p = { x: x, y: y };
-            leftOutline.push(p);
-            currentY = y;
-        }
-    }
+    planeLeft.position.y = 7.5;
+    planeLeft.position.x = -2.5;
+    planeLeft.rotation.y = -(Math.PI/2);
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
-    ctx.scale(-1, 1);
-    ctx.translate(-canvas.width, 0);
-    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    ctx.restore();
+    planeRight = new THREE.Mesh(geometry, material ); 
+    group.add( planeRight );
 
-    var imageData = ctx.getImageData(0, 0, 
-    canvas.width, canvas.height);
-    var imageArray = imageData.data;
+    planeRight.position.y = 7.5;
+    planeRight.position.x = +2.5;
+    planeRight.rotation.y = -(Math.PI/2);
 
-    var polygon = [];
+    planeBack = new THREE.Mesh(geometry, material ); 
+    group.add( planeBack );
 
-    var currentY = 0;
-    var rightOutline = [];
-    for (var n = 0; n < imageArray.length; n+=4) {
-        var k = n/4;
-        var x = k % imageData.width;
-        var y = Math.floor(k / imageData.width);
+    planeBack.position.y = 7.5;
+    planeBack.position.z = -2.5;
 
-        var r = imageArray[n];
-        var g = imageArray[n+1];
-        var b = imageArray[n+2];
-        var a = imageArray[n+3];
+    planeFront = new THREE.Mesh(geometry, material ); 
+    group.add( planeFront );
 
-        if (a == 255 && currentY != y) {
-            var p = { x: imageData.width-x, y: y };
-            rightOutline.push(p);
-            currentY = y;
-        }
-    }
-    rightOutline = rightOutline.reverse();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    planeFront.position.y = 7.5;
+    planeFront.position.z = 2.5;
 
-    polygon = [ ...leftOutline ];
-    polygon = [ ...polygon, ...rightOutline ];
+    loadRectangle(url, size, group);
 
-    ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
-    ctx.beginPath();
-    ctx.moveTo(polygon[0].x, polygon[0].y);
-    for (var n = 1; n < polygon.length; n++) {
-        ctx.lineTo(polygon[n].x, polygon[n].y);
-    };
-    ctx.closePath();
-    ctx.fill();
+    drawLabel(nick, function(url) {
+        var geometry = new THREE.PlaneGeometry( 5, 1 ); 
+        var material = new THREE.MeshStandardMaterial( {
+            color: 0xffffff,
+            opacity: 1,
+            transparent: true
+         } );
+         label = new THREE.Mesh(geometry, material ); 
+         group.add( label );
 
-    return get_polygon_centroid(polygon);
+         label.position.x = 0;
+         label.position.y = 14.5;
+         label.position.z = 2.55;
+
+         label.loadTexture(url);
+    });
+
+    scene.add(group);
 };
 
-var loadRectangle = function(url) {
+var loadRectangle = function(url, size, group) {
     var img = document.createElement("img");
     img.onload = function() {
-        var height = 5*(this.height/this.width);
-        var geometry = new THREE.PlaneGeometry( 5, height ); 
+        var width = (5/size);
+        var height = (5*(this.height/this.width))/size;
+        var geometry = new THREE.PlaneGeometry( width, height ); 
         var material = new THREE.MeshBasicMaterial( {
             side: THREE.DoubleSide,
             color: 0xffffff
         } );
        rectangle = new THREE.Mesh(geometry, material ); 
-       group.add( rectangle );
+       group.add(rectangle);
 
-       var centroid = readImage(this);
-       console.log(centroid, this.width);
-
-       var p = (1/this.width)*centroid.x;
-       p = (5-(p*5))/2;
-       console.log(p);
-
-       rectangle.position.y = (height/2);
+       rectangle.position.y = (height/2)+(Math.abs(1-size)*height);
        rectangle.position.x = 0;
-       //rectangle.rotation.x = -(Math.PI/2);
        rectangle.loadTexture(url);
+
+       if (size > 1) {
+           var geometry = 
+           new THREE.CylinderGeometry( 0.1, 0.1, 5, 32 );
+           var material = new THREE.MeshBasicMaterial( {
+                side: THREE.DoubleSide,
+                color: 0xffffff
+           } );
+           left = new THREE.Mesh(geometry, material ); 
+           group.add(left);
+           left.position.x = -0.5;
+           left.position.y = 2.5;
+
+           var geometry = 
+           new THREE.CylinderGeometry( 0.1, 0.1, 5, 32 );
+           var material = new THREE.MeshBasicMaterial( {
+                side: THREE.DoubleSide,
+                color: 0xffffff
+           } );
+           right = new THREE.Mesh(geometry, material ); 
+           group.add(right);
+           right.position.x = 0.5;
+           right.position.y = 2.5;
+       }
     };
     img.src = url;
 };
@@ -544,173 +452,6 @@ new THREE.TextureLoader().load(url,
        //Error CallBack
         console.log("An error happened", error);
     });
-};
-
-var drawTexture0 = function() {
-    var canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 512;
-
-    var ctx = canvas.getContext("2d");
-    ctx.globalCompositeOperation = "source-out";
-    ctx.fillStyle = "#fff";
-
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "#f00";
-
-    var c = { x: 256, y: 256 };
-    var p = { x: 256, y: 256-40 };
-
-    ctx.beginPath();
-    ctx.moveTo(256, 0);
-    //ctx.moveTo(256, p.y);
-
-    for (var n = 0; n <= 100; n++) {
-        var a = ((Math.PI*2)/100)*n;
-        var v = _rotate2d(c, p, a, false);
-        ctx.lineTo(v.x, v.y);
-    }
-
-    ctx.lineTo(256, 0);
-    ctx.lineTo(512, 0);
-    ctx.lineTo(512, 512);
-    ctx.lineTo(0, 512);
-    ctx.lineTo(0, 0);
-    ctx.lineTo(256, 0);
-    ctx.closePath();
-    ctx.fill();
-
-    //ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    //drawToSquare(canvas);
-
-    var result = document.createElement("canvas");
-    result.width = 512;
-    result.height = 512;
-
-    var resultCtx = result.getContext("2d");
-
-    resultCtx.drawImage(
-        canvas, 0, (result.height/4), result.width, (result.height/2),
-        0, 0, result.width, result.height
-    );
-
-    return result.toDataURL();
-};
-
-var drawOpacityMap = function() {
-    var canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 512;
-
-    var ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#fff";
-
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "#f00";
-
-    var c = { x: 256, y: 256 };
-    var p = { x: 256, y: 256-40 };
-
-    ctx.beginPath();
-    ctx.moveTo(256, 0);
-    //ctx.moveTo(256, p.y);
-
-    for (var n = 0; n <= 100; n++) {
-        var a = ((Math.PI*2)/100)*n;
-        var v = _rotate2d(c, p, a, false);
-        ctx.lineTo(v.x, v.y);
-    }
-
-    ctx.lineTo(256, 0);
-    ctx.lineTo(512, 0);
-    ctx.lineTo(512, 512);
-    ctx.lineTo(0, 512);
-    ctx.lineTo(0, 0);
-    ctx.lineTo(256, 0);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.arc(256, 256, 40, 0, Math.PI*2);
-    ctx.fill();
-
-    //ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    //drawToSquare(canvas);
-
-    var result = document.createElement("canvas");
-    result.width = 512;
-    result.height = 512;
-
-    var resultCtx = result.getContext("2d");
-
-    resultCtx.drawImage(
-        canvas, 0, (result.height/4), result.width, (result.height/2),
-        0, 0, result.width, result.height
-    );
-
-    return result.toDataURL();
-};
-
-var drawTexture1 = function(sensor=0.5) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 512;
-    canvas.height = 512;
-
-    var ctx = canvas.getContext("2d");
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#000";
-    //ctx.strokeRect(256-50, 256-50, 100, 100);
-
-    var gradient = 
-    ctx.createRadialGradient(256, 256, 256, 256, 256, 50);
-
-    // Add three color stops
-    gradient.addColorStop(0, "#000");
-    gradient.addColorStop(1, "rgba(255, 0, 0, 0.5)");
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(canvas.width/2, canvas.height/2, 256, 0, Math.PI*2);
-    ctx.fill();
-
-    var radius = 128*sensor;
-    var c = { x: 256, y: 256 };
-    var p0 = { x: 256, y: 256-256 };
-    var p1 = { x: 256, y: 256-radius };
-
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "#fff"; //"rgba(0,0,0,0.5)";
-    for (var n = 0; n < 30; n++) {
-        var a = ((-Math.PI*2)/30)*n;
-        var v0 = _rotate2d(c, p0, a, false);
-        var v1 = _rotate2d(c, p1, a, false);
-        ctx.beginPath();
-        ctx.moveTo(v0.x, v0.y);
-        ctx.lineTo(v1.x, v1.y);
-        ctx.stroke();
-    }
-
-    ctx.fillStyle = "#000";
-    ctx.beginPath();
-    ctx.arc(canvas.width/2, canvas.height/2, radius, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.save();
-    //ctx.translate((canvas.width/2), (canvas.height/2));
-    //ctx.rotate(Math.PI/2);
-    //ctx.translate(-(canvas.width/2), -(canvas.height/2));
-    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    /*ctx.drawImage(clipLayers(true),
-         canvas.width/2-(radius), 
-         canvas.height/2-(radius), radius*2, radius*2);*/
-    ctx.restore();
-
-    //drawToSquare(canvas);
-
-    return canvas.toDataURL();
 };
 
 var drawToSquare = function(data) {
