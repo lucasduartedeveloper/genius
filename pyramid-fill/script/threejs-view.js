@@ -202,12 +202,12 @@ var load3D = function() {
     axisZend.position.z = -1;
     axisZend.rotation.x = -(Math.PI/2);
 
-    var pos = new THREE.Vector3();
+    /*var pos = new THREE.Vector3();
     createPackaging(
     "nicolediretora", "img/rect/texture-1.png", 1, pos);
     pos.x = 5.5;
     createPackaging(
-    "jinjinn00_", "img/rect/texture-2.png", 2, pos);
+    "jinjinn00_", "img/rect/texture-2.png", 2, pos);*/
 
     rec = new CanvasRecorder(renderer.domElement);
 
