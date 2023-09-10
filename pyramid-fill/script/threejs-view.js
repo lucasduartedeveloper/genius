@@ -308,7 +308,7 @@ var load3D = function() {
         label.loadTexture(url);
     });
 
-    rec = new Recorder(renderer.domElement, 30); /// fps is optional and defaults to 30.
+    rec = new CanvasRecorder(renderer.domElement);
 
     virtualCamera.position.set(0, 0, 2.5);
     virtualCamera.lookAt(0, 0, 0);

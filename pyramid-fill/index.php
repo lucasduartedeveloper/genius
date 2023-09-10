@@ -22,7 +22,8 @@ $thirdpart_script = [
     1 => "script/thirdpart/OBJLoader.min.js",
     2 => "script/thirdpart/OrbitControls.js",
     3 => "script/thirdpart/csg-lib.js",
-    4 => "script/thirdpart/three-csg.js"
+    4 => "script/thirdpart/three-csg.js",
+    5 => "script/thirdpart/CanvasRecorder.js"
 ];
 $script = [
     0 => "script/camera-helper.js",

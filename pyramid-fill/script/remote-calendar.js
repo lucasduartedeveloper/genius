@@ -1385,7 +1385,7 @@ $(document).ready(function() {
         hiddenElement.click();
     };
 
-    var isRecording = false;
+    isRecording = false;
     startButton = document.createElement("span");
     startButton.style.position = "absolute";
     startButton.style.display = "none";
@@ -1410,7 +1410,7 @@ $(document).ready(function() {
         }
         else {
             rec.stop();
-            rec.download("filename.mp4");
+            rec.save("filename.webm");
             startButton.innerText = "REC";
         }
     };

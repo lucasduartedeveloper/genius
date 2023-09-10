@@ -22,7 +22,7 @@ function Recorder(canvas, fps) {
 
   mediaRecorder.onstop = function(e) {
     var blob = new Blob(chunks, {
-      'type': 'video/mp4'
+      'type': 'video/mpeg'
     });
     chunks = [];
     videoURL = URL.createObjectURL(blob);
