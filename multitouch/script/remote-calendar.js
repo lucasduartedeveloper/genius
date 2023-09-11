@@ -101,6 +101,36 @@ $(document).ready(function() {
         }
     };
 
+    deviceNo = 1;
+    deviceView = document.createElement("div");
+    deviceView.style.position = "absolute";
+    deviceView.style.color = "#fff";
+    deviceView.innerText = deviceNo;
+    deviceView.style.lineHeight = "50px";
+    deviceView.style.fontSize = "30px";
+    deviceView.style.fontFamily = "Khand";
+    deviceView.style.left = ((sw/2)+100)+"px";
+    deviceView.style.top = ((sh/2)-150)+"px";
+    deviceView.style.width = (50)+"px";
+    deviceView.style.height = (50)+"px";
+    deviceView.style.border = "1px solid #fff";
+    deviceView.style.borderRadius = "50%";
+    deviceView.style.scale = "0.9";
+    deviceView.style.zIndex = "12";
+    document.body.appendChild(deviceView);
+
+    deviceView.onclick = function() {
+        deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
+        (deviceNo+1) : 0;
+        deviceView.innerText = deviceNo;
+        if (deviceNo == 0) {
+            camera.style.transform = "rotateY(-180deg)";
+        }
+        else {
+            camera.style.transform = "initial";
+        }
+    };
+
     combineView = document.createElement("i");
     combineView.style.position = "absolute";
     combineView.style.color = "#fff";
@@ -108,7 +138,7 @@ $(document).ready(function() {
     combineView.style.lineHeight = "50px";
     combineView.style.fontSize = "30px";
     combineView.style.left = ((sw/2)+100)+"px";
-    combineView.style.top = ((sh/2)-150)+"px";
+    combineView.style.top = ((sh/2)-100)+"px";
     combineView.style.width = (50)+"px";
     combineView.style.height = (50)+"px";
     combineView.style.border = "1px solid #fff";
@@ -119,6 +149,26 @@ $(document).ready(function() {
 
     combineView.onclick = function() {
         combineArray(frameView);
+    };
+
+    combineView_effect0 = document.createElement("i");
+    combineView_effect0.style.position = "absolute";
+    combineView_effect0.style.color = "#fff";
+    combineView_effect0.className = "fa-solid fa-bars";
+    combineView_effect0.style.lineHeight = "50px";
+    combineView_effect0.style.fontSize = "30px";
+    combineView_effect0.style.left = ((sw/2)+100)+"px";
+    combineView_effect0.style.top = ((sh/2)-50)+"px";
+    combineView_effect0.style.width = (50)+"px";
+    combineView_effect0.style.height = (50)+"px";
+    combineView_effect0.style.border = "1px solid #fff";
+    combineView_effect0.style.borderRadius = "50%";
+    combineView_effect0.style.scale = "0.9";
+    combineView_effect0.style.zIndex = "12";
+    document.body.appendChild(combineView_effect0);
+
+    combineView_effect0.onclick = function() {
+        combineArray_effect0(frameView);
     };
 
     downloadView = document.createElement("i");
@@ -159,7 +209,6 @@ $(document).ready(function() {
     camera.style.border = "1px";
     camera.style.zIndex = "11";
     document.body.appendChild(camera);
-    deviceNo = 1;
     cameraElem = camera;
 
     aimView = document.createElement("canvas");
@@ -375,13 +424,25 @@ var drawImage = function(canvas) {
         height: (vh)
     };
 
+    var left = (deviceNo == 0) ? 
+    format.left+translation : 
+    format.left-translation;
+
+    var radians = (deviceNo == 0) ? 
+    -(rotation*(Math.PI/180)) : 
+    (rotation*(Math.PI/180));
+
     ctx.save();
+    if (deviceNo == 0) {
+        ctx.scale(-1, 1);
+        ctx.translate(-150, 0);
+    }
     ctx.translate(75, 150);
-    ctx.rotate(-(rotation*(Math.PI/180)));
+    ctx.rotate(-radians);
     ctx.translate(-75, -150);
-    ctx.drawImage(camera, format.left-translation, format.top, 
+    ctx.drawImage(camera, left, format.top, 
     format.width, format.height);
-    ctx.rotate((rotation*(Math.PI/180)));
+    ctx.rotate(radians);
     ctx.restore();
 
     var imageData = ctx.getImageData(0, 0, 150, 300);
@@ -452,6 +513,37 @@ var combineArray = function(canvas) {
         newArray[n] = redArray[n];
         newArray[n+1] = greenEnabled ? greenArray[n+1] : 0;
         newArray[n+2] = blueEnabled ? blueArray[n+2] : 0;
+        newArray[n+3] = 255;
+    }
+
+    var newImageData = new ImageData(newArray, 
+    imageData.width, imageData.height);
+
+    ctx.putImageData(newImageData, 0, 0);
+};
+
+var combineArray_effect0 = function(canvas) {
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, 150, 300);
+
+    var imageData = ctx.getImageData(0, 0, 150, 300);
+    var imageArray = imageData.data;
+
+    var newArray = new Uint8ClampedArray(imageArray);
+    for (var n = 0; n < (imageArray.length/3); n += 4) {
+        newArray[n] = redArray[n];
+        newArray[n+3] = 255;
+    }
+
+    for (var n = (imageArray.length/3); 
+        n < (imageArray.length/3)*2; n += 4) {
+        newArray[n+1] = greenArray[n+1];
+        newArray[n+3] = 255;
+    }
+
+    for (var n = (imageArray.length/3)*2; 
+        n < imageArray.length; n += 4) {
+        newArray[n+2] = blueArray[n+2];
         newArray[n+3] = 255;
     }
 
