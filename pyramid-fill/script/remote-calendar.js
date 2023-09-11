@@ -564,6 +564,8 @@ $(document).ready(function() {
             saveComposition.style.display = "none";
             startButton.style.display = "none";
         }
+        cameraElem.style.transform = deviceNo == 0 ? 
+        "rotateY(-180deg)" : "rotateY(0deg)";
     };
 
     baseTile = document.createElement("span");

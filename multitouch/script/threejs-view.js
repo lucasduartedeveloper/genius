@@ -80,6 +80,10 @@ var load3D = function() {
     scene.add(lightObj);
     scene.add(virtualCamera);
 
+    var controls = new THREE.OrbitControls(virtualCamera,
+    renderer.domElement);
+    controls.update();
+
     group = new THREE.Group();
     //group.rotation.x = -(Math.PI/2);
     scene.add(group);
@@ -103,7 +107,7 @@ var load3D = function() {
     group.add( center );
 
     center.position.x = -4;
-    center.position.y = 0;
+    center.position.y = -0.5;
     center.position.z = 4;
     center.rotation.x = -(Math.PI/2);
     center.rotation.z = -(Math.PI/2);
@@ -136,7 +140,7 @@ var load3D = function() {
     group.add( axisX );
 
     axisX.position.x = -1.5;
-    axisX.position.y = 0;
+    axisX.position.y = -0.5;
     axisX.position.z = 4;
     axisX.rotation.x = -(Math.PI/2);
     axisX.rotation.z = -(Math.PI/2);
@@ -149,7 +153,7 @@ var load3D = function() {
     group.add( axisXend );
 
     axisXend.position.x = 1;
-    axisXend.position.y = 0;
+    axisXend.position.y = -0.5;
     axisXend.position.z = 4;
     axisXend.rotation.x = -(Math.PI/2);
     axisXend.rotation.z = -(Math.PI/2);
@@ -162,7 +166,7 @@ var load3D = function() {
     group.add( axisY );
 
     axisY.position.x = -4;
-    axisY.position.y = 2.5;
+    axisY.position.y = 2;
     axisY.position.z = 4;
     //axisY.rotation.x = -(Math.PI/2);
 
@@ -174,7 +178,7 @@ var load3D = function() {
     group.add( axisYend );
 
     axisYend.position.x = -4;
-    axisYend.position.y = 5;
+    axisYend.position.y = 4.5;
     axisYend.position.z = 4;
     //axisYend.rotation.x = -(Math.PI);
 
@@ -186,7 +190,7 @@ var load3D = function() {
     group.add( axisZ );
 
     axisZ.position.x = -4;
-    axisZ.position.y = 0;
+    axisZ.position.y = -0.5;
     axisZ.position.z = 1.5;
     axisZ.rotation.x = -(Math.PI/2);
 
@@ -198,26 +202,57 @@ var load3D = function() {
     group.add( axisZend );
 
     axisZend.position.x = -4;
-    axisZend.position.y = 0;
+    axisZend.position.y = -0.5;
     axisZend.position.z = -1;
     axisZend.rotation.x = -(Math.PI/2);
 
-    /*var pos = new THREE.Vector3();
-    createPackaging(
-    "nicolediretora", "img/rect/texture-1.png", 1, pos);
-    pos.x = 5.5;
-    createPackaging(
-    "jinjinn00_", "img/rect/texture-2.png", 2, pos);*/
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //side: THREE.DoubleSide,
+        color: 0xffffff
+    } );
+    plane = new THREE.Mesh(geometry, material ); 
+    //group.add( plane );
 
-    rec = new CanvasRecorder(renderer.domElement);
+    plane.position.y = -2.5;
+    plane.rotation.x = -(Math.PI/2);
 
-    virtualCamera.position.set(0, 7.5, 17.5);
-    virtualCamera.lookAt(0, 7.5, 0);
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //side: THREE.DoubleSide,
+        color: 0xffffff
+    } );
+    plane1 = new THREE.Mesh(geometry, material ); 
+    //group.add( plane1 );
 
-    controls = new THREE.OrbitControls(virtualCamera,
-    renderer.domElement);
-    controls.target = new THREE.Vector3(0, 7.5, 0);
-    controls.update();
+    plane1.position.y = -2;
+    plane1.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //side: THREE.DoubleSide,
+        color: 0xffffff
+    } );
+    plane2 = new THREE.Mesh(geometry, material ); 
+    //group.add( plane2 );
+
+    plane2.position.y = -1.5;
+    plane2.rotation.x = -(Math.PI/2);
+
+    var geometry = new THREE.PlaneGeometry( 5*1.41, 5*1.41 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //color: 0xffff00 
+    } );
+    planeMask = new THREE.Mesh(geometry, material ); 
+    //group.add( planeMask );
+
+    planeMask.position.y = -1;
+    planeMask.rotation.x = -(Math.PI/2);
+
+    loadRectangle("img/texture-4.png");
+
+    virtualCamera.position.set(0, 0, 2.5);
+    virtualCamera.lookAt(0, 0, 0);
 
     render = true;
     iterations = 9999999999;
@@ -246,157 +281,21 @@ var pauseAnimation = function() {
     render = false;
 };
 
-var drawLabel = function(nick, callback) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 500;
-    canvas.height = 100;
-
-    var ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, 500, 100);
-
-    ctx.fillStyle = "#000";
-    ctx.font = "50px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(nick, 300, 50);
-
-    var img = document.createElement("img");
-    img.canvas = canvas;
-    img.ctx = ctx;
-    img.onload = function() {
-        this.ctx.drawImage(this, 0, 0, 100, 100);
-        callback(this.canvas.toDataURL());
-    };
-    img.src = "img/ig-logo.png";
-};
-
-var createPackaging = function(nick, url, size, offset) {
-    var pos = offset.clone();
-
-    var group = new THREE.Group();
-    group.position.x = pos.x;
-    group.position.y = pos.y;
-    group.position.z = pos.z;
-
-    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        //color: 0xffff00 
-    } );
-    plane = new THREE.Mesh(geometry, material ); 
-    group.add( plane );
-
-    plane.position.y = 0;
-    plane.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeTop = new THREE.Mesh(geometry, material ); 
-    group.add( planeTop );
-
-    planeTop.position.y = 15;
-    planeTop.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeLeft = new THREE.Mesh(geometry, material ); 
-    group.add( planeLeft );
-
-    planeLeft.position.y = 7.5;
-    planeLeft.position.x = -2.5;
-    planeLeft.rotation.y = -(Math.PI/2);
-
-    planeRight = new THREE.Mesh(geometry, material ); 
-    group.add( planeRight );
-
-    planeRight.position.y = 7.5;
-    planeRight.position.x = +2.5;
-    planeRight.rotation.y = -(Math.PI/2);
-
-    planeBack = new THREE.Mesh(geometry, material ); 
-    group.add( planeBack );
-
-    planeBack.position.y = 7.5;
-    planeBack.position.z = -2.5;
-
-    planeFront = new THREE.Mesh(geometry, material ); 
-    group.add( planeFront );
-
-    planeFront.position.y = 7.5;
-    planeFront.position.z = 2.5;
-
-    loadRectangle(url, size, group);
-
-    drawLabel(nick, function(url) {
-        var geometry = new THREE.PlaneGeometry( 5, 1 ); 
-        var material = new THREE.MeshStandardMaterial( {
-            color: 0xffffff,
-            opacity: 1,
-            transparent: true
-         } );
-         label = new THREE.Mesh(geometry, material ); 
-         group.add( label );
-
-         label.position.x = 0;
-         label.position.y = 14.5;
-         label.position.z = 2.55;
-
-         label.loadTexture(url);
-    });
-
-    scene.add(group);
-};
-
-var loadRectangle = function(url, size, group) {
+var loadRectangle = function(url) {
     var img = document.createElement("img");
     img.onload = function() {
-        var width = (5/size);
-        var height = (5*(this.height/this.width))/size;
-        var geometry = new THREE.PlaneGeometry( width, height ); 
+        var height = 5*(this.height/this.width);
+        var geometry = new THREE.PlaneGeometry( 5, height ); 
         var material = new THREE.MeshBasicMaterial( {
             side: THREE.DoubleSide,
             color: 0xffffff
         } );
        rectangle = new THREE.Mesh(geometry, material ); 
-       group.add(rectangle);
+       group.add( rectangle );
 
-       rectangle.position.y = (height/2)+(Math.abs(1-size)*height);
-       rectangle.position.x = 0;
+       rectangle.position.y = -0.5 + (height/2);
+       //rectangle.rotation.x = -(Math.PI/2);
        rectangle.loadTexture(url);
-
-       if (size > 1) {
-           var geometry = 
-           new THREE.CylinderGeometry( 0.1, 0.1, 5, 32 );
-           var material = new THREE.MeshBasicMaterial( {
-                side: THREE.DoubleSide,
-                color: 0xffffff
-           } );
-           left = new THREE.Mesh(geometry, material ); 
-           group.add(left);
-           left.position.x = -0.5;
-           left.position.y = 2.5;
-
-           var geometry = 
-           new THREE.CylinderGeometry( 0.1, 0.1, 5, 32 );
-           var material = new THREE.MeshBasicMaterial( {
-                side: THREE.DoubleSide,
-                color: 0xffffff
-           } );
-           right = new THREE.Mesh(geometry, material ); 
-           group.add(right);
-           right.position.x = 0.5;
-           right.position.y = 2.5;
-       }
     };
     img.src = url;
 };
@@ -452,6 +351,173 @@ new THREE.TextureLoader().load(url,
        //Error CallBack
         console.log("An error happened", error);
     });
+};
+
+var drawTexture0 = function() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+
+    var ctx = canvas.getContext("2d");
+    ctx.globalCompositeOperation = "source-out";
+    ctx.fillStyle = "#fff";
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#f00";
+
+    var c = { x: 256, y: 256 };
+    var p = { x: 256, y: 256-40 };
+
+    ctx.beginPath();
+    ctx.moveTo(256, 0);
+    //ctx.moveTo(256, p.y);
+
+    for (var n = 0; n <= 100; n++) {
+        var a = ((Math.PI*2)/100)*n;
+        var v = _rotate2d(c, p, a, false);
+        ctx.lineTo(v.x, v.y);
+    }
+
+    ctx.lineTo(256, 0);
+    ctx.lineTo(512, 0);
+    ctx.lineTo(512, 512);
+    ctx.lineTo(0, 512);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(256, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    //ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //drawToSquare(canvas);
+
+    var result = document.createElement("canvas");
+    result.width = 512;
+    result.height = 512;
+
+    var resultCtx = result.getContext("2d");
+
+    resultCtx.drawImage(
+        canvas, 0, (result.height/4), result.width, (result.height/2),
+        0, 0, result.width, result.height
+    );
+
+    return result.toDataURL();
+};
+
+var drawOpacityMap = function() {
+    var canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#fff";
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#f00";
+
+    var c = { x: 256, y: 256 };
+    var p = { x: 256, y: 256-40 };
+
+    ctx.beginPath();
+    ctx.moveTo(256, 0);
+    //ctx.moveTo(256, p.y);
+
+    for (var n = 0; n <= 100; n++) {
+        var a = ((Math.PI*2)/100)*n;
+        var v = _rotate2d(c, p, a, false);
+        ctx.lineTo(v.x, v.y);
+    }
+
+    ctx.lineTo(256, 0);
+    ctx.lineTo(512, 0);
+    ctx.lineTo(512, 512);
+    ctx.lineTo(0, 512);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(256, 0);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(256, 256, 40, 0, Math.PI*2);
+    ctx.fill();
+
+    //ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //drawToSquare(canvas);
+
+    var result = document.createElement("canvas");
+    result.width = 512;
+    result.height = 512;
+
+    var resultCtx = result.getContext("2d");
+
+    resultCtx.drawImage(
+        canvas, 0, (result.height/4), result.width, (result.height/2),
+        0, 0, result.width, result.height
+    );
+
+    return result.toDataURL();
+};
+
+var drawTexture1 = function(sensor=0.5) {
+    var canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 512;
+
+    var ctx = canvas.getContext("2d");
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#000";
+    //ctx.strokeRect(256-50, 256-50, 100, 100);
+
+    var gradient = 
+    ctx.createRadialGradient(256, 256, 256, 256, 256, 50);
+
+    // Add three color stops
+    gradient.addColorStop(0, "#000");
+    gradient.addColorStop(1, "rgba(255, 0, 0, 0.5)");
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(canvas.width/2, canvas.height/2, 256, 0, Math.PI*2);
+    ctx.fill();
+
+    var radius = 128*sensor;
+    var c = { x: 256, y: 256 };
+    var p0 = { x: 256, y: 256-256 };
+    var p1 = { x: 256, y: 256-radius };
+
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "#fff"; //"rgba(0,0,0,0.5)";
+    for (var n = 0; n < 30; n++) {
+        var a = ((-Math.PI*2)/30)*n;
+        var v0 = _rotate2d(c, p0, a, false);
+        var v1 = _rotate2d(c, p1, a, false);
+        ctx.beginPath();
+        ctx.moveTo(v0.x, v0.y);
+        ctx.lineTo(v1.x, v1.y);
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.arc(canvas.width/2, canvas.height/2, radius, 0, Math.PI*2);
+    ctx.fill();
+
+    ctx.save();
+    //ctx.translate((canvas.width/2), (canvas.height/2));
+    //ctx.rotate(Math.PI/2);
+    //ctx.translate(-(canvas.width/2), -(canvas.height/2));
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    /*ctx.drawImage(clipLayers(true),
+         canvas.width/2-(radius), 
+         canvas.height/2-(radius), radius*2, radius*2);*/
+    ctx.restore();
+
+    //drawToSquare(canvas);
+
+    return canvas.toDataURL();
 };
 
 var drawToSquare = function(data) {
@@ -530,13 +596,13 @@ var drawTree = function(ctx, p, angle, len, w, from=0) {
         ctx.fillStyle = "#000";
         ctx.beginPath();
         ctx.arc(p0.x, p0.y, 7, 0, Math.PI*2);
-        //ctx.fill();
+        ctx.fill();
 
         ctx.fillStyle = "#fff";
         ctx.font = "10px sans-serif";
         ctx.textBaseline = "middle";
         ctx.textAlign = "center";
-        //ctx.fillText(distance, p0.x, p0.y);
+        ctx.fillText(distance, p0.x, p0.y);
 
         var amt = 1+Math.floor(Math.random()*3);
         var v = { x: p0.x-c.x, y: p0.y-c.y };
@@ -569,16 +635,3 @@ var loadOBJ = function(path, callback) {
         }
     );
 };
-
-var charList = "abcd";
-var rnd = charList[Math.floor(Math.random()*4)];
-var code = 
-"var _"+rnd+" = function(side) {\n"+
-    "var result = Math.sqrt(\n"+
-        "Math.pow(side, 2)+\n"+
-        "Math.pow((side/2), 2)\n"+
-    ");\n"+
-    "return result;\n"+
-"};";
-
-eval(code);
