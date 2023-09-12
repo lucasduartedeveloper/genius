@@ -488,6 +488,7 @@ $(document).ready(function() {
 });
 
 var remoteDownloaded = true;
+var databaseTime = 0;
 
 var animate = function() {
     if (!backgroundMode) {
@@ -497,6 +498,11 @@ var animate = function() {
         if (cameraOn && remoteDownloaded) {
             var dataURL = frameView.toDataURL();
             ws.send("PAPER|"+playerId+"|image-data|"+dataURL);
+        }
+        if ((new Date().getTime() - databaseTime) > 5000) {
+            var dataURL = frameView.toDataURL();
+            saveImage(dataURL);
+            databaseTime = new Date().getTime();
         }
     }
     requestAnimationFrame(animate);
@@ -760,6 +766,22 @@ var combineArray_effect0 = function(canvas) {
     imageData.width, imageData.height);
 
     ctx.putImageData(newImageData, 0, 0);
+};
+
+var saveImage = function(data) {
+    $.ajax({
+        url: "ajax/image-data.php",
+        method: "POST",
+        datatype: "json",
+        data: { 
+            action: "save", 
+            data: data
+        }
+    })
+    .done(function(data, status, xhr) {
+        if (backgroundMode)
+        console.log(data);
+    });
 };
 
 var visibilityChange;
