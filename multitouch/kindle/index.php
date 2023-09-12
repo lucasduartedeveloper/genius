@@ -10,6 +10,7 @@
                 text-align: center;
                 width: 100%;
                 height: 100%;
+                overflow: hidden;
          }
          img {
                 width: 150px;
@@ -23,6 +24,13 @@
           var sw = window.innerWidth;
           var sh = window.innerHeight;
 
+          var updateTest = 
+          document.getElementById("update-test");
+          updateTest.style.position = "absolute";
+          updateTest.style.left = ((sw/2)-(sw/4))+"px";
+          updateTest.style.width = (sw/2)+"px";
+          updateTest.style.top = "25px";
+
           var frameView1 = 
           document.getElementById("frame-view-1");
           var frameView0 = 
@@ -30,23 +38,35 @@
           var frameView2 = 
           document.getElementById("frame-view-2");
 
-          var scale = 0.7;
+          var scale = [
+              0.3, 0.4, 0.3
+          ];
 
-          frameView1.style.left = ((sw/2)-(225*scale))+"px";
-          frameView1.style.top = ((sh/2)-(250*scale))+"px";
-          frameView1.style.width = ((150)*scale)+"px";
-          frameView1.style.height = ((300)*scale)+"px";
-          frameView1.style.transform = "scale(0.8)";
+          var wr = ((sw/2)/150);
+          var width = sw;
+          var height = (2*sw);
 
-          frameView0.style.left = ((sw/2)-75)+"px";
-          frameView0.style.top = ((sh/2)-250)+"px";
+          frameView1.style.left = 
+          ((sw/2)-((width/2)*scale[1])-(width*scale[0]))+"px";
+          frameView1.style.top = 
+          ((sh/2)-((height/2)*scale[0])-50)+"px";
+          frameView1.style.width = ((width)*scale[0])+"px";
+          frameView1.style.height = ((height)*scale[0])+"px";
+          //frameView1.style.transform = "scale(0.8)";
+
+          frameView0.style.left = ((sw/2)-((width/2)*scale[1]))+"px";
+          frameView0.style.top = 
+          ((sh/2)-((height/2)*scale[1])-50)+"px";
+          frameView0.style.width = ((width)*scale[1])+"px";
+          frameView0.style.height = ((height)*scale[1])+"px";
           frameView0.style.zIndex = "1";
 
-          frameView2.style.left = ((sw/2)+(75*scale))+"px";
-          frameView2.style.top = ((sh/2)-(250*scale))+"px";
-          frameView2.style.width = ((150)*scale)+"px";
-          frameView2.style.height = ((300)*scale)+"px";
-          frameView2.style.transform = "scale(0.8)";
+          frameView2.style.left = ((sw/2)+((width/2)*scale[1]))+"px";
+          frameView2.style.top = 
+          ((sh/2)-((height/2)*scale[2])-50)+"px";
+          frameView2.style.width = ((width)*scale[2])+"px";
+          frameView2.style.height = ((height)*scale[2])+"px";
+          //frameView2.style.transform = "scale(0.8)";
 
           var serverInfo = 
           document.getElementById("server-info");
