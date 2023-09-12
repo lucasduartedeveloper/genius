@@ -211,6 +211,9 @@ $(document).ready(function() {
                     clearInterval(timerInterval);
                     beepDone.play();
                 }
+                else {
+                    beepMilestone.play();
+                }
             }
         }, 1000);
     };
