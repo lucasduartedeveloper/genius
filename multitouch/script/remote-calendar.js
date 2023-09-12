@@ -1,4 +1,5 @@
 var beepDone = new Audio("audio/beep-done.wav");
+var beepMilestone = new Audio("audio/beep-milestone.wav");
 
 var audio = new Audio("audio/phone-lock.wav");
 var alarm = new Audio("audio/battleship-alarm.wav");
@@ -35,7 +36,7 @@ $(document).ready(function() {
     distanceView.style.width = (100)+"px";
     distanceView.style.height = (25)+"px";
     distanceView.style.zIndex = "10";
-    document.body.appendChild(distanceView);
+    //document.body.appendChild(distanceView);
 
     speedView = document.createElement("span");
     speedView.style.position = "absolute";
@@ -48,7 +49,7 @@ $(document).ready(function() {
     speedView.style.width = (100)+"px";
     speedView.style.height = (25)+"px";
     speedView.style.zIndex = "10";
-    document.body.appendChild(speedView);
+    //document.body.appendChild(speedView);
 
     weightView = document.createElement("span");
     weightView.style.position = "absolute";
@@ -173,7 +174,7 @@ $(document).ready(function() {
         combineArray_effect0(frameView);
     };
 
-    var delay = 5;
+    var delay = 10;
     timerView = document.createElement("div");
     timerView.style.position = "absolute";
     timerView.style.color = "#fff";
@@ -181,8 +182,8 @@ $(document).ready(function() {
     timerView.style.lineHeight = "50px";
     timerView.style.fontSize = "30px";
     timerView.style.fontFamily = "Khand";
-    timerView.style.left = ((sw/2)+100)+"px";
-    timerView.style.top = ((sh/2))+"px";
+    timerView.style.left = ((sw/2)-25)+"px";
+    timerView.style.top = (50)+"px";
     timerView.style.width = (50)+"px";
     timerView.style.height = (50)+"px";
     timerView.style.border = "1px solid #fff";
@@ -200,8 +201,9 @@ $(document).ready(function() {
             if (delay == 0) {
                 drawImage(frameView);
                 colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
-                delay = 5;
+                delay = 10;
                 timerView.innerText = delay;
+                beepMilestone.play();
 
                 if (colorTurn == 0) {
                     pasteCamera = false;
@@ -232,11 +234,28 @@ $(document).ready(function() {
     downloadView.onclick = function() {
         var dataURL = frameView.toDataURL();
         var hiddenElement = document.createElement('a');
-        hiddenElement.href = result.toDataURL();
+        hiddenElement.href = dataURL;
         hiddenElement.target = "_blank";
         hiddenElement.download = "photo.png";
         hiddenElement.click();
     };
+
+    placeholderImage = document.createElement("canvas");
+    placeholderImage.style.position = "absolute";
+    placeholderImage.style.objectFit = "cover";
+    placeholderImage.width = sw;
+    placeholderImage.height = sh;
+    placeholderImage.style.left = ((sw/2)-(sw/2))+"px";
+    placeholderImage.style.top = ((sh/2)-(sh/2))+"px";
+    placeholderImage.style.width = (sw)+"px";
+    placeholderImage.style.height = (sh)+"px"; 
+    placeholderImage.style.transform = (deviceNo == 0) ? 
+    "rotateY(-180deg)" : "initial";
+    placeholderImage.style.border = "1px";
+    placeholderImage.style.zIndex = "11";
+    document.body.appendChild(placeholderImage);
+
+    drawPlaceholderImage();
 
     camera = document.createElement("video");
     camera.style.position = "absolute";
@@ -268,6 +287,31 @@ $(document).ready(function() {
     document.body.appendChild(aimView);
 
     drawAim(aimView);
+
+    splitColorsView = document.createElement("span");
+    splitColorsView.style.position = "absolute";
+    splitColorsView.style.color = "#fff";
+    splitColorsView.innerText = "SPLIT";
+    splitColorsView.style.lineHeight = "25px";
+    splitColorsView.style.fontSize = "15px";
+    splitColorsView.style.fontFamily = "Khand";
+    splitColorsView.style.left = ((sw/2)-150)+"px";
+    splitColorsView.style.top = ((sh/2)-175)+"px";
+    splitColorsView.style.width = (50)+"px";
+    splitColorsView.style.height = (25)+"px";
+    splitColorsView.style.scale = "0.9";
+    splitColorsView.style.zIndex = "15";
+    document.body.appendChild(splitColorsView);
+
+    splitColorsView.onclick = function() {
+        splitColors = !splitColors;
+        if (splitColors) {
+            splitColorsView.innerText = "SPLIT";
+        }
+        else {
+            splitColorsView.innerText = "SPACED";
+        }
+    };
 
     frameView0 = document.createElement("canvas");
     frameView0.style.position = "absolute";
@@ -399,6 +443,7 @@ $(document).ready(function() {
             frameView.style.transform = "initial";
             phoneFrameView.style.transform = "initial";
 
+            if (!splitColors)
             colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
         }
         else {
@@ -406,13 +451,41 @@ $(document).ready(function() {
         }
     };
 
+    ws.onmessage = function(e) {
+        var msg = e.data.split("|");
+        if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "image-data") {
+            var img = document.createElement("img");
+            img.onload = function() {
+                pasteCamera = false;
+                var ctx = frameView.getContext("2d");
+                ctx.drawImage(img, 0, 0, 150, 300);
+                ws.send("PAPER|"+playerId+"|remote-downloaded");
+            };
+            img.src = msg[3];
+        }
+        else if (msg[0] == "PAPER" &&
+            msg[1] != playerId &&
+            msg[2] == "remote-downloaded") {
+            remoteDownloaded = true;
+        }
+    };
+
     pasteCamera = true;
     animate();
 });
 
+var remoteDownloaded = true;
+
 var animate = function() {
-    if (pasteCamera)
-    drawImage(frameView);
+    if (pasteCamera) {
+        drawImage(frameView);
+    }
+    if (remoteDownloaded) {
+        var dataURL = frameView.toDataURL();
+        ws.send("PAPER|"+playerId+"|image-data|"+dataURL);
+    }
     requestAnimationFrame(animate);
 };
 
@@ -444,6 +517,8 @@ var getPolygon = function() {
 
 var colorTurn = 0;
 
+var splitColors = true;
+
 var redEnabled = true;
 var redArray = null;
 
@@ -452,6 +527,27 @@ var greenArray = null;
 
 var blueEnabled = true;
 var blueArray = null;
+
+var drawPlaceholderImage = function() {
+    var ctx = placeholderImage.getContext("2d");
+
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, sw, sh);
+
+    var stripeHeight = 10;
+    ctx.lineWidth = stripeHeight;
+
+    ctx.strokeStyle = "rgba(30, 30, 45, 1)";
+    for (var n = 0; n < (sh/stripeHeight); n++) {
+        var odd = n % 2 != 0;
+        if (odd) {
+            ctx.beginPath();
+            ctx.moveTo(0, (n*stripeHeight));
+            ctx.lineTo(sw, (n*stripeHeight));
+            ctx.stroke();
+        }
+    }
+}
 
 var drawAim = function(canvas) {
     var ctx = canvas.getContext("2d");
@@ -498,8 +594,27 @@ var drawImage = function(canvas) {
     ctx.translate(75, 150);
     ctx.rotate(-radians);
     ctx.translate(-75, -150);
-    ctx.drawImage(camera, left, format.top, 
-    format.width, format.height);
+
+    if (cameraOn) {
+        ctx.drawImage(camera, left, format.top, 
+        format.width, format.height);
+    }
+    else {
+        var format = {
+            left: (75-(sw/2)),
+            top: (150-(sh/2)),
+            width: (sw),
+            height: (sh)
+        };
+
+        var left = (deviceNo == 0) ? 
+        format.left+translation : 
+        format.left-translation;
+
+        ctx.drawImage(placeholderImage, left, format.top, 
+        format.width, format.height);
+    }
+
     ctx.rotate(radians);
     ctx.restore();
 
@@ -541,22 +656,24 @@ var drawImage = function(canvas) {
     var blueImageData = new ImageData(newBlueArray, 
     imageData.width, imageData.height);
 
-    if (colorTurn == 0)
+    if (splitColors)
+    ctx.putImageData(imageData, 0, 0);
+    else if (colorTurn == 0)
     ctx.putImageData(redImageData, 0, 0);
-    if (colorTurn == 1)
+    else if (colorTurn == 1)
     ctx.putImageData(greenImageData, 0, 0);
-    if (colorTurn == 2)
+    else if (colorTurn == 2)
     ctx.putImageData(blueImageData, 0, 0);
 
     var ctx0 = frameView0.getContext("2d");
     var ctx1 = frameView1.getContext("2d");
     var ctx2 = frameView2.getContext("2d");
 
-    if (colorTurn == 0)
+    if (splitColors || colorTurn == 0)
     ctx0.putImageData(redImageData, 0, 0);
-    if (colorTurn == 1)
+    if (splitColors || colorTurn == 1)
     ctx1.putImageData(greenImageData, 0, 0);
-    if (colorTurn == 2)
+    if (splitColors || colorTurn == 2)
     ctx2.putImageData(blueImageData, 0, 0);
 };
 
