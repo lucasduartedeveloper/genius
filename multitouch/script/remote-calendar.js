@@ -494,7 +494,7 @@ var animate = function() {
         if (pasteCamera) {
             drawImage(frameView);
         }
-        if (remoteDownloaded) {
+        if (cameraOn && remoteDownloaded) {
             var dataURL = frameView.toDataURL();
             ws.send("PAPER|"+playerId+"|image-data|"+dataURL);
         }
