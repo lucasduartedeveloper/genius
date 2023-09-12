@@ -30,15 +30,24 @@ die('Connection failed: ' . $e->getMessage());
 $action = $_POST["action"];
 
 if (isset($_POST["action"])) {
+    $track = $_POST["track"];
     $data = $_POST["data"];
 
+    $sql = "DELETE FROM `image` WHERE track=".$track.";";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+
     $sql = "INSERT INTO `image` (
+        `track`,
         `data`
     ) VALUES (
+        '[track]',
         '[data]'
     );";
     //echo $sql;
 
+    $sql = str_replace("[track]", $track, $sql);
     $sql = str_replace("[data]", $data, $sql);
 
     $stmt = $pdo->prepare($sql);
@@ -47,7 +56,7 @@ if (isset($_POST["action"])) {
 } 
 else if (isset($_GET["count"])) {
     $count = $_GET["count"];
-    $sql = "SELECT id, data, timestamp FROM image ORDER BY timestamp DESC LIMIT ".$count.";";
+    $sql = "SELECT id, track, data, timestamp FROM image ORDER BY timestamp DESC LIMIT ".$count.";";
 
     try{
     $stmt = $pdo->prepare($sql);

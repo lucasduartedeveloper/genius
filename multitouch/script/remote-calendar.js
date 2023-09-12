@@ -174,6 +174,29 @@ $(document).ready(function() {
         combineArray_effect0(frameView);
     };
 
+    track = 0;
+    trackView = document.createElement("div");
+    trackView.style.position = "absolute";
+    trackView.style.color = "#fff";
+    trackView.innerText = "TRACK \n"+track;
+    trackView.style.lineHeight = "50px";
+    trackView.style.fontSize = "15px";
+    trackView.style.fontFamily = "Khand";
+    trackView.style.left = ((sw/2)+100)+"px";
+    trackView.style.top = (0)+"px";
+    trackView.style.width = (50)+"px";
+    trackView.style.height = (100)+"px";
+    trackView.style.border = "1px solid #fff";
+    //trackView.style.borderRadius = "50%";
+    trackView.style.scale = "0.9";
+    trackView.style.zIndex = "12";
+    document.body.appendChild(trackView);
+
+    trackView.onclick = function() {
+        track = (track+1) < 3 ? (track+1) : 0;
+        trackView.innerText = "TRACK \n"+track;
+    };
+
     var delay = 10;
     timerView = document.createElement("div");
     timerView.style.position = "absolute";
@@ -775,6 +798,7 @@ var saveImage = function(data) {
         datatype: "json",
         data: { 
             action: "save", 
+            track: track,
             data: data
         }
     })
