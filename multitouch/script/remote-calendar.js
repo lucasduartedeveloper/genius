@@ -136,8 +136,8 @@ $(document).ready(function() {
     combineView.className = "fa-solid fa-circle-nodes";
     combineView.style.lineHeight = "50px";
     combineView.style.fontSize = "30px";
-    combineView.style.left = ((sw/2)+100)+"px";
-    combineView.style.top = ((sh/2)-100)+"px";
+    combineView.style.left = ((sw/2)-75)+"px";
+    combineView.style.top = (50)+"px";
     combineView.style.width = (50)+"px";
     combineView.style.height = (50)+"px";
     combineView.style.border = "1px solid #fff";
@@ -159,7 +159,7 @@ $(document).ready(function() {
     combineView_effect0.style.lineHeight = "50px";
     combineView_effect0.style.fontSize = "30px";
     combineView_effect0.style.left = ((sw/2)+100)+"px";
-    combineView_effect0.style.top = ((sh/2)-50)+"px";
+    combineView_effect0.style.top = ((sh/2)-100)+"px";
     combineView_effect0.style.width = (50)+"px";
     combineView_effect0.style.height = (50)+"px";
     combineView_effect0.style.border = "1px solid #fff";
@@ -215,8 +215,12 @@ $(document).ready(function() {
     timerView.style.zIndex = "12";
     document.body.appendChild(timerView);
 
+    var onTimer = false;
     var timerInterval;
     timerView.onclick = function() {
+        if (onTimer) return;
+        onTimer = true;
+
         colorTurn = 0;
         timerInterval = setInterval(function () {
             delay -= 1;
@@ -226,13 +230,20 @@ $(document).ready(function() {
                 colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
                 delay = 10;
                 timerView.innerText = delay;
-                beepMilestone.play();
 
-                if (colorTurn == 0) {
+                if (splitColors) {
+                    pasteCamera = false;
+                    drawImage(frameView);
+                    clearInterval(timerInterval);
+                    beepDone.play();
+                    onTimer = false;
+                }
+                else if (colorTurn == 0) {
                     pasteCamera = false;
                     combineArray(frameView);
                     clearInterval(timerInterval);
                     beepDone.play();
+                    onTimer = false;
                 }
                 else {
                     beepMilestone.play();
