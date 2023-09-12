@@ -252,8 +252,6 @@ $(document).ready(function() {
     placeholderImage.style.top = ((sh/2)-(sh/2))+"px";
     placeholderImage.style.width = (sw)+"px";
     placeholderImage.style.height = (sh)+"px"; 
-    placeholderImage.style.transform = (deviceNo == 0) ? 
-    "rotateY(-180deg)" : "initial";
     placeholderImage.style.border = "1px";
     placeholderImage.style.zIndex = "11";
     document.body.appendChild(placeholderImage);
@@ -439,18 +437,17 @@ $(document).ready(function() {
             translation = (moveX-(sw/2));
         }
         else {
-            rotationY = (accY*180);
+            flipY = accY < 0;
         }
 
         frameView.style.left = (((sw/2)-75)+(translation))+"px";
         frameView.style.transform = 
-        "rotateY("+rotationY+"deg) "+
         "rotateZ("+rotationZ+"deg)";
     };
     camera.ontouchend = function(e) {
         if ((new Date().getTime() - startTime) < 3000) {
             translation = 0;
-            rotationY = 0;
+            flipY = false;
             rotationZ = 0;
 
             frameView.style.left = ((sw/2)-75)+"px";
@@ -493,18 +490,20 @@ $(document).ready(function() {
 var remoteDownloaded = true;
 
 var animate = function() {
-    if (pasteCamera) {
-        drawImage(frameView);
-    }
-    if (remoteDownloaded) {
-        var dataURL = frameView.toDataURL();
-        ws.send("PAPER|"+playerId+"|image-data|"+dataURL);
+    if (!backgroundMode) {
+        if (pasteCamera) {
+            drawImage(frameView);
+        }
+        if (remoteDownloaded) {
+            var dataURL = frameView.toDataURL();
+            ws.send("PAPER|"+playerId+"|image-data|"+dataURL);
+        }
     }
     requestAnimationFrame(animate);
 };
 
 var translation = 0;
-var rotationY = 0;
+var flipY = false;
 var rotationZ = 0;
 
 var closeImage = function(canvas) {
@@ -572,6 +571,12 @@ var drawPlaceholderImage = function() {
             }
         }
     }
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "75px sans serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("1", (sw/2), (sh/2));
 }
 
 var drawAim = function(canvas) {
@@ -607,19 +612,19 @@ var drawImage = function(canvas) {
     format.left+translation : 
     format.left-translation;
 
-    var scale = 1-(1/180)*rotationY;
-
-    var radiansZ = (deviceNo == 0) ? 
+    var radiansZ = cameraOn && (deviceNo == 0) ? 
     -(rotationZ*(Math.PI/180)) : 
     (rotationZ*(Math.PI/180));
 
     ctx.save();
-    if (deviceNo == 0) {
+    if (cameraOn && deviceNo == 0) {
         ctx.scale(-1, 1);
         ctx.translate(-150, 0);
     }
-    ctx.scale(scale, 1);
-    ctx.translate((1-scale)*75, 0);
+    if (flipY) {
+        ctx.scale(-1, 1);
+        ctx.translate(-150, 0);
+    }
 
     ctx.translate(75, 150);
     ctx.rotate(-radiansZ);
@@ -637,8 +642,7 @@ var drawImage = function(canvas) {
             height: (sh)
         };
 
-        var left = (deviceNo == 0) ? 
-        format.left+translation : 
+        var left = 
         format.left-translation;
 
         ctx.drawImage(placeholderImage, left, format.top, 
@@ -757,3 +761,24 @@ var combineArray_effect0 = function(canvas) {
 
     ctx.putImageData(newImageData, 0, 0);
 };
+
+var visibilityChange;
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  visibilityChange = "webkitvisibilitychange";
+}
+//^different browsers^
+
+var backgroundMode = false;
+document.addEventListener(visibilityChange, function(){
+    backgroundMode = !backgroundMode;
+    if (backgroundMode) {
+        console.log("backgroundMode: "+backgroundMode);
+    }
+    else {
+        console.log("backgroundMode: "+backgroundMode);
+    }
+}, false);
