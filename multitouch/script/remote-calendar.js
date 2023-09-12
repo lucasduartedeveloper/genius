@@ -1,3 +1,5 @@
+var beepDone = new Audio("audio/beep-done.wav");
+
 var audio = new Audio("audio/phone-lock.wav");
 var alarm = new Audio("audio/battleship-alarm.wav");
 var coin = new Audio("audio/coin.wav");
@@ -101,7 +103,7 @@ $(document).ready(function() {
         }
     };
 
-    deviceNo = 1;
+    deviceNo = 0;
     deviceView = document.createElement("div");
     deviceView.style.position = "absolute";
     deviceView.style.color = "#fff";
@@ -123,12 +125,8 @@ $(document).ready(function() {
         deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
         (deviceNo+1) : 0;
         deviceView.innerText = deviceNo;
-        if (deviceNo == 0) {
-            camera.style.transform = "rotateY(-180deg)";
-        }
-        else {
-            camera.style.transform = "initial";
-        }
+        camera.style.transform = (deviceNo == 0) ? 
+        "rotateY(-180deg)" : "initial";
     };
 
     combineView = document.createElement("i");
@@ -148,6 +146,8 @@ $(document).ready(function() {
     document.body.appendChild(combineView);
 
     combineView.onclick = function() {
+        pasteCamera = !pasteCamera;
+        if (!pasteCamera)
         combineArray(frameView);
     };
 
@@ -168,7 +168,49 @@ $(document).ready(function() {
     document.body.appendChild(combineView_effect0);
 
     combineView_effect0.onclick = function() {
+        pasteCamera = !pasteCamera;
+        if (!pasteCamera)
         combineArray_effect0(frameView);
+    };
+
+    var delay = 5;
+    timerView = document.createElement("div");
+    timerView.style.position = "absolute";
+    timerView.style.color = "#fff";
+    timerView.innerText = delay;
+    timerView.style.lineHeight = "50px";
+    timerView.style.fontSize = "30px";
+    timerView.style.fontFamily = "Khand";
+    timerView.style.left = ((sw/2)+100)+"px";
+    timerView.style.top = ((sh/2))+"px";
+    timerView.style.width = (50)+"px";
+    timerView.style.height = (50)+"px";
+    timerView.style.border = "1px solid #fff";
+    timerView.style.borderRadius = "50%";
+    timerView.style.scale = "0.9";
+    timerView.style.zIndex = "12";
+    document.body.appendChild(timerView);
+
+    var timerInterval;
+    timerView.onclick = function() {
+        colorTurn = 0;
+        timerInterval = setInterval(function () {
+            delay -= 1;
+            timerView.innerText = delay;
+            if (delay == 0) {
+                drawImage(frameView);
+                colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
+                delay = 5;
+                timerView.innerText = delay;
+
+                if (colorTurn == 0) {
+                    pasteCamera = false;
+                    combineArray(frameView);
+                    clearInterval(timerInterval);
+                    beepDone.play();
+                }
+            }
+        }, 1000);
     };
 
     downloadView = document.createElement("i");
@@ -206,6 +248,8 @@ $(document).ready(function() {
     camera.style.top = ((sh/2)-(sh/2))+"px";
     camera.style.width = (sw)+"px";
     camera.style.height = (sh)+"px"; 
+    camera.style.transform = (deviceNo == 0) ? 
+    "rotateY(-180deg)" : "initial";
     camera.style.border = "1px";
     camera.style.zIndex = "11";
     document.body.appendChild(camera);
@@ -220,7 +264,7 @@ $(document).ready(function() {
     aimView.style.width = (25)+"px";
     aimView.style.height = (25)+"px"; 
     aimView.style.border = "1px";
-    aimView.style.zIndex = "15";
+    aimView.style.zIndex = "17";
     document.body.appendChild(aimView);
 
     drawAim(aimView);
@@ -314,6 +358,7 @@ $(document).ready(function() {
     };
     phoneFrameView.src = "img/phone-frame-0.png?rnd="+rnd;
 
+    var startTime = 0;
     var startX = 0;
     var startY = 0;
 
@@ -321,15 +366,15 @@ $(document).ready(function() {
     var moveY = 0;
 
     camera.ontouchstart = function(e) {
-        closeImage(frameView);
         if (!cameraOn) 
         startCamera();
 
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
+
+        startTime = new Date().getTime();
     };
     camera.ontouchmove = function(e) {
-        drawImage(frameView);
         moveX = e.touches[0].clientX;
         moveY = e.touches[0].clientY;
 
@@ -346,17 +391,30 @@ $(document).ready(function() {
         "deg)";
     };
     camera.ontouchend = function(e) {
-        drawImage(frameView);
-        translation = 0;
-        rotation = 0;
+        if ((new Date().getTime() - startTime) < 3000) {
+            translation = 0;
+            rotation = 0;
 
-        frameView.style.left = ((sw/2)-75)+"px";
-        frameView.style.transform = "initial";
-        phoneFrameView.style.transform = "initial";
+            frameView.style.left = ((sw/2)-75)+"px";
+            frameView.style.transform = "initial";
+            phoneFrameView.style.transform = "initial";
 
-        colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
+            colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
+        }
+        else {
+            navigator.vibrate(500);
+        }
     };
+
+    pasteCamera = true;
+    animate();
 });
+
+var animate = function() {
+    if (pasteCamera)
+    drawImage(frameView);
+    requestAnimationFrame(animate);
+};
 
 var translation = 0;
 var rotation = 0;
