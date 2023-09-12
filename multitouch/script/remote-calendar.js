@@ -385,8 +385,9 @@ $(document).ready(function() {
     frameView.style.top = ((sh/2)-150)+"px";
     frameView.style.width = (150)+"px";
     frameView.style.height = (300)+"px"; 
-    frameView.style.border = "10px solid #000";
-    frameView.style.borderRadius = "10px";
+    frameView.style.outline = "10px solid #000";
+    //frameView.style.borderRadius = "10px";
+    //frameView.style.boxShadow = "0px 0px 10px #000";
     frameView.style.zIndex = "15";
     document.body.appendChild(frameView);
 
@@ -425,22 +426,32 @@ $(document).ready(function() {
         moveX = e.touches[0].clientX;
         moveY = e.touches[0].clientY;
 
-        var acc = (1/(sw-50))*(moveX-startX);
+        var offsetX = (moveX-startX);
+        var offsetY = (moveY-startY);
 
-        if (moveY < ((sh/2)+250))
-        rotation = (acc*360);
-        else
-        translation = (moveX-(sw/2));
+        var accX = (1/(sw-50))*(moveX-startX);
+        var accY = (1/(sw-50))*(moveY-startY);
+
+        if (Math.abs(offsetX) > Math.abs(offsetY)) {
+            if (moveY < ((sh/2)+250))
+            rotationZ = (accX*360);
+            else
+            translation = (moveX-(sw/2));
+        }
+        else {
+            rotationY = (accY*180);
+        }
 
         frameView.style.left = (((sw/2)-75)+(translation))+"px";
-        frameView.style.transform = "rotateZ("+
-            rotation+
-        "deg)";
+        frameView.style.transform = 
+        "rotateY("+rotationY+"deg) "+
+        "rotateZ("+rotationZ+"deg)";
     };
     camera.ontouchend = function(e) {
         if ((new Date().getTime() - startTime) < 3000) {
             translation = 0;
-            rotation = 0;
+            rotationY = 0;
+            rotationZ = 0;
 
             frameView.style.left = ((sw/2)-75)+"px";
             frameView.style.transform = "initial";
@@ -493,7 +504,8 @@ var animate = function() {
 };
 
 var translation = 0;
-var rotation = 0;
+var rotationY = 0;
+var rotationZ = 0;
 
 var closeImage = function(canvas) {
     var ctx = canvas.getContext("2d");
@@ -544,10 +556,20 @@ var drawPlaceholderImage = function() {
     for (var n = 0; n < (sh/stripeHeight); n++) {
         var odd = n % 2 != 0;
         if (odd) {
-            ctx.beginPath();
-            ctx.moveTo(0, (n*stripeHeight));
-            ctx.lineTo(sw, (n*stripeHeight));
-            ctx.stroke();
+            for (var k = 0; k < (sw/stripeHeight); k+=2) {
+                ctx.beginPath();
+                ctx.moveTo((k*stripeHeight), (n*stripeHeight));
+                ctx.lineTo(((k+1)*stripeHeight), (n*stripeHeight));
+                ctx.stroke();
+            }
+        }
+        else {
+            for (var k = 0; k < (sw/stripeHeight); k+=2) {
+                ctx.beginPath();
+                ctx.moveTo(((k+1)*stripeHeight), (n*stripeHeight));
+                ctx.lineTo(((k+2)*stripeHeight), (n*stripeHeight));
+                ctx.stroke();
+            }
         }
     }
 }
@@ -585,17 +607,22 @@ var drawImage = function(canvas) {
     format.left+translation : 
     format.left-translation;
 
-    var radians = (deviceNo == 0) ? 
-    -(rotation*(Math.PI/180)) : 
-    (rotation*(Math.PI/180));
+    var scale = 1-(1/180)*rotationY;
+
+    var radiansZ = (deviceNo == 0) ? 
+    -(rotationZ*(Math.PI/180)) : 
+    (rotationZ*(Math.PI/180));
 
     ctx.save();
     if (deviceNo == 0) {
         ctx.scale(-1, 1);
         ctx.translate(-150, 0);
     }
+    ctx.scale(scale, 1);
+    ctx.translate((1-scale)*75, 0);
+
     ctx.translate(75, 150);
-    ctx.rotate(-radians);
+    ctx.rotate(-radiansZ);
     ctx.translate(-75, -150);
 
     if (cameraOn) {
@@ -618,7 +645,7 @@ var drawImage = function(canvas) {
         format.width, format.height);
     }
 
-    ctx.rotate(radians);
+    ctx.rotate(radiansZ);
     ctx.restore();
 
     var imageData = ctx.getImageData(0, 0, 150, 300);
