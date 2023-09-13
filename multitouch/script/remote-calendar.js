@@ -104,6 +104,34 @@ $(document).ready(function() {
         }
     };
 
+    deviceStateView = document.createElement("div");
+    deviceStateView.style.position = "absolute";
+    deviceStateView.style.color = "#fff";
+    deviceStateView.innerText = "OFF";
+    deviceStateView.style.lineHeight = "50px";
+    deviceStateView.style.fontSize = "30px";
+    deviceStateView.style.fontFamily = "Khand";
+    deviceStateView.style.left = ((sw/2)+100)+"px";
+    deviceStateView.style.top = ((sh/2)-200)+"px";
+    deviceStateView.style.width = (50)+"px";
+    deviceStateView.style.height = (50)+"px";
+    deviceStateView.style.border = "1px solid #fff";
+    deviceStateView.style.borderRadius = "50%";
+    deviceStateView.style.scale = "0.9";
+    deviceStateView.style.zIndex = "12";
+    document.body.appendChild(deviceStateView);
+
+    deviceStateView.onclick = function() {
+        if (cameraOn) {
+            stopCamera();
+            deviceStateView.innerText = "OFF";
+        }
+        else {
+            startCamera();
+           deviceStateView.innerText = "ON";
+        }
+    };
+
     deviceNo = 0;
     deviceView = document.createElement("div");
     deviceView.style.position = "absolute";
@@ -194,6 +222,36 @@ $(document).ready(function() {
     zoomView.onclick = function() {
         zoom = (zoom+1) < 8 ? (zoom+1) : 1;
         zoomView.innerText = zoom+"x";
+    };
+
+    backgroundSet = false;
+    setBackgroundView = document.createElement("div");
+    setBackgroundView.style.position = "absolute";
+    setBackgroundView.style.color = "#fff";
+    setBackgroundView.innerText = "BG";
+    setBackgroundView.style.lineHeight = "50px";
+    setBackgroundView.style.fontSize = "30px";
+    setBackgroundView.style.fontFamily = "Khand";
+    setBackgroundView.style.left = ((sw/2)+100)+"px";
+    setBackgroundView.style.top = ((sh/2))+"px";
+    setBackgroundView.style.width = (50)+"px";
+    setBackgroundView.style.height = (50)+"px";
+    setBackgroundView.style.border = "1px solid #fff";
+    setBackgroundView.style.borderRadius = "50%";
+    setBackgroundView.style.scale = "0.9";
+    setBackgroundView.style.zIndex = "12";
+    document.body.appendChild(setBackgroundView);
+
+    setBackgroundView.onclick = function() {
+        backgroundSet = !backgroundSet;
+        if (backgroundSet) {
+            camera.style.zIndex = "10";
+            drawToBackground(placeholderImage);
+        }
+        else {
+            drawPlaceholderImage();
+            camera.style.zIndex = "11";
+        }
     };
 
     var frameColorList = [ "#000", "#fff" ];
@@ -871,6 +929,41 @@ var drawImage = function(canvas) {
     ctx2.putImageData(blueImageData, 0, 0);
 };
 
+var drawToBackground = function(canvas) {
+    var ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, sw, sh);
+
+    var image = {
+        width: (vw),
+        height: (vh)
+    };
+    var format = fitImageCover(image, canvas);
+
+    var left = (deviceNo == 0) ? 
+    format.left+translation : 
+    format.left-translation;
+
+    var radiansZ = cameraOn && (deviceNo == 0) ? 
+    -(rotationZ*(Math.PI/180)) : 
+    (rotationZ*(Math.PI/180));
+
+    ctx.save();
+    if (cameraOn && deviceNo == 0) {
+        ctx.scale(-1, 1);
+        ctx.translate(-(sw), 0);
+    }
+    ctx.translate((sw/2), (sh/2));
+    ctx.rotate(-radiansZ);
+    ctx.translate(-(sw/2), -(sh/2));
+    if (cameraOn) {
+        ctx.drawImage(camera, left, format.top, 
+        format.width, format.height);
+    }
+
+    ctx.rotate(radiansZ);
+    ctx.restore();
+};
+
 var combineArray = function(canvas) {
     var ctx = canvas.getContext("2d");
 
@@ -985,7 +1078,8 @@ var createUrl = function(suffix, callback) {
 var itemList = [
     { displayName: "item#1", value: "blue_mooncat" },
     { displayName: "item#2", value: "lorelei_evans" },
-    { displayName: "item#3", value: "eva_200" }
+    { displayName: "item#3", value: "eva_200" },
+    { displayName: "item#4", value: "me_midnight" }
 ];
 var fillList = function() {
     videoStreamList.style.height = (itemList.length*30)+"px";
