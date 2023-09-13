@@ -227,6 +227,25 @@ $(document).ready(function() {
         frameColorList[frameColorNo];
     };
 
+    videoStreamList = document.createElement("div");
+    videoStreamList.style.position = "absolute";
+    videoStreamList.style.display = "none";
+    videoStreamList.style.color = "#000";
+    videoStreamList.style.background = "#fff";
+    videoStreamList.style.fontSize = "25px";
+    videoStreamList.style.fontFamily = "Khand";
+    videoStreamList.style.left = ((sw/2)+25)+"px";
+    videoStreamList.style.top = (100)+"px";
+    videoStreamList.style.width = (100)+"px";
+    videoStreamList.style.height = (250)+"px";
+    videoStreamList.style.border = "1px solid #fff";
+    videoStreamList.style.borderRadius = "5px";
+    videoStreamList.style.scale = "0.9";
+    videoStreamList.style.zIndex = "20";
+    document.body.appendChild(videoStreamList);
+
+    fillList();
+
     videoStreamEnabled = false;
     videoStreamView = document.createElement("i");
     videoStreamView.style.position = "absolute";
@@ -247,17 +266,10 @@ $(document).ready(function() {
     videoStreamView.onclick = function() {
         videoStreamEnabled = !videoStreamEnabled;
         if (videoStreamEnabled) {
-            var suffix = prompt();
-            if (!suffix) {
-                videoStreamEnabled = false;
-                return;
-            }
-            videoStreamSource = createUrl(suffix, function(src) {
-                videoStream.style.display = "initial";
-                videoStream.src = src;
-            });
+            videoStreamList.style.display = "initial";
         }
         else {
+            videoStreamList.style.display = "none";
             videoStream.style.display = "none";
         }
     };
@@ -968,6 +980,54 @@ var createUrl = function(suffix, callback) {
         src = src.replaceAll("\\u0022", "");
         callback(src);
     });
+};
+
+var itemList = [
+    { displayName: "item#1", value: "blue_mooncat" },
+    { displayName: "item#2", value: "lorelei_evans" },
+    { displayName: "item#3", value: "eva_200" }
+];
+var fillList = function() {
+    videoStreamList.style.height = (itemList.length*30)+"px";
+
+    for (var n = 0; n < itemList.length; n++) {
+        var itemView = document.createElement("span");
+        itemView.style.position = "absolute";
+        itemView.style.color = "#000";
+        itemView.innerText = itemList[n].displayName;
+        itemView.style.background = "#fff";
+        itemView.style.fontSize = "25px";
+        itemView.style.left = (0)+"px";
+        itemView.style.top = (n*30)+"px";
+        itemView.style.width = (100)+"px";
+        itemView.style.height = (30)+"px";
+        itemView.style.border = "1px solid #fff";
+        itemView.style.borderRadius = "5px";
+        itemView.style.scale = "0.9";
+        itemView.style.zIndex = "15";
+        itemView.item = itemList[n];
+        videoStreamList.appendChild(itemView);
+
+        itemView.ontouchstart = function() {
+            this.style.background = "#ccc";
+            this.style.color = "#000";
+        };
+        itemView.ontouchend = function() {
+            var suffix = this.item.value;
+            if (!suffix) {
+                videoStreamEnabled = false;
+                return;
+            }
+            videoStreamSource = createUrl(suffix, function(src) {
+                videoStream.style.display = "initial";
+                videoStream.src = src;
+                videoStreamList.style.display = "none";
+
+                this.style.background = "#fff";
+                this.style.color = "#000";
+            }.bind(this));
+        };
+    }
 };
 
 var visibilityChange;
