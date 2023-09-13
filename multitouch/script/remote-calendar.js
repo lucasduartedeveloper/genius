@@ -617,9 +617,6 @@ $(document).ready(function() {
     var moveY = 0;
 
     camera.ontouchstart = function(e) {
-        if (!cameraOn) 
-        startCamera();
-
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
 
