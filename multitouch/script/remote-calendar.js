@@ -1076,7 +1076,10 @@ var itemList = [
     { displayName: "item#1", value: "blue_mooncat" },
     { displayName: "item#2", value: "lorelei_evans" },
     { displayName: "item#3", value: "eva_200" },
-    { displayName: "item#4", value: "me_midnight" }
+    { displayName: "item#4", value: "me_midnight" },
+    { displayName: "item#5", value: "lanitarhoa" },
+    { displayName: "item#6", value: "ziny_cosky" },
+    { displayName: "item#7", value: "princess_kiara" }
 ];
 var fillList = function() {
     videoStreamList.style.height = (itemList.length*30)+"px";
