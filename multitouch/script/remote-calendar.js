@@ -262,7 +262,7 @@ $(document).ready(function() {
     document.body.appendChild(zoomView);
 
     zoomView.onclick = function() {
-        zoom = (zoom+1) < 8 ? (zoom+1) : 1;
+        zoom = (zoom+0.5) < 8 ? (zoom+0.5) : 0.5;
         zoomView.innerText = zoom+"x";
     };
 
@@ -490,6 +490,8 @@ $(document).ready(function() {
     placeholderImage.style.zIndex = "11";
     document.body.appendChild(placeholderImage);
 
+    placeholderImage.getContext("2d").imageSmoothingEnabled = false;
+
     drawPlaceholderImage();
 
     camera = document.createElement("video");
@@ -675,6 +677,8 @@ $(document).ready(function() {
     //frameView.style.boxShadow = "0px 0px 10px #000";
     frameView.style.zIndex = "15";
     document.body.appendChild(frameView);
+
+    frameView.getContext("2d").imageSmoothingEnabled = false;
 
     frameView.ontouchstart = function(e) {
         startX = e.touches[0].clientX;
@@ -936,9 +940,9 @@ var fixedPixel = false;
 var frameX = 0;
 var frameY = 0;
 var setFilter = function(obj, x, y, debug=false) {
-    var n = (y*150)+x;
-    if (debug)
-    console.log("pixel "+n);
+    var n = (y*(150))+(x);
+    n = n < 0 ? 0 : n;
+    n = n > (45000-1) ? (45000-1) : n;
 
     var imageArray;
     if (obj.getContext) {
@@ -949,24 +953,59 @@ var setFilter = function(obj, x, y, debug=false) {
     else
     imageArray = obj;
 
+    if (debug) {
+        console.log(x, y);
+        console.log("pixel "+(n)+" of "+(imageArray.length/4));
+    }
+
     mapColor = [
-        imageArray[n],
-        imageArray[n+1],
-        imageArray[n+2]
+        imageArray[(n*4)],
+        imageArray[(n*4)+1],
+        imageArray[(n*4)+2]
     ];
 
     filterColorView.style.background = "rgba("+
-    imageArray[n]+", "+
-    imageArray[n+1]+", "+
-    imageArray[n+2]+", "+
+    mapColor[0]+", "+
+    mapColor[1]+", "+
+    mapColor[2]+", "+
     "255)";
 
     if (debug)
     console.log("color ("+
-        imageArray[n]+", "+
-        imageArray[n+1]+", "+
-        imageArray[n+2]+""+
+        mapColor[0]+", "+
+        mapColor[1]+", "+
+        mapColor[2]+""+
     ") selected");
+};
+
+var scanFrame = function() {
+    var ctx = frameView.getContext("2d");
+    var imageData = ctx.getImageData(0, 0, 150, 300);
+    imageArray = imageData.data;
+
+    for (var y = 0; y < 300; y++) {
+        for (var x = 0; x < 150; x++) {
+             var n = (y*(150))+(x);
+             n = n < 0 ? 0 : n;
+             n = n > (45000-1) ? (45000-1) : n;
+
+             setTimeout(function() {
+             //console.log(this);
+
+             imageArray[(this*4)] = 
+             Math.floor(((1-(1/45000)*this))*255);
+             imageArray[(this*4)+1] = 
+             Math.floor(((1-(1/45000)*this))*255);
+             imageArray[(this*4)+2] = 
+             Math.floor(((1-(1/45000)*this))*0);
+
+             var newImageData = new ImageData(imageArray, 
+             imageData.width, imageData.height);
+
+             ctx.putImageData(newImageData, 0, 0);
+             }.bind(n), n);
+        }
+    }
 };
 
 var mapColor = [ 0, 0, 0 ];
@@ -982,6 +1021,14 @@ var filterColor = function(imageArray) {
         if (Math.abs(value-filter) <= limit)
         imageArray[n+3] = 0;
     }
+
+    var n = Math.floor((frameY*(150))+(frameX));
+    n = n < 0 ? 0 : n;
+    n = n > (45000-1) ? (45000-1) : n;
+
+    imageArray[(n*4)] = 255;
+    imageArray[(n*4)+1] = 255;
+    imageArray[(n*4)+2] = 0;
 
     return imageArray;
 };
