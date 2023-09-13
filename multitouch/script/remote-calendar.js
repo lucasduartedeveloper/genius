@@ -68,6 +68,48 @@ $(document).ready(function() {
         weightView.innerText = prompt()+" kg";
     };
 
+    filterColorView = document.createElement("span");
+    filterColorView.style.position = "absolute";
+    filterColorView.style.background = "#fff";
+    filterColorView.style.left = ((sw/2)-(75))+"px";
+    filterColorView.style.top = ((sh/2)-(200))+"px";
+    filterColorView.style.width = (25)+"px";
+    filterColorView.style.height = (25)+"px";
+    filterColorView.style.zIndex = "12";
+    document.body.appendChild(filterColorView);
+
+    filterColorView.onclick = function() {
+        fixedPixel = !fixedPixel;
+        if (fixedPixel) {
+            filterColorView.style.outlineOffset = "2px";
+            filterColorView.style.outline = "1px solid #fff";
+        }
+        else {
+            filterColorView.style.outlineOffset = "0px";
+            filterColorView.style.outline = "initial";
+        }
+    };
+
+    filterColorLimitView = document.createElement("span");
+    filterColorLimitView.style.position = "absolute";
+    filterColorLimitView.style.color = "#fff";
+    filterColorLimitView.innerText = limit+"%";
+    filterColorLimitView.style.lineHeight = "25px";
+    filterColorLimitView.style.fontSize = "15px";
+    filterColorLimitView.style.fontFamily = "Khand";
+    filterColorLimitView.style.left = ((sw/2)+(50))+"px";
+    filterColorLimitView.style.top = ((sh/2)-(200))+"px";
+    filterColorLimitView.style.width = (50)+"px";
+    filterColorLimitView.style.height = (25)+"px";
+    filterColorLimitView.style.zIndex = "12";
+    document.body.appendChild(filterColorLimitView);
+
+    filterColorLimitView.onclick = function() {
+        limit = (Math.floor((limit/5)*5)+5);
+        limit = limit > 100 ? 0 : limit;
+        filterColorLimitView.innerText = limit+"%";
+    };
+
     lineView = document.createElement("div");
     lineView.style.position = "absolute";
     lineView.style.background = "lightblue";
@@ -494,6 +536,45 @@ $(document).ready(function() {
 
     drawAim(aimView);
 
+    mapEnabled = false;
+    mapControlView = document.createElement("i");
+    mapControlView.style.position = "absolute";
+    mapControlView.style.color = "#fff";
+    mapControlView.className = "fa-solid fa-location-dot";
+    mapControlView.style.lineHeight = "50px";
+    mapControlView.style.fontSize = "30px";
+    mapControlView.style.left = ((sw/2)+(100))+"px";
+    mapControlView.style.top = ((sh/2)+(50))+"px";
+    mapControlView.style.width = (50)+"px";
+    mapControlView.style.height = (50)+"px"; 
+    mapControlView.style.border = "1px solid #fff";
+    mapControlView.style.borderRadius = "50%";
+    mapControlView.style.scale = "0.9";
+    mapControlView.style.zIndex = "17";
+    document.body.appendChild(mapControlView);
+
+    mapControlView.onclick = function() {
+        mapEnabled = !mapEnabled;
+        mapView.style.display = mapEnabled ? "initial" : "none";
+    };
+
+    mapView = document.createElement("div");
+    mapView.style.position = "absolute";
+    mapView.id = "map";
+    mapView.style.display = "none";
+    mapView.className = "map-box";
+    mapView.width = 150;
+    mapView.height = 300;
+    mapView.style.left = ((sw/2)-(75))+"px";
+    mapView.style.top = ((sh/2)-(150))+"px";
+    mapView.style.width = (150)+"px";
+    mapView.style.height = (300)+"px"; 
+    mapView.style.border = "1px";
+    mapView.style.zIndex = "17";
+    document.body.appendChild(mapView);
+
+    startMap();
+
     splitColorsView = document.createElement("span");
     splitColorsView.style.position = "absolute";
     splitColorsView.style.color = "#fff";
@@ -581,6 +662,7 @@ $(document).ready(function() {
 
     frameView = document.createElement("canvas");
     frameView.style.position = "absolute";
+    frameView.style.background = "rgba(255, 0, 255, 1)";
     frameView.style.objectFit = "cover";
     frameView.width = 150;
     frameView.height = 300;
@@ -593,6 +675,25 @@ $(document).ready(function() {
     //frameView.style.boxShadow = "0px 0px 10px #000";
     frameView.style.zIndex = "15";
     document.body.appendChild(frameView);
+
+    frameView.ontouchstart = function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+
+        frameX = Math.floor(startX - ((sw/2)-75));
+        frameY = Math.floor(startY - ((sh/2)-150));
+
+        setFilter(frameView, frameX, frameY, true);
+    };
+    frameView.ontouchmove = function(e) {
+        moveX = e.touches[0].clientX;
+        moveX = e.touches[0].clientY;
+
+        frameX = Math.floor(moveX - ((sw/2)-75));
+        frameY = Math.floor(moveX - ((sh/2)-150));
+
+        setFilter(frameView, frameX, frameY, true);
+    };
 
     phoneFrameView = document.createElement("img");
     phoneFrameView.style.position = "absolute";
@@ -645,6 +746,10 @@ $(document).ready(function() {
         frameView.style.left = (((sw/2)-75)+(translation))+"px";
         frameView.style.transform = 
         "rotateZ("+rotationZ+"deg)";
+
+        mapView.style.left = (((sw/2)-75)+(translation))+"px";
+        mapView.style.transform = 
+        "rotateZ("+rotationZ+"deg)";
     };
     camera.ontouchend = function(e) {
         if ((new Date().getTime() - startTime) < 3000) {
@@ -654,6 +759,10 @@ $(document).ready(function() {
 
             frameView.style.left = ((sw/2)-75)+"px";
             frameView.style.transform = "initial";
+            phoneFrameView.style.transform = "initial";
+
+            mapView.style.left = ((sw/2)-75)+"px";
+            mapView.style.transform = "initial";
             phoneFrameView.style.transform = "initial";
 
             if (!splitColors)
@@ -688,6 +797,23 @@ $(document).ready(function() {
     pasteCamera = true;
     animate();
 });
+
+var map;
+var startMap = function() {
+    // Create the map
+    map = L.map('map').setView([-23.37062642645644,  -51.15587314318577], 18);
+
+    var tileLayer = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+        attribution: "",
+        maxZoom: 20,
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken: 'pk.eyJ1IjoibHVjYXNkdWFydGUxOTkyIiwiYSI6ImNreGZieWE3ODFwNTQyb3N0cW4zNHMxMG8ifQ.HXS54wWrm6wPz-29LVVRbg'
+    }).addTo(map);
+
+    $(".leaflet-control-container").hide();
+};
 
 var remoteDownloaded = true;
 var databaseTime = 0;
@@ -806,6 +932,60 @@ var drawAim = function(canvas) {
     ctx.stroke();
 }
 
+var fixedPixel = false;
+var frameX = 0;
+var frameY = 0;
+var setFilter = function(obj, x, y, debug=false) {
+    var n = (y*150)+x;
+    if (debug)
+    console.log("pixel "+n);
+
+    var imageArray;
+    if (obj.getContext) {
+        var ctx = obj.getContext("2d");
+        var imageData = ctx.getImageData(0, 0, 150, 300);
+        imageArray = imageData.data;
+    }
+    else
+    imageArray = obj;
+
+    mapColor = [
+        imageArray[n],
+        imageArray[n+1],
+        imageArray[n+2]
+    ];
+
+    filterColorView.style.background = "rgba("+
+    imageArray[n]+", "+
+    imageArray[n+1]+", "+
+    imageArray[n+2]+", "+
+    "255)";
+
+    if (debug)
+    console.log("color ("+
+        imageArray[n]+", "+
+        imageArray[n+1]+", "+
+        imageArray[n+2]+""+
+    ") selected");
+};
+
+var mapColor = [ 0, 0, 0 ];
+var limit = 0;
+var filterColor = function(imageArray) {
+    var filter = ((100/(255*3))*
+    (mapColor[0]+mapColor[1]+mapColor[2]));
+
+    for (var n = 0; n < imageArray.length; n += 4) {
+        var value = ((100/(255*3))*
+        (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
+
+        if (Math.abs(value-filter) <= limit)
+        imageArray[n+3] = 0;
+    }
+
+    return imageArray;
+};
+
 var drawImage = function(canvas) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 150, 300);
@@ -898,6 +1078,13 @@ var drawImage = function(canvas) {
     if (splitColors || colorTurn == 2)
     blueArray = newBlueArray;
 
+    if (fixedPixel)
+    setFilter(imageArray, frameX, frameY);
+
+    var filteredArray = filterColor(imageArray);
+    var newImageData = new ImageData(filteredArray, 
+    imageData.width, imageData.height);
+
     var redImageData = new ImageData(newRedArray, 
     imageData.width, imageData.height);
     var greenImageData = new ImageData(newGreenArray, 
@@ -906,7 +1093,7 @@ var drawImage = function(canvas) {
     imageData.width, imageData.height);
 
     if (splitColors)
-    ctx.putImageData(imageData, 0, 0);
+    ctx.putImageData(newImageData, 0, 0);
     else if (colorTurn == 0)
     ctx.putImageData(redImageData, 0, 0);
     else if (colorTurn == 1)
@@ -975,7 +1162,8 @@ var combineArray = function(canvas) {
         newArray[n+3] = 255;
     }
 
-    var newImageData = new ImageData(newArray, 
+    var filteredArray = filterColor(newArray);
+    var newImageData = new ImageData(filteredArray, 
     imageData.width, imageData.height);
 
     ctx.putImageData(newImageData, 0, 0);

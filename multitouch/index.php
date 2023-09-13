@@ -121,6 +121,8 @@ echo "\n";
 
 <script src="https://kit.fontawesome.com/147bb12bad.js" crossorigin="anonymous"></script>
 
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
 <!--
 <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
 -->
