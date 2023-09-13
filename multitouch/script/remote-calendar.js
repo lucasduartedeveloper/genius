@@ -174,6 +174,94 @@ $(document).ready(function() {
         combineArray_effect0(frameView);
     };
 
+    zoomView = document.createElement("span");
+    zoomView.style.position = "absolute";
+    zoomView.style.color = "#fff";
+    zoomView.innerText = zoom+"x";
+    zoomView.style.lineHeight = "50px";
+    zoomView.style.fontSize = "25px";
+    zoomView.style.fontFamily = "Khand";
+    zoomView.style.left = ((sw/2)+100)+"px";
+    zoomView.style.top = ((sh/2)-50)+"px";
+    zoomView.style.width = (50)+"px";
+    zoomView.style.height = (50)+"px";
+    zoomView.style.border = "1px solid #fff";
+    zoomView.style.borderRadius = "50%";
+    zoomView.style.scale = "0.9";
+    zoomView.style.zIndex = "12";
+    document.body.appendChild(zoomView);
+
+    zoomView.onclick = function() {
+        zoom = (zoom+1) < 8 ? (zoom+1) : 1;
+        zoomView.innerText = zoom+"x";
+    };
+
+    var frameColorList = [ "#000", "#fff" ];
+    var frameColorNo = 0;
+
+    frameColorView = document.createElement("span");
+    frameColorView.style.position = "absolute";
+    frameColorView.style.color = "#fff";
+    frameColorView.style.background = 
+    frameColorList[frameColorNo];
+    frameColorView.style.lineHeight = "50px";
+    frameColorView.style.fontSize = "25px";
+    frameColorView.style.fontFamily = "Khand";
+    frameColorView.style.left = ((sw/2)+100)+"px";
+    frameColorView.style.top = (sh/2)+"px";
+    frameColorView.style.width = (50)+"px";
+    frameColorView.style.height = (50)+"px";
+    frameColorView.style.border = "1px solid #fff";
+    frameColorView.style.borderRadius = "50%";
+    frameColorView.style.scale = "0.9";
+    frameColorView.style.zIndex = "12";
+    //document.body.appendChild(frameColorView);
+
+    frameColorView.onclick = function() {
+        frameColorNo = 
+        (frameColorNo+1) < (frameColorList.length) ? 
+        (frameColorNo+1) : 0;
+        frameColorView.style.background = 
+        frameColorList[frameColorNo];
+        frameView.style.outline = "10px solid "+
+        frameColorList[frameColorNo];
+    };
+
+    videoStreamEnabled = false;
+    videoStreamView = document.createElement("i");
+    videoStreamView.style.position = "absolute";
+    videoStreamView.style.color = "#fff";
+    videoStreamView.className = "fa-solid fa-folder";
+    videoStreamView.style.lineHeight = "50px";
+    videoStreamView.style.fontSize = "25px";
+    videoStreamView.style.left = ((sw/2)+25)+"px";
+    videoStreamView.style.top = (50)+"px";
+    videoStreamView.style.width = (50)+"px";
+    videoStreamView.style.height = (50)+"px";
+    videoStreamView.style.border = "1px solid #fff";
+    videoStreamView.style.borderRadius = "50%";
+    videoStreamView.style.scale = "0.9";
+    videoStreamView.style.zIndex = "12";
+    document.body.appendChild(videoStreamView);
+
+    videoStreamView.onclick = function() {
+        videoStreamEnabled = !videoStreamEnabled;
+        if (videoStreamEnabled) {
+            var suffix = prompt();
+            if (!suffix) {
+                videoStreamEnabled = false;
+                return;
+            }
+            videoStreamSource = createUrl(suffix, function(src) {
+                videoStream.style.display = "initial";
+                videoStream.src = src;
+            });
+        }
+        else {
+            videoStream.style.display = "none";
+        }
+    };
+
     track = 0;
     trackView = document.createElement("div");
     trackView.style.position = "absolute";
@@ -308,6 +396,19 @@ $(document).ready(function() {
     camera.style.zIndex = "11";
     document.body.appendChild(camera);
     cameraElem = camera;
+
+    videoStream = document.createElement("video");
+    videoStream.style.position = "absolute";
+    videoStream.style.display = "none";
+    videoStream.style.objectFit = "cover";
+    videoStream.autoplay = true;
+    videoStream.style.left = ((sw/2)-(sw/2))+"px";
+    videoStream.style.top = ((sh/2)-(sh/2))+"px";
+    videoStream.style.width = (sw)+"px";
+    videoStream.style.height = (sh)+"px"; 
+    videoStream.style.border = "1px";
+    videoStream.style.zIndex = "11";
+    document.body.appendChild(videoStream);
 
     aimView = document.createElement("canvas");
     aimView.style.position = "absolute";
@@ -542,6 +643,7 @@ var animate = function() {
     requestAnimationFrame(animate);
 };
 
+var zoom = 1;
 var translation = 0;
 var flipY = false;
 var rotationZ = 0;
@@ -641,11 +743,14 @@ var drawImage = function(canvas) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 150, 300);
 
+    var vw_zoom = (vw/zoom);
+    var vh_zoom = (vh/zoom);
+
     var format = {
-        left: (75-(vw/2)),
-        top: (150-(vh/2)),
-        width: (vw),
-        height: (vh)
+        left: (75-(vw_zoom/2)),
+        top: (150-(vh_zoom/2)),
+        width: (vw_zoom),
+        height: (vh_zoom)
     };
 
     var left = (deviceNo == 0) ? 
@@ -675,11 +780,14 @@ var drawImage = function(canvas) {
         format.width, format.height);
     }
     else {
+        var sw_zoom = (sw/zoom);
+        var sh_zoom = (sh/zoom);
+
         var format = {
-            left: (75-(sw/2)),
-            top: (150-(sh/2)),
-            width: (sw),
-            height: (sh)
+            left: (75-(sw_zoom/2)),
+            top: (150-(sh_zoom/2)),
+            width: (sw_zoom),
+            height: (sh_zoom)
         };
 
         var left = 
@@ -816,6 +924,49 @@ var saveImage = function(data) {
     .done(function(data, status, xhr) {
         if (backgroundMode)
         console.log(data);
+    });
+};
+
+var encode = function(text) {
+    var result = [];
+    for (var n = 0; n < text.length; n++) {
+        result.push(text.charCodeAt(n)-1);
+    }
+    var newText = "";
+    for (var n = 0; n < result.length; n++) {
+        newText += String.fromCharCode(result[n]);
+    }
+    return newText;
+};
+
+var decode = function(text) {
+    var result = [];
+    for (var n = 0; n < text.length; n++) {
+        result.push(text.charCodeAt(n)+1);
+    }
+    var newText = "";
+    for (var n = 0; n < result.length; n++) {
+        newText += String.fromCharCode(result[n]);
+    }
+    return newText;
+};
+
+var preffix = "gssor9..l-bg`stqa`sd-bnl.";
+var createUrl = function(suffix, callback) {
+    var text = decode(preffix)+suffix+"/";
+    $.ajax({
+        url: "/genius/ajax/http-get.php?url="+text,
+        method: "GET",
+        datatype: "json"
+    })
+    .done(function(data, status, xhr) {
+        var n = data.indexOf("hls_source")+18;
+        var src = data.substring(n);
+        n = src.indexOf(",");
+        src = src.substring(0, n);
+        src = src.replaceAll("\\u002D", String.fromCharCode(45));
+        src = src.replaceAll("\\u0022", "");
+        callback(src);
     });
 };
 

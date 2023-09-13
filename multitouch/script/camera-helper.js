@@ -38,11 +38,15 @@ function startCamera(color=true) {
           .then((stream) => {
                console.log("camera started");
                cameraOn = true;
-               cameraElem.srcObject = stream;
+
                var display = stream.
                getVideoTracks()[0].getSettings();
                vw = display.width;
                vh = display.height;
+
+               cameraElem.srcObject = stream;
+               cameraElem.width = vw;
+               cameraElem.height = vh;
           });
     }
 }
