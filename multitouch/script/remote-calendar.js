@@ -894,11 +894,11 @@ var drawImage = function(canvas) {
         newBlueArray[n+3] = 255;
     }
 
-    if (colorTurn == 0)
+    if (splitColors || colorTurn == 0)
     redArray = newRedArray;
-    if (colorTurn == 1)
+    if (splitColors || colorTurn == 1)
     greenArray = newGreenArray;
-    if (colorTurn == 2)
+    if (splitColors || colorTurn == 2)
     blueArray = newBlueArray;
 
     var redImageData = new ImageData(newRedArray, 
