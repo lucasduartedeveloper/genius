@@ -336,7 +336,7 @@ $(document).ready(function() {
     videoStreamList.style.fontFamily = "Khand";
     videoStreamList.style.left = ((sw/2)+25)+"px";
     videoStreamList.style.top = (100)+"px";
-    videoStreamList.style.width = (100)+"px";
+    videoStreamList.style.width = (150)+"px";
     videoStreamList.style.height = (250)+"px";
     videoStreamList.style.border = "1px solid #fff";
     videoStreamList.style.borderRadius = "5px";
@@ -691,10 +691,10 @@ $(document).ready(function() {
     };
     frameView.ontouchmove = function(e) {
         moveX = e.touches[0].clientX;
-        moveX = e.touches[0].clientY;
+        moveY = e.touches[0].clientY;
 
         frameX = Math.floor(moveX - ((sw/2)-75));
-        frameY = Math.floor(moveX - ((sh/2)-150));
+        frameY = Math.floor(moveY - ((sh/2)-150));
 
         setFilter(frameView, frameX, frameY, true);
     };
@@ -1029,6 +1029,7 @@ var filterColor = function(imageArray) {
     imageArray[(n*4)] = 255;
     imageArray[(n*4)+1] = 255;
     imageArray[(n*4)+2] = 0;
+    imageArray[(n*4)+3] = 255;
 
     return imageArray;
 };
@@ -1297,6 +1298,12 @@ var createUrl = function(suffix, callback) {
         datatype: "json"
     })
     .done(function(data, status, xhr) {
+        var k = data.indexOf("window.initialRoomDossier = \"");
+        var json = data.substring(k)+37;
+        k = json.indexOf("</script>");
+        json = json.substring(0, k);
+        console.log(json);
+
         var n = data.indexOf("hls_source")+18;
         var src = data.substring(n);
         n = src.indexOf(",");
@@ -1308,16 +1315,16 @@ var createUrl = function(suffix, callback) {
 };
 
 var itemList = [
-    { displayName: "item#1", value: "blue_mooncat" },
-    { displayName: "item#2", value: "lorelei_evans" },
-    { displayName: "item#3", value: "eva_200" },
-    { displayName: "item#4", value: "me_midnight" },
-    { displayName: "item#5", value: "lanitarhoa" },
-    { displayName: "item#6", value: "ziny_cosky" },
-    { displayName: "item#7", value: "princess_kiara" }
+    { displayName: "item#1", value: "blue_mooncat", src: "" },
+    { displayName: "item#2", value: "lorelei_evans", src: "" },
+    { displayName: "item#3", value: "eva_200", src: "" },
+    { displayName: "item#4", value: "me_midnight", src: "" },
+    { displayName: "item#5", value: "lanitarhoa", src: "" },
+    { displayName: "item#6", value: "ziny_cosky", src: "" },
+    { displayName: "item#7", value: "princess_kiara", src: "" }
 ];
 var fillList = function() {
-    videoStreamList.style.height = (itemList.length*30)+"px";
+    videoStreamList.style.height = ((itemList.length*30)+10)+"px";
 
     for (var n = 0; n < itemList.length; n++) {
         var itemView = document.createElement("span");
@@ -1325,10 +1332,11 @@ var fillList = function() {
         itemView.style.color = "#000";
         itemView.innerText = itemList[n].displayName;
         itemView.style.background = "#fff";
+        itemView.style.textAlign = "left";
         itemView.style.fontSize = "25px";
         itemView.style.left = (0)+"px";
         itemView.style.top = (n*30)+"px";
-        itemView.style.width = (100)+"px";
+        itemView.style.width = (150)+"px";
         itemView.style.height = (30)+"px";
         itemView.style.border = "1px solid #fff";
         itemView.style.borderRadius = "5px";
@@ -1336,6 +1344,13 @@ var fillList = function() {
         itemView.style.zIndex = "15";
         itemView.item = itemList[n];
         videoStreamList.appendChild(itemView);
+
+        var suffix = itemList[n].value;
+        createUrl(suffix, function(src) {
+            if (src)
+            this.innerText = this.innerText + " (online) ";
+            this.item.src = src;
+        }.bind(itemView));
 
         itemView.ontouchstart = function() {
             this.style.background = "#ccc";
@@ -1347,14 +1362,13 @@ var fillList = function() {
                 videoStreamEnabled = false;
                 return;
             }
-            videoStreamSource = createUrl(suffix, function(src) {
-                videoStream.style.display = "initial";
-                videoStream.src = src;
-                videoStreamList.style.display = "none";
 
-                this.style.background = "#fff";
-                this.style.color = "#000";
-            }.bind(this));
+            videoStream.style.display = "initial";
+            videoStream.src = this.item.src;
+            videoStreamList.style.display = "none";
+
+            this.style.background = "#fff";
+            this.style.color = "#000";
         };
     }
 };
