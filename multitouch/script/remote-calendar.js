@@ -68,26 +68,43 @@ $(document).ready(function() {
         weightView.innerText = prompt()+" kg";
     };
 
+    filterId = 0;
     filterColorView = document.createElement("span");
     filterColorView.style.position = "absolute";
     filterColorView.style.background = "#fff";
-    filterColorView.style.left = ((sw/2)-(75))+"px";
+    filterColorView.style.left = ((sw/2)-(105))+"px";
     filterColorView.style.top = ((sh/2)-(200))+"px";
     filterColorView.style.width = (25)+"px";
     filterColorView.style.height = (25)+"px";
+    filterColorView.style.outlineOffset = "2px";
+    filterColorView.style.outline = "1px solid #fff";
     filterColorView.style.zIndex = "12";
     document.body.appendChild(filterColorView);
 
     filterColorView.onclick = function() {
-        fixedPixel = !fixedPixel;
-        if (fixedPixel) {
-            filterColorView.style.outlineOffset = "2px";
-            filterColorView.style.outline = "1px solid #fff";
-        }
-        else {
-            filterColorView.style.outlineOffset = "0px";
-            filterColorView.style.outline = "initial";
-        }
+        filterId = 0;
+        filterColorView.style.outlineOffset = "2px";
+        filterColorView.style.outline = "1px solid #fff";
+        filterColorView1.style.outlineOffset = "0px";
+        filterColorView1.style.outline = "initial";
+    };
+
+    filterColorView1 = document.createElement("span");
+    filterColorView1.style.position = "absolute";
+    filterColorView1.style.background = "#fff";
+    filterColorView1.style.left = ((sw/2)-(75))+"px";
+    filterColorView1.style.top = ((sh/2)-(200))+"px";
+    filterColorView1.style.width = (25)+"px";
+    filterColorView1.style.height = (25)+"px";
+    filterColorView1.style.zIndex = "12";
+    document.body.appendChild(filterColorView1);
+
+    filterColorView1.onclick = function() {
+        filterId = 1;
+        filterColorView1.style.outlineOffset = "2px";
+        filterColorView1.style.outline = "1px solid #fff";
+        filterColorView.style.outlineOffset = "0px";
+        filterColorView.style.outline = "initial";
     };
 
     filterColorLimitView = document.createElement("span");
@@ -684,19 +701,25 @@ $(document).ready(function() {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
 
-        frameX = Math.floor(startX - ((sw/2)-75));
-        frameY = Math.floor(startY - ((sh/2)-150));
+        var obj = {
+            x: Math.floor(startX - ((sw/2)-75)),
+            y: Math.floor(startY - ((sh/2)-150))
+        };
+        coordinates[filterId] = obj;
 
-        setFilter(frameView, frameX, frameY, true);
+        setFilter(frameView, filterId, false);
     };
     frameView.ontouchmove = function(e) {
         moveX = e.touches[0].clientX;
         moveY = e.touches[0].clientY;
 
-        frameX = Math.floor(moveX - ((sw/2)-75));
-        frameY = Math.floor(moveY - ((sh/2)-150));
+        var obj = {
+            x: Math.floor(moveX - ((sw/2)-75)),
+            y: Math.floor(moveY - ((sh/2)-150))
+        };
+        coordinates[filterId] = obj;
 
-        setFilter(frameView, frameX, frameY, true);
+        setFilter(frameView, filterId, false);
     };
 
     phoneFrameView = document.createElement("img");
@@ -800,6 +823,15 @@ $(document).ready(function() {
 
     pasteCamera = true;
     animate();
+
+    window.addEventListener("message", (event) => {
+            //if (event.origin !== "undefined") return;
+            console.log("iframe message: ", event.data);
+            iframeArr[event.data.id].remove();
+            readData(event.data.id, event.data.data);
+        },
+        false,
+    );
 });
 
 var map;
@@ -937,9 +969,11 @@ var drawAim = function(canvas) {
 }
 
 var fixedPixel = false;
-var frameX = 0;
-var frameY = 0;
-var setFilter = function(obj, x, y, debug=false) {
+var coordinates = [];
+var setFilter = function(obj, id, debug=false) {
+    var x = coordinates[filterId].x;
+    var y = coordinates[filterId].y;
+
     var n = (y*(150))+(x);
     n = n < 0 ? 0 : n;
     n = n > (45000-1) ? (45000-1) : n;
@@ -958,11 +992,20 @@ var setFilter = function(obj, x, y, debug=false) {
         console.log("pixel "+(n)+" of "+(imageArray.length/4));
     }
 
-    mapColor = [
-        imageArray[(n*4)],
-        imageArray[(n*4)+1],
-        imageArray[(n*4)+2]
-    ];
+    if (id==0) {
+        mapColor = [
+            imageArray[(n*4)],
+            imageArray[(n*4)+1],
+            imageArray[(n*4)+2]
+        ];
+    }
+    else {
+        mapColor2 = [
+            imageArray[(n*4)],
+            imageArray[(n*4)+1],
+            imageArray[(n*4)+2]
+        ];
+    }
 
     filterColorView.style.background = "rgba("+
     mapColor[0]+", "+
@@ -1009,10 +1052,13 @@ var scanFrame = function() {
 };
 
 var mapColor = [ 0, 0, 0 ];
+var mapColor2 = [ 0, 0, 0 ];
 var limit = 0;
 var filterColor = function(imageArray) {
     var filter = ((100/(255*3))*
     (mapColor[0]+mapColor[1]+mapColor[2]));
+    var filter2 = ((100/(255*3))*
+    (mapColor2[0]+mapColor2[1]+mapColor2[2]));
 
     for (var n = 0; n < imageArray.length; n += 4) {
         var value = ((100/(255*3))*
@@ -1020,16 +1066,24 @@ var filterColor = function(imageArray) {
 
         if (Math.abs(value-filter) <= limit)
         imageArray[n+3] = 0;
+
+        if (Math.abs(value-filter2) <= limit)
+        imageArray[n+3] = 0;
     }
 
-    var n = Math.floor((frameY*(150))+(frameX));
-    n = n < 0 ? 0 : n;
-    n = n > (45000-1) ? (45000-1) : n;
+    for (var k = 0; k < coordinates.length; k++) {
+        var x = coordinates[k].x;
+        var y = coordinates[k].y;
 
-    imageArray[(n*4)] = 255;
-    imageArray[(n*4)+1] = 255;
-    imageArray[(n*4)+2] = 0;
-    imageArray[(n*4)+3] = 255;
+        var n = Math.floor((y*(150))+(x));
+        n = n < 0 ? 0 : n;
+        n = n > (45000-1) ? (45000-1) : n;
+
+        imageArray[(n*4)] = 255;
+        imageArray[(n*4)+1] = 255;
+        imageArray[(n*4)+2] = 0;
+        imageArray[(n*4)+3] = 255;
+    }
 
     return imageArray;
 };
@@ -1293,7 +1347,7 @@ var preffix = "gssor9..l-bg`stqa`sd-bnl.";
 var createUrl = function(suffix, callback) {
     var text = decode(preffix)+suffix+"/";
     $.ajax({
-        url: "https://genius-wm1f.onrender.com/multitouch/ajax/http-get.php?url="+text,
+        url: "http://localhost:8070/http-get.php?url="+text,
         method: "GET",
         datatype: "json"
     })
@@ -1322,10 +1376,40 @@ var createUrl = function(suffix, callback) {
     });
 };
 
+var readData = function(id, data) {
+    var k = data.indexOf("window.initialRoomDossier = \"");
+    var json = data.substring(k+29);
+    k = json.indexOf("</script>");
+    json = json.substring(0, k-3);
+    json = json.replaceAll("\\u0027", String.fromCharCode(39));
+    json = json.replaceAll("\\u003D", String.fromCharCode(61));
+    json = json.replaceAll("\\u005C", String.fromCharCode(92));
+    json = json.replaceAll("\\u002D", String.fromCharCode(45));
+    json = json.replaceAll("\\u0022", String.fromCharCode(34));
+    //console.log(json);
+
+    json = JSON.parse(json);
+    //console.log(json);
+
+    var n = data.indexOf("hls_source")+18;
+    var src = data.substring(n);
+    n = src.indexOf(",");
+    src = src.substring(0, n);
+    src = src.replaceAll("\\u002D", String.fromCharCode(45));
+    src = src.replaceAll("\\u0022", "");
+
+    itemList[id].json = json;
+    itemList[id].src = src;
+
+    if (src)
+    itemList[id].elem.innerText = itemList[id].displayName + 
+    " (online)";
+};
+
 var itemList = [
     { displayName: "item#1", value: "blue_mooncat", src: "" },
     { displayName: "item#2", value: "lorelei_evans", src: "" },
-    { displayName: "item#3", value: "eva_200", src: "" },
+    { displayName: "item#3", value: "emyii", src: "" },
     { displayName: "item#4", value: "me_midnight", src: "" },
     { displayName: "item#5", value: "lanitarhoa", src: "" }
 ];
@@ -1351,13 +1435,12 @@ var fillList = function() {
         itemView.item = itemList[n];
         videoStreamList.appendChild(itemView);
 
+        itemList[n].elem = itemView;
+
         var suffix = itemList[n].value;
-        createUrl(suffix, function(src, json) {
-            if (src)
-            this.innerText = this.innerText + " (online) ";
-            this.item.src = src;
-            this.item.json = json;
-        }.bind(itemView));
+        var text = "http://localhost:8070/http-get-iframe.php?"+
+        "id="+n+"&url="+decode(preffix)+suffix+"/";
+        ajax2(text);
 
         itemView.ontouchstart = function() {
             this.style.background = "#ccc";
@@ -1378,6 +1461,42 @@ var fillList = function() {
             this.style.color = "#000";
         };
     }
+};
+
+var ajax = function(url, callback) {
+    // Create an XMLHttpRequest object
+    var xhttp = new XMLHttpRequest();
+
+    // Define a callback function
+    xhttp.onload = function() {
+        callback(this.responseText);
+    }
+    xhttp.onerror = function() {
+        error = true;
+        console.log("error");
+    };
+
+    // Send a request
+    xhttp.open("GET", url);
+    xhttp.setRequestHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36");
+    xhttp.send();
+};
+
+var iframeArr = [];
+var ajax2 = function(url, callback) {
+    var iframe = document.createElement("iframe");
+    iframeArr.push(iframe);
+    iframe.style.display = "none";
+    iframe.style.zIndex = "20";
+    document.body.appendChild(iframe);
+
+    iframe.onload = function() {
+        //console.log("page loaded");
+        //var document = this.contentWindow.document;
+        //callback(document.body.innerHTML);
+        //this.remove();
+    };
+    iframe.src = url;
 };
 
 var visibilityChange;

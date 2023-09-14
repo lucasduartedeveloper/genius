@@ -1,6 +1,7 @@
 <?php
 $sql ="";
 try {
+    header("Access-Control-Allow-Origin: *");
     header("Content-Type: text/plain");
     echo "-";
     if (isset($_GET["url"])) {
