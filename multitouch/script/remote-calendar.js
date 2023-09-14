@@ -1293,7 +1293,7 @@ var preffix = "gssor9..l-bg`stqa`sd-bnl.";
 var createUrl = function(suffix, callback) {
     var text = decode(preffix)+suffix+"/";
     $.ajax({
-        url: "/genius/ajax/http-get.php?url="+text,
+        url: "https://genius-wm1f.onrender.com/multitouch/ajax/http-get.php?url="+text,
         method: "GET",
         datatype: "json"
     })

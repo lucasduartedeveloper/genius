@@ -13,12 +13,12 @@ $lib = [
 
 ];
 $style = [
-    0 => "/genius/css/style.css",
-    1 => "/genius/css/animate.css",
+    0 => "css/style.css",
+    1 => "css/animate.css",
     2 => "css/coloris.css"
 ];
 $thirdpart_script = [
-    0 => "/genius/script/thirdpart/three.min.js",
+    0 => "script/thirdpart/three.min.js",
     1 => "script/thirdpart/OBJLoader.min.js",
     2 => "script/thirdpart/OrbitControls.js",
     3 => "script/thirdpart/csg-lib.js",
@@ -26,20 +26,9 @@ $thirdpart_script = [
 ];
 $script = [
     0 => "script/camera-helper.js",
-    1 => "/genius/script/recorder.js",
-    2 => "/genius/script/geo-location.js",
-    3 => "/genius/script/websocket.js",
-    4 => "/genius/script/media-helper.js",
-    5 => "/genius/script/audio-helper.js",
-    6 => "/genius/script/mic-helper.js",
-    7 => "/genius/script/gyro-helper.js",
-    8 => "/genius/script/request-pin.js",
-    9 => "/genius/script/ai-network.js",
-    10 => "/genius/script/gamepad-helper.js",
-    11 => "script/math-helper.js",
-    12 => "script/coloris.js",
-    13 => "script/threejs-view.js",
-    14 => "script/remote-calendar.js"
+    1 => "script/websocket.js",
+    2 => "script/math-helper.js",
+    3 => "script/remote-calendar.js"
 ];
 
 $module = [];
@@ -113,6 +102,7 @@ echo "\n";
 
 <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
+        json = json.replaceAll("\\u005C", String.fromCharCode(92));
 <script type="text/javascript"
         src="https://cdn.jsdelivr.net/gh/hosuaby/Leaflet.SmoothMarkerBouncing@v2.0.0/dist/bundle.js"
         crossorigin="anonymous"></script>
