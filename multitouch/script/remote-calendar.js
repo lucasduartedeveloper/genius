@@ -1013,6 +1013,12 @@ var setFilter = function(obj, id, debug=false) {
     mapColor[2]+", "+
     "255)";
 
+    filterColorView1.style.background = "rgba("+
+    mapColor2[0]+", "+
+    mapColor2[1]+", "+
+    mapColor2[2]+", "+
+    "255)";
+
     if (debug)
     console.log("color ("+
         mapColor[0]+", "+
@@ -1181,7 +1187,9 @@ var drawImage = function(canvas) {
     blueArray = newBlueArray;
 
     if (fixedPixel)
-    setFilter(imageArray, frameX, frameY);
+    setFilter(imageArray, 0);
+    if (fixedPixel)
+    setFilter(imageArray, 1);
 
     var filteredArray = filterColor(imageArray);
     var newImageData = new ImageData(filteredArray, 
