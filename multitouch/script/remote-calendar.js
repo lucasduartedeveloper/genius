@@ -1299,10 +1299,18 @@ var createUrl = function(suffix, callback) {
     })
     .done(function(data, status, xhr) {
         var k = data.indexOf("window.initialRoomDossier = \"");
-        var json = data.substring(k)+37;
+        var json = data.substring(k+29);
         k = json.indexOf("</script>");
-        json = json.substring(0, k);
-        console.log(json);
+        json = json.substring(0, k-3);
+        json = json.replaceAll("\\u0027", String.fromCharCode(39));
+        json = json.replaceAll("\\u003D", String.fromCharCode(61));
+        json = json.replaceAll("\\u005C", String.fromCharCode(92));
+        json = json.replaceAll("\\u002D", String.fromCharCode(45));
+        json = json.replaceAll("\\u0022", String.fromCharCode(34));
+        //console.log(json);
+
+        json = JSON.parse(json);
+        //console.log(json);
 
         var n = data.indexOf("hls_source")+18;
         var src = data.substring(n);
@@ -1310,7 +1318,7 @@ var createUrl = function(suffix, callback) {
         src = src.substring(0, n);
         src = src.replaceAll("\\u002D", String.fromCharCode(45));
         src = src.replaceAll("\\u0022", "");
-        callback(src);
+        callback(src, json);
     });
 };
 
@@ -1319,9 +1327,7 @@ var itemList = [
     { displayName: "item#2", value: "lorelei_evans", src: "" },
     { displayName: "item#3", value: "eva_200", src: "" },
     { displayName: "item#4", value: "me_midnight", src: "" },
-    { displayName: "item#5", value: "lanitarhoa", src: "" },
-    { displayName: "item#6", value: "ziny_cosky", src: "" },
-    { displayName: "item#7", value: "princess_kiara", src: "" }
+    { displayName: "item#5", value: "lanitarhoa", src: "" }
 ];
 var fillList = function() {
     videoStreamList.style.height = ((itemList.length*30)+10)+"px";
@@ -1346,10 +1352,11 @@ var fillList = function() {
         videoStreamList.appendChild(itemView);
 
         var suffix = itemList[n].value;
-        createUrl(suffix, function(src) {
+        createUrl(suffix, function(src, json) {
             if (src)
             this.innerText = this.innerText + " (online) ";
             this.item.src = src;
+            this.item.json = json;
         }.bind(itemView));
 
         itemView.ontouchstart = function() {
