@@ -729,7 +729,7 @@ $(document).ready(function() {
 
     frameViewBackside = document.createElement("img");
     frameViewBackside.style.position = "absolute";
-    frameViewBackside.style.background = "rgba(255, 0, 255, 1)";
+    frameViewBackside.style.background = "#fff";
     frameViewBackside.style.objectFit = "cover";
     frameViewBackside.width = 150;
     frameViewBackside.height = 300;
