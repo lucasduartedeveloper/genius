@@ -620,23 +620,23 @@ $(document).ready(function() {
     var audio = new Audio("audio/700-hz-beep.wav?rnd="+rnd);
     audio.loop = true;
 
-    alzheimerView = document.createElement("i");
-    alzheimerView.style.position = "absolute";
-    alzheimerView.style.color = "#fff";
-    alzheimerView.className = "fa-solid fa-bell";
-    alzheimerView.style.lineHeight = "50px";
-    alzheimerView.style.fontSize = "30px";
-    alzheimerView.style.left = (5)+"px";
-    alzheimerView.style.bottom = (5)+"px";
-    alzheimerView.style.width = (50)+"px";
-    alzheimerView.style.height = (50)+"px"; 
-    alzheimerView.style.border = "1px solid #fff";
-    alzheimerView.style.borderRadius = "50%";
-    alzheimerView.style.scale = "0.9";
-    alzheimerView.style.zIndex = "12";
-    document.body.appendChild(alzheimerView);
+    locateView = document.createElement("i");
+    locateView.style.position = "absolute";
+    locateView.style.color = "#fff";
+    locateView.className = "fa-solid fa-bell";
+    locateView.style.lineHeight = "50px";
+    locateView.style.fontSize = "30px";
+    locateView.style.left = (5)+"px";
+    locateView.style.bottom = (5)+"px";
+    locateView.style.width = (50)+"px";
+    locateView.style.height = (50)+"px"; 
+    locateView.style.border = "1px solid #fff";
+    locateView.style.borderRadius = "50%";
+    locateView.style.scale = "0.9";
+    locateView.style.zIndex = "12";
+    document.body.appendChild(locateView);
 
-    alzheimerView.onclick = function() {
+    locateView.onclick = function() {
         if (audio.paused)
         audio.play();
         else {
@@ -899,7 +899,7 @@ $(document).ready(function() {
 
         rotationControlView.style.transform = 
         "rotateZ("+rotationZ+"deg)";
-        hornView.style.transform = 
+        locateView.style.transform = 
         "rotateZ("+rotationZ+"deg)";
 
         frameView.style.display = flipY ? "none" : "initial";
@@ -919,7 +919,7 @@ $(document).ready(function() {
             frameViewContainer.style.transform = "initial";
 
             rotationControlView.style.transform = "initial";
-            hornView.style.transform = "initial";
+            locateView.style.transform = "initial";
 
             phoneFrameView.style.transform = "initial";
 
