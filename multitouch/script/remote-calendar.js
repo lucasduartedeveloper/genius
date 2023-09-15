@@ -541,6 +541,44 @@ $(document).ready(function() {
     videoStream.style.zIndex = "11";
     document.body.appendChild(videoStream);
 
+    var vsw = 420;
+    var vsh = 240;
+    var vsw_cover = (vsw/vsh)*sh;
+    var vsh_cover = sh;
+
+    videoStreamOffsetX = (sw/2)-(vsw_cover/2);
+
+    videoStream.ontouchstart = function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+
+        videoStreamOffsetX += (startX-(sw/2));
+        videoStreamOffsetX = 
+        videoStreamOffsetX < -(vsw_cover-sw) ?
+        -(vsw_cover-sw) : videoStreamOffsetX;
+        videoStreamOffsetX = 
+        videoStreamOffsetX > 0 ?
+        0 : videoStreamOffsetX;
+
+        videoStream.style.objectPosition = 
+        (videoStreamOffsetX) + "px 50%";
+    };
+    videoStream.ontouchmove = function(e) {
+        moveX = e.touches[0].clientX;
+        moveY = e.touches[0].clientY;
+
+        videoStreamOffsetX += (moveX-(sw/2));
+        videoStreamOffsetX = 
+        videoStreamOffsetX < -(vsw_cover-sw) ?
+        -(vsw_cover-sw) : videoStreamOffsetX;
+        videoStreamOffsetX = 
+        videoStreamOffsetX > 0 ?
+        0 : videoStreamOffsetX;
+
+        videoStream.style.objectPosition = 
+        (videoStreamOffsetX) + "px 50%";
+    };
+
     aimView = document.createElement("canvas");
     aimView.style.position = "absolute";
     aimView.width = 25;
@@ -569,7 +607,7 @@ $(document).ready(function() {
     mapControlView.style.border = "1px solid #fff";
     mapControlView.style.borderRadius = "50%";
     mapControlView.style.scale = "0.9";
-    mapControlView.style.zIndex = "17";
+    mapControlView.style.zIndex = "12";
     document.body.appendChild(mapControlView);
 
     mapControlView.onclick = function() {
@@ -1094,6 +1132,8 @@ var filterColor = function(imageArray) {
     return imageArray;
 };
 
+
+
 var drawImage = function(canvas) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 150, 300);
@@ -1210,6 +1250,12 @@ var drawImage = function(canvas) {
     ctx.putImageData(greenImageData, 0, 0);
     else if (colorTurn == 2)
     ctx.putImageData(blueImageData, 0, 0);
+
+    ctx.fillStyle = "#fff";
+    ctx.font = "15px sans serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("00:00", 25, 15);
 
     var ctx0 = frameView0.getContext("2d");
     var ctx1 = frameView1.getContext("2d");
@@ -1418,7 +1464,7 @@ var itemList = [
     { displayName: "item#1", value: "blue_mooncat", src: "" },
     { displayName: "item#2", value: "lorelei_evans", src: "" },
     { displayName: "item#3", value: "emyii", src: "" },
-    { displayName: "item#4", value: "me_midnight", src: "" },
+    { displayName: "item#4", value: "vixenp", src: "" },
     { displayName: "item#5", value: "lanitarhoa", src: "" }
 ];
 var fillList = function() {
