@@ -593,6 +593,58 @@ $(document).ready(function() {
 
     drawAim(aimView);
 
+    rotationSize = 45;
+    rotationControlView = document.createElement("div");
+    rotationControlView.style.position = "absolute";
+    rotationControlView.style.color = "#fff";
+    rotationControlView.innerText = (rotationSize)+"°";
+    rotationControlView.style.lineHeight = "50px";
+    rotationControlView.style.fontSize = "30px";
+    rotationControlView.style.fontFamily = "Khand";
+    rotationControlView.style.left = (5)+"px";
+    rotationControlView.style.top = (5)+"px";
+    rotationControlView.style.width = (50)+"px";
+    rotationControlView.style.height = (50)+"px"; 
+    rotationControlView.style.border = "1px solid #fff";
+    rotationControlView.style.borderRadius = "50%";
+    rotationControlView.style.scale = "0.9";
+    rotationControlView.style.zIndex = "12";
+    document.body.appendChild(rotationControlView);
+
+    rotationControlView.onclick = function() {
+        rotationSize = (rotationSize+5) > 45 ? 5 : (rotationSize+5);
+        rotationControlView.innerText = (rotationSize)+"°";
+    };
+
+    var rnd = Math.random();
+    var audio = new Audio("audio/700-hz-beep.wav?rnd="+rnd);
+    audio.loop = true;
+
+    alzheimerView = document.createElement("i");
+    alzheimerView.style.position = "absolute";
+    alzheimerView.style.color = "#fff";
+    alzheimerView.className = "fa-solid fa-bell";
+    alzheimerView.style.lineHeight = "50px";
+    alzheimerView.style.fontSize = "30px";
+    alzheimerView.style.left = (5)+"px";
+    alzheimerView.style.bottom = (5)+"px";
+    alzheimerView.style.width = (50)+"px";
+    alzheimerView.style.height = (50)+"px"; 
+    alzheimerView.style.border = "1px solid #fff";
+    alzheimerView.style.borderRadius = "50%";
+    alzheimerView.style.scale = "0.9";
+    alzheimerView.style.zIndex = "12";
+    document.body.appendChild(alzheimerView);
+
+    alzheimerView.onclick = function() {
+        if (audio.paused)
+        audio.play();
+        else {
+        audio.currentTime = 0;
+        audio.pause();
+        }
+    };
+
     mapEnabled = false;
     mapControlView = document.createElement("i");
     mapControlView.style.position = "absolute";
@@ -826,11 +878,14 @@ $(document).ready(function() {
         var accX = (1/(sw-50))*(moveX-startX);
         var accY = (1/(sw-50))*(moveY-startY);
 
-        if (Math.abs(offsetX) > Math.abs(offsetY)) {
+        if (Math.abs(offsetX) > Math.abs(offsetY) || 
+            Math.abs(offsetY) < 50) {
             if (moveY < ((sh/2)+250))
-            rotationZ = Math.floor(((accX*360)/5))*5;
-            else
-            translation = (moveX-(sw/2));
+            rotationZ = 
+            Math.floor(((accX*360)/rotationSize))*rotationSize;
+            else {
+                translation = (moveX-(sw/2));
+            }
         }
         else {
             flipY = accY < 0;
@@ -842,6 +897,11 @@ $(document).ready(function() {
         (flipY ? "rotateY(-180deg) " : "") +
         "rotateZ("+rotationZ+"deg)";
 
+        rotationControlView.style.transform = 
+        "rotateZ("+rotationZ+"deg)";
+        hornView.style.transform = 
+        "rotateZ("+rotationZ+"deg)";
+
         frameView.style.display = flipY ? "none" : "initial";
         frameViewBackside.style.display = flipY ? "initial" : "none";
 
@@ -851,12 +911,16 @@ $(document).ready(function() {
     };
     camera.ontouchend = function(e) {
         if ((new Date().getTime() - startTime) < 3000) {
-            translation = 0;
+            translation =  0;
             flipY = false;
             rotationZ = 0;
 
             frameViewContainer.style.left = ((sw/2)-75)+"px";
             frameViewContainer.style.transform = "initial";
+
+            rotationControlView.style.transform = "initial";
+            hornView.style.transform = "initial";
+
             phoneFrameView.style.transform = "initial";
 
             frameView.style.display = flipY ? "none" : "initial";
