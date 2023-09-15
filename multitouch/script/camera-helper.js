@@ -31,6 +31,7 @@ function startCamera(color=true) {
           navigator.mediaDevices
           .getUserMedia({ 
           video: videoDevices.length == 0 ? true : {
+          focusMode: "manual",
           deviceId: { 
                exact: videoDevices[deviceNo].deviceId
           } }, 
@@ -39,10 +40,20 @@ function startCamera(color=true) {
                console.log("camera started");
                cameraOn = true;
 
-               var display = stream.
-               getVideoTracks()[0].getSettings();
+               var track = stream.getVideoTracks()[0];
+               var display = track.getSettings();
+
+               console.log(display);
                vw = display.width;
                vh = display.height;
+
+               var capabilities = track.getCapabilities();
+               console.log(capabilities);
+
+               focusMin = capabilities.zoom.min;
+               focusMax = capabilities.zoom.max;
+               focusStep = capabilities.zoom.step;
+               focusDistance = display.zoom;
 
                cameraElem.srcObject = stream;
                cameraElem.width = vw;
@@ -50,6 +61,44 @@ function startCamera(color=true) {
           });
     }
 }
+
+var focusMin = 0;
+var focusMax = 0;
+var focusStep = 0;
+var focusDistance = 0;
+function setFocus(value) {
+    console.log(value);
+    focusDistance = value;
+
+    var track = cameraElem.srcObject.getVideoTracks()[0];
+    var settings = track.getSettings();
+    var capabilities = track.getCapabilities();
+
+    // Check whether focus distance is supported or not.
+    if (!capabilities.focusDistance) {
+        return;
+    }
+
+    track.applyConstraints({
+        "advanced": [{
+            "focusMode": "manual",
+            "zoom": value
+        }]
+    });
+    settings.focusDistance = focusDistance;
+};
+
+function getCapabilities() {
+    var track = cameraElem.srcObject.getVideoTracks()[0];
+    var capabilities = track.getCapabilities();
+    return capabilities;
+};
+
+function getSettings() {
+    var track = cameraElem.srcObject.getVideoTracks()[0];
+    var settings = track.getSettings();
+    return settings;
+};
 
 function stopCamera() {
     if (cameraElem.srcObject) {

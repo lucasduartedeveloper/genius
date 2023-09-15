@@ -234,7 +234,7 @@ $(document).ready(function() {
     document.body.appendChild(combineView);
 
     combineView.onclick = function() {
-        pasteCamera = !pasteCamera;
+        updateImage = !updateImage;
         if (!pasteCamera)
         combineArray(frameView);
     };
@@ -256,7 +256,7 @@ $(document).ready(function() {
     document.body.appendChild(combineView_effect0);
 
     combineView_effect0.onclick = function() {
-        pasteCamera = !pasteCamera;
+        updateImage = !updateImage;
         if (!pasteCamera)
         combineArray_effect0(frameView);
     };
@@ -449,14 +449,14 @@ $(document).ready(function() {
                 timerView.innerText = delay;
 
                 if (splitColors) {
-                    pasteCamera = false;
+                    updateImage = false;
                     drawImage(frameView);
                     clearInterval(timerInterval);
                     beepDone.play();
                     onTimer = false;
                 }
                 else if (colorTurn == 0) {
-                    pasteCamera = false;
+                    updateImage = false;
                     combineArray(frameView);
                     clearInterval(timerInterval);
                     beepDone.play();
@@ -880,9 +880,20 @@ $(document).ready(function() {
 
         if (Math.abs(offsetX) > Math.abs(offsetY) || 
             Math.abs(offsetY) < 50) {
-            if (moveY < ((sh/2)+250))
-            rotationZ = 
-            Math.floor(((accX*360)/rotationSize))*rotationSize;
+            if (moveY < ((sh/2)+200)) {
+                var focusTotal = focusMax - focusMin;
+                var newFocus = 
+                ((accX*focusTotal)/focusStep)*focusStep;
+                newFocus = newFocus < focusMin ? 
+                focusMin : newFocus;
+                newFocus = newFocus > focusMax ?
+                focusMax : newFocus;
+                setFocus(newFocus);
+            }
+            else if (moveY < ((sh/2)+250)) {
+                rotationZ = 
+                Math.floor(((accX*360)/rotationSize))*rotationSize;
+            }
             else {
                 translation = (moveX-(sw/2));
             }
@@ -945,7 +956,7 @@ $(document).ready(function() {
             msg[2] == "image-data") {
             var img = document.createElement("img");
             img.onload = function() {
-                pasteCamera = false;
+                updateImage = false;
                 var ctx = frameView.getContext("2d");
                 ctx.drawImage(img, 0, 0, 150, 300);
                 ws.send("PAPER|"+playerId+"|remote-downloaded");
@@ -958,6 +969,10 @@ $(document).ready(function() {
             remoteDownloaded = true;
         }
     };
+
+    storedImage = document.createElement("canvas");
+    storedImage.width = 150;
+    storedImage.height = 300;
 
     pasteCamera = true;
     animate();
@@ -1232,6 +1247,7 @@ var filterColor = function(imageArray) {
     return imageArray;
 };
 
+var updateImage = true;
 var drawImage = function(canvas) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 150, 300);
@@ -1254,44 +1270,49 @@ var drawImage = function(canvas) {
     -(rotationZ*(Math.PI/180)) : 
     (rotationZ*(Math.PI/180));
 
-    ctx.save();
-    if (cameraOn && deviceNo == 0) {
-        ctx.scale(-1, 1);
-        ctx.translate(-150, 0);
-    }
-    /*if (flipY) {
-        ctx.scale(-1, 1);
-        ctx.translate(-150, 0);
-    }*/
-
-    ctx.translate(75, 150);
-    ctx.rotate(-radiansZ);
-    ctx.translate(-75, -150);
-
-    if (cameraOn) {
-        ctx.drawImage(camera, left, format.top, 
-        format.width, format.height);
+    if (!updateImage) {
+        ctx.drawImage(storedImage, 0, 0, 150, 300);
     }
     else {
-        var sw_zoom = (sw/zoom);
-        var sh_zoom = (sh/zoom);
+        ctx.save();
+        if (cameraOn && deviceNo == 0) {
+            ctx.scale(-1, 1);
+            ctx.translate(-150, 0);
+        }
+        /*if (flipY) {
+            ctx.scale(-1, 1);
+            ctx.translate(-150, 0);
+        }*/
 
-        var format = {
-            left: (75-(sw_zoom/2)),
-            top: (150-(sh_zoom/2)),
-            width: (sw_zoom),
-            height: (sh_zoom)
-        };
+        ctx.translate(75, 150);
+        ctx.rotate(-radiansZ);
+        ctx.translate(-75, -150);
 
-        var left = 
-        format.left-translation;
+        if (cameraOn) {
+            ctx.drawImage(camera, left, format.top, 
+            format.width, format.height);
+        }
+        else {
+            var sw_zoom = (sw/zoom);
+            var sh_zoom = (sh/zoom);
 
-        ctx.drawImage(placeholderImage, left, format.top, 
-        format.width, format.height);
+            var format = {
+                left: (75-(sw_zoom/2)),
+                top: (150-(sh_zoom/2)),
+                width: (sw_zoom),
+                height: (sh_zoom)
+            };
+
+            var left = 
+            format.left-translation;
+
+            ctx.drawImage(placeholderImage, left, format.top, 
+            format.width, format.height);
+        }
+
+        ctx.rotate(radiansZ);
+        ctx.restore();
     }
-
-    ctx.rotate(radiansZ);
-    ctx.restore();
 
     var imageData = ctx.getImageData(0, 0, 150, 300);
     var imageArray = imageData.data;
@@ -1328,6 +1349,12 @@ var drawImage = function(canvas) {
     setFilter(imageArray, 0);
     if (fixedPixel)
     setFilter(imageArray, 1);
+
+    if (updateImage) {
+        var storedCtx = storedImage.getContext("2d");
+        storedCtx.clearRect(0, 0, 150, 300);
+        storedCtx.drawImage(canvas, 0, 0, 150, 300);
+    }
 
     var filteredArray = filterColor(imageArray);
     var newImageData = new ImageData(filteredArray, 
