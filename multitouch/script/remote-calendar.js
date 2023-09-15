@@ -717,25 +717,52 @@ $(document).ready(function() {
         blueEnabled ? "2px solid lightblue" : "initial";
     };
 
+    frameViewContainer = document.createElement("div");
+    frameViewContainer.style.position = "absolute";
+    frameViewContainer.style.left = ((sw/2)-75)+"px";
+    frameViewContainer.style.top = ((sh/2)-150)+"px";
+    frameViewContainer.style.width = (150)+"px";
+    frameViewContainer.style.height = (300)+"px"; 
+    frameViewContainer.style.outline = "10px solid #000";
+    frameViewContainer.style.zIndex = "15";
+    document.body.appendChild(frameViewContainer);
+
+    frameViewBackside = document.createElement("img");
+    frameViewBackside.style.position = "absolute";
+    frameViewBackside.style.background = "rgba(255, 0, 255, 1)";
+    frameViewBackside.style.objectFit = "cover";
+    frameViewBackside.width = 150;
+    frameViewBackside.height = 300;
+    frameViewBackside.style.left = (0)+"px";
+    frameViewBackside.style.top = (0)+"px";
+    frameViewBackside.style.width = (150)+"px";
+    frameViewBackside.style.height = (300)+"px"; 
+    frameViewBackside.style.transform = "rotateY(-180deg)";
+    frameViewBackside.style.outline = "10px solid #000";
+    frameViewBackside.style.zIndex = "15";
+    frameViewContainer.appendChild(frameViewBackside);
+
+    frameViewBackside.src = "img/backside-0.png";
+
     frameView = document.createElement("canvas");
     frameView.style.position = "absolute";
     frameView.style.background = "rgba(255, 0, 255, 1)";
     frameView.style.objectFit = "cover";
     frameView.width = 150;
     frameView.height = 300;
-    frameView.style.left = ((sw/2)-75)+"px";
-    frameView.style.top = ((sh/2)-150)+"px";
+    frameView.style.left = (0)+"px";
+    frameView.style.top = (0)+"px";
     frameView.style.width = (150)+"px";
     frameView.style.height = (300)+"px"; 
     frameView.style.outline = "10px solid #000";
     //frameView.style.borderRadius = "10px";
     //frameView.style.boxShadow = "0px 0px 10px #000";
     frameView.style.zIndex = "15";
-    document.body.appendChild(frameView);
+    frameViewContainer.appendChild(frameView);
 
     frameView.getContext("2d").imageSmoothingEnabled = false;
 
-    frameView.ontouchstart = function(e) {
+    frameViewContainer.ontouchstart = function(e) {
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
 
@@ -747,7 +774,7 @@ $(document).ready(function() {
 
         setFilter(frameView, filterId, false);
     };
-    frameView.ontouchmove = function(e) {
+    frameViewContainer.ontouchmove = function(e) {
         moveX = e.touches[0].clientX;
         moveY = e.touches[0].clientY;
 
@@ -808,9 +835,14 @@ $(document).ready(function() {
             flipY = accY < 0;
         }
 
-        frameView.style.left = (((sw/2)-75)+(translation))+"px";
-        frameView.style.transform = 
+        frameViewContainer.style.left = 
+        (((sw/2)-75)+(translation))+"px";
+        frameViewContainer.style.transform = 
+        (flipY ? "rotateY(-180deg) " : "") +
         "rotateZ("+rotationZ+"deg)";
+
+        frameView.style.display = flipY ? "none" : "initial";
+        frameViewBackside.style.display = flipY ? "initial" : "none";
 
         mapView.style.left = (((sw/2)-75)+(translation))+"px";
         mapView.style.transform = 
@@ -822,9 +854,12 @@ $(document).ready(function() {
             flipY = false;
             rotationZ = 0;
 
-            frameView.style.left = ((sw/2)-75)+"px";
-            frameView.style.transform = "initial";
+            frameViewContainer.style.left = ((sw/2)-75)+"px";
+            frameViewContainer.style.transform = "initial";
             phoneFrameView.style.transform = "initial";
+
+            frameView.style.display = flipY ? "none" : "initial";
+            frameViewBackside.style.display = flipY ? "initial" : "none";
 
             mapView.style.left = ((sw/2)-75)+"px";
             mapView.style.transform = "initial";
@@ -1132,8 +1167,6 @@ var filterColor = function(imageArray) {
     return imageArray;
 };
 
-
-
 var drawImage = function(canvas) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 150, 300);
@@ -1161,10 +1194,10 @@ var drawImage = function(canvas) {
         ctx.scale(-1, 1);
         ctx.translate(-150, 0);
     }
-    if (flipY) {
+    /*if (flipY) {
         ctx.scale(-1, 1);
         ctx.translate(-150, 0);
-    }
+    }*/
 
     ctx.translate(75, 150);
     ctx.rotate(-radiansZ);
@@ -1465,7 +1498,8 @@ var itemList = [
     { displayName: "item#2", value: "lorelei_evans", src: "" },
     { displayName: "item#3", value: "emyii", src: "" },
     { displayName: "item#4", value: "vixenp", src: "" },
-    { displayName: "item#5", value: "lanitarhoa", src: "" }
+    { displayName: "item#5", value: "lanitarhoa", src: "" },
+    { displayName: "item#6", value: "your_dirty_secret", src: "" }
 ];
 var fillList = function() {
     videoStreamList.style.height = ((itemList.length*30)+10)+"px";
