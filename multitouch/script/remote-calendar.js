@@ -742,7 +742,8 @@ $(document).ready(function() {
     frameViewBackside.style.zIndex = "15";
     frameViewContainer.appendChild(frameViewBackside);
 
-    frameViewBackside.src = "img/backside-0.png";
+    var rnd = Math.random();
+    frameViewBackside.src = "img/backside-0.png?rnd="+rnd;
 
     frameView = document.createElement("canvas");
     frameView.style.position = "absolute";
@@ -827,7 +828,7 @@ $(document).ready(function() {
 
         if (Math.abs(offsetX) > Math.abs(offsetY)) {
             if (moveY < ((sh/2)+250))
-            rotationZ = (accX*360);
+            rotationZ = Math.floor(((accX*360)/5))*5;
             else
             translation = (moveX-(sw/2));
         }
