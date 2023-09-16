@@ -896,7 +896,8 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         if (from == 0 && dice.grid.x == 4) return;
         if (from == 1 && dice.grid.y == 4) return;
         if (from == 2 && dice.grid.x == 0) return;
-        if (from == 3 && dice.grid.y == 0) return;
+        if ((from == 3 && dice.grid.y == 0) && 
+        !(dice.grid.x == 2 && !exitTile.visible)) return;
         if (dice.isRolling) return;
         this.rollPoint.rotation.set(0, 0, 0);
         beginRoll(this, from);
@@ -910,7 +911,8 @@ var createDice = function(pos = { x: 0, y: -2.5, z: 0 }) {
         if (from == 0 && dice.grid.x == 4) return;
         if (from == 1 && dice.grid.y == 4) return;
         if (from == 2 && dice.grid.x == 0) return;
-        if (from == 3 && dice.grid.y == 0) return;
+        if ((from == 3 && dice.grid.y == 0) && 
+        !(dice.grid.x == 2 && !exitTile.visible)) return;
         if (dice.isPulling) return;
         beginPull(this, from);
     };
@@ -1114,6 +1116,11 @@ var endRoll = function(dice) {
     var worldRotation = new THREE.Euler();
     worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
 
+    if (gridX == 2 && gridY == -1) {
+        dice.object.visible = false;
+        return;
+    }
+
     for (var n = 0; n < checkpoints.length; n++) {
         var checkpoint = checkpoints[n];
         var value = getDiceValue(dice.object);
@@ -1291,6 +1298,11 @@ var endPull = function(dice) {
     topCover.getWorldQuaternion(worldQuaternion);
     var worldRotation = new THREE.Euler();
     worldRotation.setFromQuaternion(worldQuaternion, "XYZ");
+
+    if (gridX == 2 && gridY == -1) {
+        dice.object.visible = false;
+        return;
+    }
 
     for (var n = 0; n < checkpoints.length; n++) {
         var checkpoint = checkpoints[n];
@@ -1722,6 +1734,13 @@ var startBot = function() {
         var gridX = dices[0].grid.x;
         var gridY = dices[0].grid.y;
 
+        if (gridX == bot.destination.x &&
+        gridY == bot.destination.y /*&&
+        getDiceValue(dices[0].object) == bot.number*/) {
+            stopBot();
+            return;
+        }
+
         var hor = gridX-bot.destination.x;
         var ver = gridY-bot.destination.y;
 
@@ -1738,12 +1757,6 @@ var startBot = function() {
         }
 
         dices[0].beginRoll(from);
-
-        if (gridX == bot.destination.x &&
-        gridY == bot.destination.y &&
-        getDiceValue(dices[0].object) == bot.number) {
-            stopBot();
-        }
     }, 1000);
 };
 
