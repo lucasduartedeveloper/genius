@@ -1291,6 +1291,10 @@ var endPull = function(dice) {
     dice.object.position.x = (gridX*1.1)-(2*1.1);
     dice.object.position.z = (gridY*1.1)-(2*1.1);
 
+    dice.pullFrame = 0;
+    dice.isPulling = false;
+    scene.remove(dice.rollPoint);
+
     var topCover = getTopCover(dice);
     var worldPosition = new THREE.Vector3();
     topCover.getWorldPosition(worldPosition);
@@ -1356,10 +1360,6 @@ var endPull = function(dice) {
 
     var number = getDiceValue(dice.object, true);
     //dropCover(dice, number);
-
-    dice.pullFrame = 0;
-    dice.isPulling = false;
-    scene.remove(dice.rollPoint);
 
     updateBody(dice.object);
     dice.object.userData.pausePhysics = false;
