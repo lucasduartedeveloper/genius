@@ -1563,15 +1563,32 @@ var run = function() {
                     language = "en-US";
                 }
 
+                var move = 0;
+
                 var buttons = gamepad.buttons;
                 for (var k = 0; k < buttons.length; k++) {
-                    var index = gamepadButtons.indexOf(k);
-                    if (k == 3 && buttons[k].pressed && index == -1) {
+                    var wasPressed = gamepadButtons[k] && 
+                    gamepadButtons[k].pressed;
+                    if (k == 3 && !buttons[k].pressed && wasPressed) {
                          traceBack();
-                         buttons = buttons.splice(index, 1);
+                         //buttons = buttons.splice(index, 1);
                     }
-                    if (buttons[k].pressed && index == -1)
-                    gamepadButtons.push(k);
+                    if (k == 2 && !buttons[k].pressed && wasPressed) {
+                         move = 1;
+                         //buttons = buttons.splice(index, 1);
+                    }
+                    if (k == 0 && !buttons[k].pressed && wasPressed) {
+                         move = 2;
+                         //buttons = buttons.splice(index, 1);
+                    }
+                }
+
+                gamepadButtons = [];
+                for (var k = 0; k < buttons.length; k++) {
+                    var obj = {
+                        pressed: buttons[k].pressed
+                    };
+                    gamepadButtons[k] = obj;
                 }
 
                 if (axes[0] > 0.5) from = 0;
@@ -1580,8 +1597,14 @@ var run = function() {
                 else if (axes[1] < -0.5) from = 3;
 
                 if (from > -1) {
-                    ws.send("PAPER|"+playerId+"|remote-roll|"+from);
-                    dices[n].beginRoll(from);
+                    if (move == 1) {
+                        ws.send("PAPER|"+playerId+"|remote-roll|"+from);
+                        dices[n].beginRoll(from);
+                    }
+                    else if (move == 2) {
+                        ws.send("PAPER|"+playerId+"|remote-pull|"+from);
+                        dices[n].beginPull(from);
+                    }
                 }
             }
         }
