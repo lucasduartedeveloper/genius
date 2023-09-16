@@ -616,6 +616,27 @@ $(document).ready(function() {
         rotationControlView.innerText = (rotationSize)+"°";
     };
 
+    threejsEnabled = false;
+    threejsView = document.createElement("img");
+    threejsView.style.position = "absolute";
+    threejsView.style.left = (55)+"px";
+    threejsView.style.top = (5)+"px";
+    threejsView.style.width = (50)+"px";
+    threejsView.style.height = (50)+"px"; 
+    threejsView.style.border = "1px solid #fff";
+    threejsView.style.borderRadius = "50%";
+    threejsView.style.scale = "0.9";
+    threejsView.style.zIndex = "25";
+    document.body.appendChild(threejsView);
+
+    threejsView.src = "img/threejs-logo.png";
+
+    threejsView.onclick = function() {
+        threejsEnabled = !threejsEnabled;
+        renderer.domElement.style.display = threejsEnabled ? 
+        "initial" : "none";
+    };
+
     var rnd = Math.random();
     var audio = new Audio("audio/700-hz-beep.wav?rnd="+rnd);
     audio.loop = true;
@@ -732,7 +753,7 @@ $(document).ready(function() {
     frameView0.style.border = 
     redEnabled ? "2px solid lightblue" : "initial";
     frameView0.style.scale = "0.9";
-    frameView0.style.zIndex = "11";
+    frameView0.style.zIndex = "12";
     document.body.appendChild(frameView0);
 
     frameView0.onclick = function() {
@@ -752,7 +773,7 @@ $(document).ready(function() {
     frameView1.style.scale = "0.9";
     frameView1.style.border = 
     greenEnabled ? "2px solid lightblue" : "initial";
-    frameView1.style.zIndex = "11";
+    frameView1.style.zIndex = "12";
     document.body.appendChild(frameView1);
 
     frameView1.onclick = function() {
@@ -772,7 +793,7 @@ $(document).ready(function() {
     frameView2.style.scale = "0.9";
     frameView2.style.border = 
     blueEnabled ? "2px solid lightblue" : "initial";
-    frameView2.style.zIndex = "11";
+    frameView2.style.zIndex = "12";
     document.body.appendChild(frameView2);
 
     frameView2.onclick = function() {
@@ -987,6 +1008,7 @@ $(document).ready(function() {
     storedImage.height = 300;
 
     pasteCamera = true;
+    load3D((sw/sh));
     animate();
 
     window.addEventListener("message", (event) => {

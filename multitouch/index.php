@@ -28,7 +28,9 @@ $script = [
     0 => "script/camera-helper.js",
     1 => "script/websocket.js",
     2 => "script/math-helper.js",
-    3 => "script/remote-calendar.js"
+    3 => "script/texture-helper.js",
+    4 => "script/threejs-view.js",
+    5 => "script/remote-calendar.js"
 ];
 
 $module = [];
