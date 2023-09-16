@@ -1371,8 +1371,10 @@ var drawImage = function(canvas) {
     }
 
     var filteredArray = filterColor(imageArray);
-    var newImageData = new ImageData(filteredArray, 
-    imageData.width, imageData.height);
+    var newImageData = !glueColors ? 
+    new ImageData(filteredArray, 
+    imageData.width, imageData.height) : 
+    imageData;
 
     var redImageData = new ImageData(newRedArray, 
     imageData.width, imageData.height);
