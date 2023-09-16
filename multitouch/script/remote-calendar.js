@@ -235,7 +235,7 @@ $(document).ready(function() {
 
     combineView.onclick = function() {
         updateImage = !updateImage;
-        if (!pasteCamera)
+        pasteCamera = !glueColors;
         combineArray(frameView);
     };
 
@@ -257,7 +257,7 @@ $(document).ready(function() {
 
     combineView_effect0.onclick = function() {
         updateImage = !updateImage;
-        if (!pasteCamera)
+        pasteCamera = !glueColors;
         combineArray_effect0(frameView);
     };
 
@@ -700,9 +700,21 @@ $(document).ready(function() {
     document.body.appendChild(splitColorsView);
 
     splitColorsView.onclick = function() {
-        splitColors = !splitColors;
+        colorMode = (colorMode+1) < 3 ? (colorMode+1) : 0;
+
+        /* 
+        splitColors = !splitColors && !glueColors;
+        glueColors = !glueColors && !splitColors;
+        */
+
+        splitColors = (colorMode == 2);
+        glueColors = (colorMode == 1);
+
         if (splitColors) {
             splitColorsView.innerText = "SPLIT";
+        }
+        else if (glueColors) {
+            splitColorsView.innerText = "GLUE";
         }
         else {
             splitColorsView.innerText = "SPACED";
@@ -1055,7 +1067,9 @@ var getPolygon = function() {
 
 var colorTurn = 0;
 
+var colorMode = 2;
 var splitColors = true;
+var glueColors = false;
 
 var redEnabled = true;
 var redArray = null;
