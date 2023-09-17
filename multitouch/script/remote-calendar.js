@@ -71,7 +71,8 @@ $(document).ready(function() {
     filterId = 0;
     filterColorView = document.createElement("span");
     filterColorView.style.position = "absolute";
-    filterColorView.style.background = "#fff";
+    filterColorView.style.background = 
+    "rgba("+mapColor[0]+","+mapColor[1]+","+mapColor[2]+",1)";
     filterColorView.style.left = ((sw/2)-(105))+"px";
     filterColorView.style.top = ((sh/2)-(200))+"px";
     filterColorView.style.width = (25)+"px";
@@ -91,7 +92,8 @@ $(document).ready(function() {
 
     filterColorView1 = document.createElement("span");
     filterColorView1.style.position = "absolute";
-    filterColorView1.style.background = "#fff";
+    filterColorView1.style.background = 
+    "rgba("+mapColor2[0]+","+mapColor2[1]+","+mapColor2[2]+",1)";
     filterColorView1.style.left = ((sw/2)-(75))+"px";
     filterColorView1.style.top = ((sh/2)-(200))+"px";
     filterColorView1.style.width = (25)+"px";
@@ -686,7 +688,7 @@ $(document).ready(function() {
     lockShapeView.onclick = function() {
         lockShape = !lockShape;
         lockShapeView.className = lockShape ? 
-        "fa-solid fa-check" : "fa-solid fa-xmark";
+        "fa-solid fa-xmark" : "fa-solid fa-check";
         if (lockShape) {
             var maskCtx = storedMask.getContext("2d");
             maskCtx.clearRect(0, 0, 150, 300);
@@ -1130,10 +1132,12 @@ $(document).ready(function() {
     storedImage = document.createElement("canvas");
     storedImage.width = 150;
     storedImage.height = 300;
+    storedImage.getContext("2d").imageSmoothingEnabled = false;
 
     storedMask = document.createElement("canvas");
     storedMask.width = 150;
     storedMask.height = 300;
+    storedMask.getContext("2d").imageSmoothingEnabled = false;
 
     window.addEventListener("message", (event) => {
             //if (event.origin !== "undefined") return;
@@ -1354,7 +1358,10 @@ var getCoordinatesFromImage = function() {
 };
 
 var fixedPixel = false;
-var coordinates = [];
+var coordinates = [
+   { x: 0, y: 0 },
+   { x: 0, y: 0 }
+];
 var setFilter = function(obj, id, debug=false) {
     var x = coordinates[filterId].x;
     var y = coordinates[filterId].y;
@@ -1442,8 +1449,8 @@ var scanFrame = function() {
     }
 };
 
-var mapColor = [ 0, 0, 0 ];
-var mapColor2 = [ 0, 0, 0 ];
+var mapColor = [ 187, 119, 131 ];
+var mapColor2 = [ 94, 117, 141 ];
 var limit = 0;
 var filterColor = function(imageArray) {
     var filter = ((100/(255*3))*
@@ -1481,6 +1488,7 @@ var filterColor = function(imageArray) {
     var maskImageData = maskCtx.getImageData(0, 0, 150, 300);
     var maskImageArray = maskImageData.data;
 
+    //return imageArray;
     if (lockShape)
     for (var n = 0; n < maskImageArray.length; n+=4) {
         var value = ((100/(255*3))*

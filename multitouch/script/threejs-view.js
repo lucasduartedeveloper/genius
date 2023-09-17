@@ -185,6 +185,18 @@ var load3D = function(ar) {
     plane.position.y = 0;
     plane.rotation.x = -(Math.PI/2);
 
+    var geometry = new THREE.PlaneGeometry( 15, 7.5 ); 
+    var material = new THREE.MeshStandardMaterial( {
+        //color: 0xffff00 
+    } );
+    planeBackground = new THREE.Mesh(geometry, material ); 
+    group.add( planeBackground );
+    planeBackground.receiveShadows = true;
+
+    planeBackground.position.y = 3.75;
+    planeBackground.position.z = -7.5;
+    planeBackground.loadTexture("img/background-0.png");
+
     var rnd = Math.random();
     plane.loadTextureEx(
     "img/interleaved-texture-0.png?rnd="+rnd, 7, 7);
