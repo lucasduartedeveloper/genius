@@ -706,6 +706,94 @@ $(document).ready(function() {
         }
     };
 
+    leftArrowView = document.createElement("i");
+    leftArrowView.style.position = "absolute";
+    leftArrowView.style.color = "#fff";
+    leftArrowView.className = "fa-solid fa-arrow-left";
+    leftArrowView.style.lineHeight = "50px";
+    leftArrowView.style.fontSize = "30px";
+    leftArrowView.style.left = (105)+"px";
+    leftArrowView.style.bottom = (5)+"px";
+    leftArrowView.style.width = (50)+"px";
+    leftArrowView.style.height = (50)+"px"; 
+    leftArrowView.style.border = "1px solid #fff";
+    leftArrowView.style.borderRadius = "50%";
+    leftArrowView.style.scale = "0.9";
+    leftArrowView.style.zIndex = "12";
+    document.body.appendChild(leftArrowView);
+
+    leftArrowView.onclick = function() {
+        resolution = (resolution-10) > 10 ? (resolution-10) : 10;
+    };
+
+    rightArrowView = document.createElement("i");
+    rightArrowView.style.position = "absolute";
+    rightArrowView.style.color = "#fff";
+    rightArrowView.className = "fa-solid fa-arrow-right";
+    rightArrowView.style.lineHeight = "50px";
+    rightArrowView.style.fontSize = "30px";
+    rightArrowView.style.left = (155)+"px";
+    rightArrowView.style.bottom = (5)+"px";
+    rightArrowView.style.width = (50)+"px";
+    rightArrowView.style.height = (50)+"px"; 
+    rightArrowView.style.border = "1px solid #fff";
+    rightArrowView.style.borderRadius = "50%";
+    rightArrowView.style.scale = "0.9";
+    rightArrowView.style.zIndex = "12";
+    document.body.appendChild(rightArrowView);
+
+    rightArrowView.onclick = function() {
+        resolution = (resolution+10) < 300 ? (resolution+10) : 300;
+    };
+
+    resolutionView = document.createElement("i");
+    resolutionView.style.position = "absolute";
+    resolutionView.style.color = "#fff";
+    resolutionView.className = "fa-solid fa-border-none";
+    resolutionView.style.lineHeight = "50px";
+    resolutionView.style.fontSize = "30px";
+    resolutionView.style.left = (205)+"px";
+    resolutionView.style.bottom = (5)+"px";
+    resolutionView.style.width = (50)+"px";
+    resolutionView.style.height = (50)+"px"; 
+    resolutionView.style.border = "1px solid #fff";
+    resolutionView.style.borderRadius = "50%";
+    resolutionView.style.scale = "0.9";
+    resolutionView.style.zIndex = "12";
+    document.body.appendChild(resolutionView);
+
+    resolutionView.onclick = function() {
+        resolutionEnabled = !resolutionEnabled;
+        resolutionView.className = resolutionEnabled ? 
+        "fa-solid fa-border-all" : "fa-solid fa-border-none";
+    };
+
+    debugEnabled = false;
+    debugView = document.createElement("i");
+    debugView.style.position = "absolute";
+    debugView.style.color = "#fff";
+    debugView.className = "";
+    debugView.style.lineHeight = "50px";
+    debugView.style.fontSize = "30px";
+    debugView.style.right = (5)+"px";
+    debugView.style.bottom = (5)+"px";
+    debugView.style.width = (50)+"px";
+    debugView.style.height = (50)+"px"; 
+    debugView.style.border = "1px solid #fff";
+    debugView.style.borderRadius = "50%";
+    debugView.style.scale = "0.9";
+    debugView.style.zIndex = "12";
+    if (location.href.includes("http:"))
+    document.body.appendChild(debugView);
+
+    debugView.onclick = function() {
+        debugEnabled = !debugEnabled;
+        debugView.className = debugEnabled ? 
+        "fa-solid fa-bug" : "";
+        frameViewContainer.style.outline = debugEnabled ? 
+        "1px solid #000" : "10px solid #000";
+    };
+
     mapEnabled = false;
     mapControlView = document.createElement("i");
     mapControlView.style.position = "absolute";
@@ -847,7 +935,7 @@ $(document).ready(function() {
     frameViewContainer.style.left = ((sw/2)-75)+"px";
     frameViewContainer.style.top = ((sh/2)-150)+"px";
     frameViewContainer.style.width = (150)+"px";
-    frameViewContainer.style.height = (300)+"px"; 
+    frameViewContainer.style.height = (300)+"px";
     frameViewContainer.style.outline = "10px solid #000";
     frameViewContainer.style.zIndex = "15";
     document.body.appendChild(frameViewContainer);
@@ -863,7 +951,6 @@ $(document).ready(function() {
     frameViewBackside.style.width = (150)+"px";
     frameViewBackside.style.height = (300)+"px"; 
     frameViewBackside.style.transform = "rotateY(-180deg)";
-    frameViewBackside.style.outline = "10px solid #000";
     frameViewBackside.style.zIndex = "15";
     frameViewContainer.appendChild(frameViewBackside);
 
@@ -880,9 +967,6 @@ $(document).ready(function() {
     frameView.style.top = (0)+"px";
     frameView.style.width = (150)+"px";
     frameView.style.height = (300)+"px"; 
-    frameView.style.outline = "10px solid #000";
-    //frameView.style.borderRadius = "10px";
-    //frameView.style.boxShadow = "0px 0px 10px #000";
     frameView.style.zIndex = "15";
     frameViewContainer.appendChild(frameView);
 
@@ -968,7 +1052,7 @@ $(document).ready(function() {
                 Math.floor(((accX*360)/rotationSize))*rotationSize;
             }
             else {
-                translation = (moveX-(sw/2));
+                translation = Math.floor(moveX-(sw/2));
             }
         }
         else {
@@ -1414,20 +1498,45 @@ var filterColor = function(imageArray) {
     return imageArray;
 };
 
+var resolutionEnabled = false;
+var resolution = 10;
 var updateImage = true;
 var drawImage = function(canvas) {
     var ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, 150, 300);
 
+    var resolutionCanvas = document.createElement("canvas");
+    resolutionCanvas.imageSmoothingEnabled = false;
+    resolutionCanvas.width = resolution;
+    resolutionCanvas.height = resolution*2;
+
+    var ctxResolution = resolutionCanvas.getContext("2d");
+
     var vw_zoom = (vw/zoom);
     var vh_zoom = (vh/zoom);
 
+    var scale = (150/resolution);
+    var resolutionFormat = {
+        left: ((resolution/2)-((vw_zoom/2)/scale)),
+        top: ((resolution)-((vh_zoom/2)/scale)),
+        width: (vw_zoom/scale),
+        height: (vh_zoom/scale)
+    };
     var format = {
         left: (75-(vw_zoom/2)),
         top: (150-(vh_zoom/2)),
         width: (vw_zoom),
         height: (vh_zoom)
     };
+
+    var resolutionLeft = (deviceNo == 0) ? 
+    resolutionFormat.left+(translation/scale) : 
+    resolutionFormat.left-(translation/scale);
+
+    if (debugEnabled) {
+        console.log(resolutionFormat.left);
+        console.log(translation);
+    }
 
     var left = (deviceNo == 0) ? 
     format.left+translation : 
@@ -1438,31 +1547,53 @@ var drawImage = function(canvas) {
     (rotationZ*(Math.PI/180));
 
     if (!updateImage) {
-        ctx.drawImage(storedImage, 0, 0, 150, 300);
+        if (resolutionEnabled) {
+            ctxResolution.drawImage(storedImage, 0, 0, 
+            (resolution), (resolution*2));
+        }
+        else {
+            ctx.drawImage(storedImage, 0, 0, 150, 300);
+        }
     }
     else {
+        ctxResolution.save();
         ctx.save();
         if (cameraOn && deviceNo == 0) {
+            ctxResolution.scale(-1, 1);
+            ctxResolution.translate(-resolution, 0);
             ctx.scale(-1, 1);
             ctx.translate(-150, 0);
         }
-        /*if (flipY) {
-            ctx.scale(-1, 1);
-            ctx.translate(-150, 0);
-        }*/
 
+        ctxResolution.translate((resolution/2), (resolution));
+        ctxResolution.rotate(-radiansZ);
+        ctxResolution.translate(-(resolution/2), -(resolution));
         ctx.translate(75, 150);
         ctx.rotate(-radiansZ);
         ctx.translate(-75, -150);
 
         if (cameraOn) {
-            ctx.drawImage(camera, left, format.top, 
-            format.width, format.height);
+            if (resolutionEnabled) {
+                ctxResolution.drawImage(camera, resolutionLeft, 
+                resolutionFormat.top, 
+                resolutionFormat.width, 
+                resolutionFormat.height);
+            }
+            else {
+                ctx.drawImage(camera, left, format.top, 
+                format.width, format.height);
+            }
         }
         else {
-            var sw_zoom = (sw/zoom);
-            var sh_zoom = (sh/zoom);
+            var sw_zoom = Math.ceil(sw/zoom);
+            var sh_zoom = Math.ceil(sh/zoom);
 
+            var resolutionFormat = {
+                left: ((resolution/2)-((sw_zoom/2)/scale)),
+                top: ((resolution)-((sh_zoom/2)/scale)),
+                width: (sw_zoom/scale),
+                height: (sh_zoom/scale)
+            };
             var format = {
                 left: (75-(sw_zoom/2)),
                 top: (150-(sh_zoom/2)),
@@ -1470,15 +1601,33 @@ var drawImage = function(canvas) {
                 height: (sh_zoom)
             };
 
+            var resolutionLeft = 
+            resolutionFormat.left-translation;
             var left = 
             format.left-translation;
 
-            ctx.drawImage(placeholderImage, left, format.top, 
-            format.width, format.height);
+            if (resolutionEnabled) {
+                ctxResolution.drawImage(placeholderImage, 
+                resolutionLeft, 
+                resolutionFormat.top, 
+                resolutionFormat.width, 
+                resolutionFormat.height);
+            }
+            else {
+                ctx.drawImage(placeholderImage, left, format.top, 
+                format.width, format.height);
+            }
         }
 
+        ctxResolution.rotate(radiansZ);
+        ctxResolution.restore();
         ctx.rotate(radiansZ);
         ctx.restore();
+    }
+
+    if (resolutionEnabled) {
+         ctx.drawImage(resolutionCanvas, 0, 0, 
+         150, 300);
     }
 
     var imageData = ctx.getImageData(0, 0, 150, 300);
