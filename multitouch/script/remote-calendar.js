@@ -666,6 +666,46 @@ $(document).ready(function() {
         }
     };
 
+    lockShape = false;
+    lockShapeView = document.createElement("i");
+    lockShapeView.style.position = "absolute";
+    lockShapeView.style.color = "#fff";
+    lockShapeView.className = "fa-solid fa-check";
+    lockShapeView.style.lineHeight = "50px";
+    lockShapeView.style.fontSize = "30px";
+    lockShapeView.style.left = (55)+"px";
+    lockShapeView.style.bottom = (5)+"px";
+    lockShapeView.style.width = (50)+"px";
+    lockShapeView.style.height = (50)+"px"; 
+    lockShapeView.style.border = "1px solid #fff";
+    lockShapeView.style.borderRadius = "50%";
+    lockShapeView.style.scale = "0.9";
+    lockShapeView.style.zIndex = "12";
+    document.body.appendChild(lockShapeView);
+
+    lockShapeView.onclick = function() {
+        lockShape = !lockShape;
+        lockShapeView.className = lockShape ? 
+        "fa-solid fa-check" : "fa-solid fa-xmark";
+        if (lockShape) {
+            var maskCtx = storedMask.getContext("2d");
+            maskCtx.clearRect(0, 0, 150, 300);
+            if (cameraOn) {
+                maskCtx.drawImage(frameView, 0, 0, 150, 300);
+            }
+            else {
+                maskCtx.fillStyle = "#fff";
+                maskCtx.fillRect(0, 0, 150, 300);
+
+                maskCtx.fillStyle = "#000";
+                maskCtx.save();
+                maskCtx.beginPath();
+                maskCtx.arc(75, 150, 50, 0, (Math.PI*2));
+                maskCtx.fill();
+            }
+        }
+    };
+
     mapEnabled = false;
     mapControlView = document.createElement("i");
     mapControlView.style.position = "absolute";
@@ -1007,6 +1047,10 @@ $(document).ready(function() {
     storedImage.width = 150;
     storedImage.height = 300;
 
+    storedMask = document.createElement("canvas");
+    storedMask.width = 150;
+    storedMask.height = 300;
+
     window.addEventListener("message", (event) => {
             //if (event.origin !== "undefined") return;
             console.log("iframe message: ", event.data);
@@ -1323,6 +1367,7 @@ var filterColor = function(imageArray) {
     var filter2 = ((100/(255*3))*
     (mapColor2[0]+mapColor2[1]+mapColor2[2]));
 
+    if (!lockShape)
     for (var n = 0; n < imageArray.length; n += 4) {
         var value = ((100/(255*3))*
         (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
@@ -1346,6 +1391,24 @@ var filterColor = function(imageArray) {
         imageArray[(n*4)+1] = 255;
         imageArray[(n*4)+2] = 0;
         imageArray[(n*4)+3] = 255;
+    }
+
+    var maskCtx = storedMask.getContext("2d");
+    var maskImageData = maskCtx.getImageData(0, 0, 150, 300);
+    var maskImageArray = maskImageData.data;
+
+    if (lockShape)
+    for (var n = 0; n < maskImageArray.length; n+=4) {
+        var value = ((100/(255*3))*
+        (maskImageArray[n]+
+        maskImageArray[n+1]+
+        maskImageArray[n+2]));
+
+        if (Math.abs(value-filter2) > limit) {
+            imageArray[n] = maskImageArray[n];
+            imageArray[n+1] = maskImageArray[n+1];
+            imageArray[n+2] = maskImageArray[n+2];
+        }
     }
 
     return imageArray;
