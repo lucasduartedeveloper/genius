@@ -1070,7 +1070,6 @@ var animate = function() {
             saveImage(dataURL);
             databaseTime = new Date().getTime();
         }
-        getCoordinatesFromImage();
     }
     requestAnimationFrame(animate);
 };
@@ -1152,7 +1151,7 @@ var drawPlaceholderImage = function() {
     ctx.font = "75px sans serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("1", (sw/2), (sh/2));
+    ctx.fillText("A", (sw/2), (sh/2));
 }
 
 var drawAim = function(canvas) {
@@ -1173,10 +1172,11 @@ var drawAim = function(canvas) {
     ctx.stroke();
 }
 
-var getCoordinatesFromImage = function() {
-    var filter2 = ((100/(255*3))*
-    (mapColor2[0]+mapColor2[1]+mapColor2[2]));
+var getCoordinatesFromImage2 = function() {
+    
+};
 
+var getCoordinatesFromImage = function() {
     var trackingCanvas = document.createElement("canvas");
     trackingCanvas.width = 150;
     trackingCanvas.height = 300;
@@ -1188,41 +1188,122 @@ var getCoordinatesFromImage = function() {
     var imageData = ctx.getImageData(0, 0, 150, 300);
     var imageArray = imageData.data;
 
-    var minX = -1;
-    var maxX = -1;
-    var minY = -1;
-    var maxY = -1;
-    for (var y = 0; y < 300; y++) {
-        for (var x = 0; x < 150; x++) {
-            var n = ((y*(150))+x)*4;
-            var value = ((100/(255*3))*
-            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
-
-            if ((minX == -1 || x < minX) && 
-            Math.abs(value-filter2) <= limit)
-            minX = x;
-
-            if ((maxX == -1 || x > maxX) && 
-            Math.abs(value-filter2) <= limit)
-            maxX = x;
-
-            if ((minY == -1 || y < minY) && 
-            Math.abs(value-filter2) <= limit)
-            minY = y;
-
-            if ((maxY == -1 || y > maxY) && 
-            Math.abs(value-filter2) <= limit)
-            maxY = y;
-        }
-    }
+    var polygon = getCoordinatesFromArray(imageArray);
 
     var center = {
-        x: minX+((maxX-minX)/2),
-        y: minY+((maxY-minY)/2)
+        x: 0,
+        y: 0
     };
 
     positionView.innerText = "x: "+center.x+", y: "+center.y;
-    return center;
+    return polygon;
+};
+
+var getCoordinatesFromArray = function(imageArray) {
+    var filter2 = ((100/(255*3))*
+    (mapColor2[0]+mapColor2[1]+mapColor2[2]));
+
+    var leftResult = [];
+    for (var y = 300; y > 0; y--) {
+        for (var x = 0; x < 150; x++) {
+            var n = ((y*150)+x)*4;
+            var value = ((100/(255*3))*
+            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
+
+            if (Math.abs(value-filter2) <= limit) {
+                leftResult.push({ from: "left", x: x, y: y });
+                break;
+            }
+        }
+    }
+
+    var topResult = [];
+    for (var x = 0; x < 150; x++) {
+        for (var y = 0; y < 300; y++) {
+            var n = ((y*150)+x)*4;
+            var value = ((100/(255*3))*
+            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
+
+            if (Math.abs(value-filter2) <= limit) {
+                topResult.push({ from: "top", x: x, y: y });
+                break;
+            }
+        }
+    }
+
+    var rightResult = [];
+    for (var y = 0; y < 300; y++) {
+        for (var x = 150; x > 0; x--) {
+            var n = ((y*150)+x)*4;
+            var value = ((100/(255*3))*
+            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
+
+            if (Math.abs(value-filter2) <= limit) {
+                rightResult.push({ from: "right", x: x, y: y });
+                break;
+            }
+        }
+    }
+
+    var bottomResult = [];
+    for (var x = 150; x > 0; x--) {
+        for (var y = 300; y > 0; y--) {
+            var n = ((y*150)+x)*4;
+            var value = ((100/(255*3))*
+            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
+
+            if (Math.abs(value-filter2) <= limit) {
+                bottomResult.push({ from: "bottom", x: x, y: y });
+                break;
+            }
+        }
+    }
+
+    var result = 
+    [ ...leftResult, ...topResult, ...rightResult, ...bottomResult ];
+
+    var mappedArray = result.map((m) => 
+    [ m.x+","+m.y, m ]);
+    var map = new Map(mappedArray);
+    var iterator = map.values();
+    var polygon = [ ...iterator ];
+
+    var ordered = [];
+
+    if (polygon.length > 0) {
+        var count = polygon.length;
+        var closed = false;
+        var startPos = { ...polygon[0] };
+        var pos = { ...startPos }
+        polygon.splice(0, 1);
+        ordered.push(startPos);
+        //return ordered;
+        //while (!closed) {
+        for (var j = 0; j < (count-1); j++) {
+            var k = 0;
+            var lastDist = -1;
+            var dist = 0;
+            for (var n = 0; n < polygon.length; n++) {
+                var co = Math.abs(polygon[n].x - pos.x);
+                var ca = Math.abs(polygon[n].y - pos.y);
+                dist = Math.sqrt(
+                Math.pow(co, 2)+ 
+                Math.pow(ca, 2));
+                if (lastDist == -1 || dist < lastDist) {
+                    k = n;
+                    lastDist = dist;
+                }
+            }
+            var pos = polygon.splice(k, 1)[0];
+            ordered.push(pos);
+
+            //count -= 1;
+            //if (count == 0)
+            //closed == true;
+        }
+    }
+
+    return ordered;
 };
 
 var fixedPixel = false;
@@ -1460,7 +1541,7 @@ var drawImage = function(canvas) {
         storedCtx.drawImage(canvas, 0, 0, 150, 300);
     }
 
-    var filteredArray = filterColor(imageArray);
+    var filteredArray = imageArray; //filterColor(imageArray);
     var newImageData = !glueColors ? 
     new ImageData(filteredArray, 
     imageData.width, imageData.height) : 
