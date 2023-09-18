@@ -280,7 +280,7 @@ var load3D = function(ar) {
         controls.update();
         renderer.render( scene, virtualCamera );
     };
-    animateThreejs();
+    //animateThreejs();
 }
 
 var startAnimation = function() {

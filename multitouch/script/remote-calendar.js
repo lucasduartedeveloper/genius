@@ -1199,7 +1199,7 @@ $(document).ready(function() {
     positionView.style.left = ((sw/2)-75)+"px";
     positionView.style.top = ((sh/2)+170)+"px";
     positionView.style.width = (150)+"px";
-    positionView.style.height = (30)+"px"; 
+    positionView.style.height = (45)+"px"; 
     //positionView.style.outline = "1px solid #000";
     positionView.style.zIndex = "15";
     document.body.appendChild(positionView);
@@ -1278,31 +1278,39 @@ var animate = function() {
             saveImage(dataURL);
             databaseTime = new Date().getTime();
         }
-        var pos = getCoordinatesFromImage();
-        var squareSize = (15/8);
-        var tableX = 
-        Math.floor(((15/150)*pos.center.x)/squareSize);
-        var tableY = 
-        Math.floor(((15/300)*pos.center.y)/squareSize);
-        chessKing.position.x = 
-        (-7.5+(squareSize/2))+
-        (tableX*squareSize);
-        chessKing.position.z = 
-        (-7.5+(squareSize/2))+
-        (tableY*squareSize);
-
-        var tableX2 = 
-        Math.floor(((15/150)*pos.center2.x)/squareSize);
-        var tableY2 = 
-        Math.floor(((15/300)*pos.center2.y)/squareSize);
-        chessKing2.position.x = 
-        (-7.5+(squareSize/2))+
-        (tableX2*squareSize);
-        chessKing2.position.z = 
-        (-7.5+(squareSize/2))+
-        (tableY2*squareSize);
+        updatePosition();
     }
     requestAnimationFrame(animate);
+};
+
+var updatePosition = function() {
+    var pos = getCoordinatesFromImage();
+};
+
+var updateThreejs = function() {
+    var pos = getCoordinatesFromImage();
+    var squareSize = (15/8);
+    var tableX = 
+    Math.floor(((15/150)*pos.center.x)/squareSize);
+    var tableY = 
+    Math.floor(((15/300)*pos.center.y)/squareSize);
+    chessKing.position.x = 
+    (-7.5+(squareSize/2))+
+    (tableX*squareSize);
+    chessKing.position.z = 
+    (-7.5+(squareSize/2))+
+    (tableY*squareSize);
+
+    var tableX2 = 
+    Math.floor(((15/150)*pos.center2.x)/squareSize);
+    var tableY2 = 
+    Math.floor(((15/300)*pos.center2.y)/squareSize);
+    chessKing2.position.x = 
+    (-7.5+(squareSize/2))+
+    (tableX2*squareSize);
+    chessKing2.position.z = 
+    (-7.5+(squareSize/2))+
+    (tableY2*squareSize);
 };
 
 var zoom = 1;
@@ -1409,6 +1417,8 @@ var getCoordinatesFromImage = function() {
     var filter2 = ((100/(255*3))*
     (mapColor2[0]+mapColor2[1]+mapColor2[2]));
 
+    var weakContrast = Math.abs(filter2-filter) <= limit;
+
     var trackingCanvas = document.createElement("canvas");
     trackingCanvas.width = 150;
     trackingCanvas.height = 300;
@@ -1434,6 +1444,7 @@ var getCoordinatesFromImage = function() {
             var value = ((100/(255*3))*
             (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
 
+            if (!weakContrast || (weakContrast && x < 75)) {
             if ((minX == -1 || x < minX) && 
             Math.abs(value-filter) <= limit)
             minX = x;
@@ -1449,7 +1460,9 @@ var getCoordinatesFromImage = function() {
             if ((maxY == -1 || y > maxY) && 
             Math.abs(value-filter) <= limit)
             maxY = y;
+            }
 
+            if (!weakContrast || (weakContrast && x > 75)) {
             if ((minX2 == -1 || x < minX2) && 
             Math.abs(value-filter2) <= limit)
             minX = x;
@@ -1465,6 +1478,7 @@ var getCoordinatesFromImage = function() {
             if ((maxY2 == -1 || y > maxY2) && 
             Math.abs(value-filter2) <= limit)
             maxY = y;
+            }
         }
     }
 
@@ -1499,7 +1513,8 @@ var getCoordinatesFromImage = function() {
     "radius: "+center.radius+", "+
     "x: "+center.x+", y: "+center.y+"\n"+
     "radius: "+center2.radius+", "+
-    "x: "+center2.x+", y: "+center2.y;
+    "x: "+center2.x+", y: "+center2.y+"\n"+
+    "contrast: "+(Math.abs(filter2-filter).toFixed(2))+"%";
 
     return obj;
 };
