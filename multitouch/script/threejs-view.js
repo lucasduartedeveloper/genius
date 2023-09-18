@@ -44,7 +44,8 @@ var load3D = function(ar) {
         lightParams.decay
     );
 
-    light.position.set(0, 2.5, 2.5);
+    light.position.set(5, 5, 5);
+    light.lookAt(0, 0, 0);
     light.castShadow = true;
 
     //Set up shadow properties for the light
@@ -52,7 +53,7 @@ var load3D = function(ar) {
     light.shadow.mapSize.height = 512; // default
 
     lightObj = new THREE.Group();
-    //lightObj.add(light);
+    lightObj.add(light);
 
     virtualCamera = new THREE.PerspectiveCamera( 
         cameraParams.fov, 
@@ -60,36 +61,29 @@ var load3D = function(ar) {
         cameraParams.near, 
         cameraParams.far 
     );
-    virtualCamera.add(light);
+    //virtualCamera.add(light);
 
     scene.add(lightObj);
     scene.add(virtualCamera);
 
     group = new THREE.Group();
-    //group.rotation.x = -(Math.PI/2);
     scene.add(group);
 
-    var geometry = new THREE.ConeGeometry( 5, 5, 4 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        color: 0xffff00,
-        opacity: 0.5,
-        transparent: true
-    } );
-    var cone = new THREE.Mesh(geometry, material ); 
-    //group.add( cone );
-
-    cone.rotation.y = -(Math.PI/4);
+    rotationView = new THREE.Group();
+    rotationView.position.x = -7.5;
+    rotationView.position.z = 7.5;
+    scene.add(rotationView);
 
     var geometry = new THREE.SphereGeometry( 0.2, 32 ); 
     var material = new THREE.MeshBasicMaterial( {
         color: 0x555555
     } );
     center = new THREE.Mesh(geometry, material ); 
-    group.add( center );
+    rotationView.add( center );
 
-    center.position.x = -4;
+    center.position.x = 0;
     center.position.y = 0;
-    center.position.z = 4;
+    center.position.z = 0;
     center.rotation.x = -(Math.PI/2);
     center.rotation.z = -(Math.PI/2);
 
@@ -98,11 +92,11 @@ var load3D = function(ar) {
         color: 0x555555
     } );
     axisX = new THREE.Mesh(geometry, material ); 
-    group.add( axisX );
+    rotationView.add( axisX );
 
-    axisX.position.x = -1.5;
+    axisX.position.x = 2.5;
     axisX.position.y = 0;
-    axisX.position.z = 4;
+    axisX.position.z = 0;
     axisX.rotation.x = -(Math.PI/2);
     axisX.rotation.z = -(Math.PI/2);
 
@@ -111,11 +105,11 @@ var load3D = function(ar) {
         color: 0x555555,
     } );
     var axisXend = new THREE.Mesh(geometry, material ); 
-    group.add( axisXend );
+    rotationView.add( axisXend );
 
-    axisXend.position.x = 1;
+    axisXend.position.x = 5;
     axisXend.position.y = 0;
-    axisXend.position.z = 4;
+    axisXend.position.z = 0;
     axisXend.rotation.x = -(Math.PI/2);
     axisXend.rotation.z = -(Math.PI/2);
 
@@ -124,11 +118,11 @@ var load3D = function(ar) {
         color: 0x555555 
     } );
     axisY = new THREE.Mesh(geometry, material ); 
-    group.add( axisY );
+    rotationView.add( axisY );
 
-    axisY.position.x = -4;
+    axisY.position.x = 0;
     axisY.position.y = 2.5;
-    axisY.position.z = 4;
+    axisY.position.z = 0;
     //axisY.rotation.x = -(Math.PI/2);
 
     var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
@@ -136,11 +130,11 @@ var load3D = function(ar) {
         color: 0x555555,
     } );
     var axisYend = new THREE.Mesh(geometry, material ); 
-    group.add( axisYend );
+    rotationView.add( axisYend );
 
-    axisYend.position.x = -4;
+    axisYend.position.x = 0;
     axisYend.position.y = 5;
-    axisYend.position.z = 4;
+    axisYend.position.z = 0;
     //axisYend.rotation.x = -(Math.PI);
 
     var geometry = new THREE.CylinderGeometry( 0.05, 0.05, 5 ); 
@@ -148,11 +142,11 @@ var load3D = function(ar) {
         color: 0x555555
     } );
     axisZ = new THREE.Mesh(geometry, material ); 
-    group.add( axisZ );
+    rotationView.add( axisZ );
 
-    axisZ.position.x = -4;
+    axisZ.position.x = 0;
     axisZ.position.y = 0;
-    axisZ.position.z = 1.5;
+    axisZ.position.z = -2.5;
     axisZ.rotation.x = -(Math.PI/2);
 
     var geometry = new THREE.ConeGeometry( 0.15, 0.5, 32 ); 
@@ -160,46 +154,39 @@ var load3D = function(ar) {
         color: 0x555555,
     } );
     var axisZend = new THREE.Mesh(geometry, material ); 
-    group.add( axisZend );
+    rotationView.add( axisZend );
 
-    axisZend.position.x = -4;
+    axisZend.position.x = 0;
     axisZend.position.y = 0;
-    axisZend.position.z = -1;
+    axisZend.position.z = -5;
     axisZend.rotation.x = -(Math.PI/2);
-
-    /*var pos = new THREE.Vector3();
-    createPackaging(
-    "nicolediretora", "img/rect/texture-1.png", 1, pos);
-    pos.x = 5.5;
-    createPackaging(
-    "jinjinn00_", "img/rect/texture-2.png", 2, pos);*/
 
     var geometry = new THREE.PlaneGeometry( 15, 15 ); 
     var material = new THREE.MeshStandardMaterial( {
         //color: 0xffff00 
     } );
     plane = new THREE.Mesh(geometry, material ); 
-    group.add( plane );
-    plane.receiveShadows = true;
+    scene.add( plane );
+    plane.receiveShadow = true;
 
     plane.position.y = 0;
     plane.rotation.x = -(Math.PI/2);
+
+    var rnd = Math.random();
+    plane.loadTextureEx(
+    "img/interleaved-texture-0.png?rnd="+rnd, 4, 4);
 
     var geometry = new THREE.PlaneGeometry( 15, 7.5 ); 
     var material = new THREE.MeshStandardMaterial( {
         //color: 0xffff00 
     } );
     planeBackground = new THREE.Mesh(geometry, material ); 
-    group.add( planeBackground );
-    planeBackground.receiveShadows = true;
+    //scene.add( planeBackground );
+    planeBackground.receiveShadow = true;
 
     planeBackground.position.y = 3.75;
     planeBackground.position.z = -7.5;
     planeBackground.loadTexture("img/background-0.png");
-
-    var rnd = Math.random();
-    plane.loadTextureEx(
-    "img/interleaved-texture-0.png?rnd="+rnd, 7, 7);
 
     var geometry = new THREE.BoxGeometry( 2.5, 2.5, 2.5 ); 
     var material = new THREE.MeshStandardMaterial( {
@@ -221,11 +208,48 @@ var load3D = function(ar) {
         //color: 0xffff00 
     } );
     framePlane = new THREE.Mesh(geometry, material ); 
-    group.add( framePlane );
+    //scene.add( framePlane );
     framePlane.castShadow = true;
 
     framePlane.position.y = 2.5;
     //framePlane.rotation.x = -(Math.PI/2);
+
+    chessKing = new THREE.Group();
+    chessKing.castShadow = true;
+    chessKing.scale.set(0.35, 0.35, 0.35);
+    scene.add(chessKing);
+
+    chessKing2 = new THREE.Group();
+    chessKing2.castShadow = true;
+    chessKing2.scale.set(0.35, 0.35, 0.35);
+    scene.add(chessKing2);
+
+    loadOBJ("img/chess-king.obj", function(object) {
+        object.position.x = -2;
+        object.position.y = 0;
+        object.position.z = 16;
+        object.rotation.x = -(Math.PI/2);
+
+        object.castShadow = true;
+        object.children[0].castShadow = true;
+
+        var material = new THREE.MeshStandardMaterial( {
+            color: 0xffffff
+        } );
+
+        var white = object.clone();
+        white.children[0].material = material;
+
+         var material = new THREE.MeshStandardMaterial( {
+            color: 0x000000,
+        } );
+
+        var black = object.clone();
+        black.children[0].material = material;
+
+        chessKing.add(white)
+        chessKing2.add(black)
+    });
 
     virtualCamera.position.set(0, 7.5, 17.5);
     virtualCamera.lookAt(0, 7.5, 0);
@@ -266,161 +290,6 @@ var startAnimation = function() {
 
 var pauseAnimation = function() {
     render = false;
-};
-
-var drawLabel = function(nick, callback) {
-    var canvas = document.createElement("canvas");
-    canvas.width = 500;
-    canvas.height = 100;
-
-    var ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, 500, 100);
-
-    ctx.fillStyle = "#000";
-    ctx.font = "50px sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(nick, 300, 50);
-
-    var img = document.createElement("img");
-    img.canvas = canvas;
-    img.ctx = ctx;
-    img.onload = function() {
-        this.ctx.drawImage(this, 0, 0, 100, 100);
-        callback(this.canvas.toDataURL());
-    };
-    img.src = "img/ig-logo.png";
-};
-
-var createPackaging = function(nick, url, size, offset) {
-    var pos = offset.clone();
-
-    var group = new THREE.Group();
-    group.position.x = pos.x;
-    group.position.y = pos.y;
-    group.position.z = pos.z;
-
-    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        //color: 0xffff00 
-    } );
-    plane = new THREE.Mesh(geometry, material ); 
-    group.add( plane );
-
-    plane.position.y = 0;
-    plane.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 5 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeTop = new THREE.Mesh(geometry, material ); 
-    group.add( planeTop );
-
-    planeTop.position.y = 15;
-    planeTop.rotation.x = -(Math.PI/2);
-
-    var geometry = new THREE.PlaneGeometry( 5, 15 ); 
-    var material = new THREE.MeshStandardMaterial( {
-        side: THREE.DoubleSide,
-        color: 0xffffff,
-        opacity: 0.3,
-        transparent: true
-    } );
-    planeLeft = new THREE.Mesh(geometry, material ); 
-    group.add( planeLeft );
-
-    planeLeft.position.y = 7.5;
-    planeLeft.position.x = -2.5;
-    planeLeft.rotation.y = -(Math.PI/2);
-
-    planeRight = new THREE.Mesh(geometry, material ); 
-    group.add( planeRight );
-
-    planeRight.position.y = 7.5;
-    planeRight.position.x = +2.5;
-    planeRight.rotation.y = -(Math.PI/2);
-
-    planeBack = new THREE.Mesh(geometry, material ); 
-    group.add( planeBack );
-
-    planeBack.position.y = 7.5;
-    planeBack.position.z = -2.5;
-
-    planeFront = new THREE.Mesh(geometry, material ); 
-    group.add( planeFront );
-
-    planeFront.position.y = 7.5;
-    planeFront.position.z = 2.5;
-
-    loadRectangle(url, size, group);
-
-    drawLabel(nick, function(url) {
-        var geometry = new THREE.PlaneGeometry( 5, 1 ); 
-        var material = new THREE.MeshStandardMaterial( {
-            color: 0xffffff,
-            opacity: 1,
-            transparent: true
-         } );
-         label = new THREE.Mesh(geometry, material ); 
-         group.add( label );
-
-         label.position.x = 0;
-         label.position.y = 14.5;
-         label.position.z = 2.55;
-
-         label.loadTexture(url);
-    });
-
-    scene.add(group);
-};
-
-var loadRectangle = function(url, size, group) {
-    var img = document.createElement("img");
-    img.onload = function() {
-        var width = (5/size);
-        var height = (5*(this.height/this.width))/size;
-        var geometry = new THREE.PlaneGeometry( width, height ); 
-        var material = new THREE.MeshBasicMaterial( {
-            side: THREE.DoubleSide,
-            color: 0xffffff
-        } );
-       rectangle = new THREE.Mesh(geometry, material ); 
-       group.add(rectangle);
-
-       rectangle.position.y = (height/2)+(Math.abs(1-size)*height);
-       rectangle.position.x = 0;
-       rectangle.loadTexture(url);
-
-       if (size > 1) {
-           var geometry = 
-           new THREE.CylinderGeometry( 0.1, 0.1, 5, 32 );
-           var material = new THREE.MeshBasicMaterial( {
-                side: THREE.DoubleSide,
-                color: 0xffffff
-           } );
-           left = new THREE.Mesh(geometry, material ); 
-           group.add(left);
-           left.position.x = -0.5;
-           left.position.y = 2.5;
-
-           var geometry = 
-           new THREE.CylinderGeometry( 0.1, 0.1, 5, 32 );
-           var material = new THREE.MeshBasicMaterial( {
-                side: THREE.DoubleSide,
-                color: 0xffffff
-           } );
-           right = new THREE.Mesh(geometry, material ); 
-           group.add(right);
-           right.position.x = 0.5;
-           right.position.y = 2.5;
-       }
-    };
-    img.src = url;
 };
 
 var canTexture = true;

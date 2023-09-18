@@ -1192,14 +1192,14 @@ $(document).ready(function() {
     positionView = document.createElement("span");
     positionView.style.position = "absolute";
     positionView.style.color = "#fff";
-    positionView.innerText = "x: 0, y: 0";
-    positionView.style.lineHeight = "25px";
+    positionView.innerText = "radius: 0, x: 0, y: 0";
+    positionView.style.lineHeight = "15px";
     positionView.style.fontSize = "15px";
     positionView.style.fontFamily = "Khand";
-    positionView.style.left = ((sw/2)-50)+"px";
+    positionView.style.left = ((sw/2)-75)+"px";
     positionView.style.top = ((sh/2)+170)+"px";
-    positionView.style.width = (100)+"px";
-    positionView.style.height = (25)+"px"; 
+    positionView.style.width = (150)+"px";
+    positionView.style.height = (30)+"px"; 
     //positionView.style.outline = "1px solid #000";
     positionView.style.zIndex = "15";
     document.body.appendChild(positionView);
@@ -1278,7 +1278,29 @@ var animate = function() {
             saveImage(dataURL);
             databaseTime = new Date().getTime();
         }
-        getCoordinatesFromImage();
+        var pos = getCoordinatesFromImage();
+        var squareSize = (15/8);
+        var tableX = 
+        Math.floor(((15/150)*pos.center.x)/squareSize);
+        var tableY = 
+        Math.floor(((15/300)*pos.center.y)/squareSize);
+        chessKing.position.x = 
+        (-7.5+(squareSize/2))+
+        (tableX*squareSize);
+        chessKing.position.z = 
+        (-7.5+(squareSize/2))+
+        (tableY*squareSize);
+
+        var tableX2 = 
+        Math.floor(((15/150)*pos.center2.x)/squareSize);
+        var tableY2 = 
+        Math.floor(((15/300)*pos.center2.y)/squareSize);
+        chessKing2.position.x = 
+        (-7.5+(squareSize/2))+
+        (tableX2*squareSize);
+        chessKing2.position.z = 
+        (-7.5+(squareSize/2))+
+        (tableY2*squareSize);
     }
     requestAnimationFrame(animate);
 };
@@ -1382,6 +1404,8 @@ var drawAim = function(canvas) {
 }
 
 var getCoordinatesFromImage = function() {
+    var filter = ((100/(255*3))*
+    (mapColor[0]+mapColor[1]+mapColor[2]));
     var filter2 = ((100/(255*3))*
     (mapColor2[0]+mapColor2[1]+mapColor2[2]));
 
@@ -1400,6 +1424,10 @@ var getCoordinatesFromImage = function() {
     var maxX = -1;
     var minY = -1;
     var maxY = -1;
+    var minX2 = -1;
+    var maxX2 = -1;
+    var minY2 = -1;
+    var maxY2 = -1;
     for (var y = 0; y < 300; y++) {
         for (var x = 0; x < 150; x++) {
             var n = ((y*(150))+x)*4;
@@ -1407,30 +1435,73 @@ var getCoordinatesFromImage = function() {
             (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
 
             if ((minX == -1 || x < minX) && 
-            Math.abs(value-filter2) <= limit)
+            Math.abs(value-filter) <= limit)
             minX = x;
 
             if ((maxX == -1 || x > maxX) && 
-            Math.abs(value-filter2) <= limit)
+            Math.abs(value-filter) <= limit)
             maxX = x;
 
             if ((minY == -1 || y < minY) && 
-            Math.abs(value-filter2) <= limit)
+            Math.abs(value-filter) <= limit)
             minY = y;
 
             if ((maxY == -1 || y > maxY) && 
+            Math.abs(value-filter) <= limit)
+            maxY = y;
+
+            if ((minX2 == -1 || x < minX2) && 
+            Math.abs(value-filter2) <= limit)
+            minX = x;
+
+            if ((maxX2 == -1 || x > maxX2) && 
+            Math.abs(value-filter2) <= limit)
+            maxX = x;
+
+            if ((minY2 == -1 || y < minY2) && 
+            Math.abs(value-filter2) <= limit)
+            minY = y;
+
+            if ((maxY2 == -1 || y > maxY2) && 
             Math.abs(value-filter2) <= limit)
             maxY = y;
         }
     }
 
     var center = {
+        radius: (((maxX-minX)+(maxY-minY))/2),
         x: minX+((maxX-minX)/2),
         y: minY+((maxY-minY)/2)
     };
 
-    positionView.innerText = "x: "+center.x+", y: "+center.y;
-    return center;
+    var center2 = {
+        radius: (((maxX2-minX2)+(maxY2-minY2))/2),
+        x: minX2+((maxX2-minX2)/2),
+        y: minY2+((maxY2-minY2)/2)
+    };
+
+    if (center.x == -1 && center.y == -1) {
+        center.x = 4*(150/8);
+        center.y = 7*(300/8);
+    }
+
+    if (center2.x == -1 && center2.y == -1) {
+        center2.x = 3*(150/8);
+        center2.y = 0*(300/8);
+    }
+
+    var obj = {
+        center: center,
+        center2: center2
+    };
+
+    positionView.innerText = 
+    "radius: "+center.radius+", "+
+    "x: "+center.x+", y: "+center.y+"\n"+
+    "radius: "+center2.radius+", "+
+    "x: "+center2.x+", y: "+center2.y;
+
+    return obj;
 };
 
 var fixedPixel = false;
