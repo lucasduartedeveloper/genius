@@ -88,6 +88,38 @@ function setFocus(value) {
     settings.focusDistance = focusDistance;
 };
 
+var torchEnabled = false;
+function setTorch(action) {
+    if (!cameraOn) return;
+
+    var track = cameraElem.srcObject.getVideoTracks()[0];
+    var settings = track.getSettings();
+    var capabilities = track.getCapabilities();
+
+    if (action == "toggle")
+    torchEnabled = !settings.torch;
+    else if (action == "on")
+    torchEnabled = true;
+    else if (action == "off")
+    torchEnabled = false;
+
+    track.applyConstraints({
+        "advanced": [{
+            "torch": torchEnabled
+        }]
+    });
+};
+
+function getTorch() {
+    if (!cameraOn) return;
+
+    var track = cameraElem.srcObject.getVideoTracks()[0];
+    var settings = track.getSettings();
+    var capabilities = track.getCapabilities();
+
+    return settings.torch;
+}
+
 function getCapabilities() {
     var track = cameraElem.srcObject.getVideoTracks()[0];
     var capabilities = track.getCapabilities();

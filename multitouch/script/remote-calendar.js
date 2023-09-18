@@ -68,6 +68,34 @@ $(document).ready(function() {
         weightView.innerText = prompt()+" kg";
     };
 
+    filterColorSwitchView = document.createElement("span");
+    filterColorSwitchView.style.position = "absolute";
+    filterColorSwitchView.style.color = "#fff";
+    filterColorSwitchView.innerText = "SWITCH";
+    filterColorSwitchView.style.lineHeight = "25px";
+    filterColorSwitchView.style.fontSize = "15px";
+    filterColorSwitchView.style.fontFamily = "Khand";
+    filterColorSwitchView.style.left = ((sw/2)-105)+"px";
+    filterColorSwitchView.style.top = ((sh/2)-230)+"px";
+    filterColorSwitchView.style.width = (50)+"px";
+    filterColorSwitchView.style.height = (25)+"px";
+    filterColorSwitchView.style.scale = "0.9";
+    filterColorSwitchView.style.zIndex = "15";
+    document.body.appendChild(filterColorSwitchView);
+
+    filterColorSwitchView.onclick = function() {
+        var tempColor = [ ...mapColor ];
+        mapColor = [ ...mapColor2 ];
+        mapColor2 = [ ...tempColor ];
+
+        filterColorView.style.background = 
+        "rgba("+mapColor[0]+","+mapColor[1]+","+mapColor[2]+",1)";
+
+        filterColorView1.style.background = 
+        "rgba("+mapColor2[0]+","+mapColor2[1]+
+        ","+mapColor2[2]+",1)";
+    };
+
     filterId = 0;
     filterColorView = document.createElement("span");
     filterColorView.style.position = "absolute";
@@ -451,6 +479,8 @@ $(document).ready(function() {
     timerView.style.zIndex = "12";
     document.body.appendChild(timerView);
 
+    var torchRequested = false;
+    var torchActive = false;
     var onTimer = false;
     var timerInterval;
     timerView.onclick = function() {
@@ -459,9 +489,21 @@ $(document).ready(function() {
 
         colorTurn = 0;
         timerInterval = setInterval(function () {
+            if (delay > 0)
             delay -= 1;
             timerView.innerText = delay;
-            if (delay == 0) {
+            if (deviceNo > 0 && 
+                delay == 0 && !torchRequested && !torchActive) {
+                torchRequested = true;
+                setTorch("on");
+            }
+            else if (deviceNo > 0 && 
+                delay == 0 && torchRequested) {
+                torchActive = getTorch();
+                if (torchActive)
+                torchRequested = false;
+            }
+            if (delay == 0 && (deviceNo == 0 || torchActive)) {
                 drawImage(frameView);
                 colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
                 delay = 10;
@@ -484,6 +526,10 @@ $(document).ready(function() {
                 else {
                     beepMilestone.play();
                 }
+
+                setTorch("off");
+                torchRequested = false;
+                torchActive = false;
             }
         }, 1000);
     };
@@ -675,6 +721,28 @@ $(document).ready(function() {
 
     fullScreenView.onclick = function() {
         frameViewContainer.requestFullscreen();
+    };
+
+    torchView = document.createElement("i");
+    torchView.style.position = "absolute";
+    torchView.style.color = "#fff";
+    torchView.className = "";
+    torchView.style.lineHeight = "25px";
+    torchView.style.fontSize = "10px";
+    torchView.style.left = (105)+"px";
+    torchView.style.top = (5)+"px";
+    torchView.style.width = (25)+"px";
+    torchView.style.height = (25)+"px"; 
+    torchView.style.border = "1px solid #fff";
+    torchView.style.borderRadius = "50%";
+    torchView.style.scale = "0.9";
+    torchView.style.zIndex = "25";
+    document.body.appendChild(torchView);
+
+    torchView.onclick = function() {
+        setTorch("toggle");
+        torchView.className = torchEnabled ? 
+        "fa-solid fa-bolt" : "";
     };
 
     var rnd = Math.random();
