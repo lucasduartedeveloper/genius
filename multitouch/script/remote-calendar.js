@@ -1241,6 +1241,10 @@ $(document).ready(function() {
         }
     };
 
+    loadImages(function() {
+        console.log("images loaded");
+    });
+
     pasteCamera = true;
     load3D((sw/sh));
     animate();
@@ -1285,8 +1289,12 @@ var animate = function() {
     requestAnimationFrame(animate);
 };
 
+var position = {
+    center: { radius: 0, x: -1, y: -1 },
+    center2: { radius: 0, x: -1, y: -1 },
+};
 var updatePosition = function() {
-    var pos = getCoordinatesFromImage();
+    position = getCoordinatesFromImage();
 };
 
 var updateThreejs = function() {
@@ -1414,14 +1422,16 @@ var drawAim = function(canvas) {
 }
 
 var getCoordinatesFromImage = function() {
-    if (limit < 0) return;
+    if (limit < 0) 
+    return {
+        center: { radius: 0, x: -1, y: -1 },
+        center2: { radius: 0, x: -1, y: -1 },
+    };
 
     var filter = ((100/(255*3))*
     (mapColor[0]+mapColor[1]+mapColor[2]));
     var filter2 = ((100/(255*3))*
     (mapColor2[0]+mapColor2[1]+mapColor2[2]));
-
-    var weakContrast = Math.abs(filter2-filter) <= limit;
 
     var trackingCanvas = document.createElement("canvas");
     trackingCanvas.width = 150;
@@ -1448,7 +1458,6 @@ var getCoordinatesFromImage = function() {
             var value = ((100/(255*3))*
             (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
 
-            if (!weakContrast || (weakContrast && x < 75)) {
             if ((minX == -1 || x < minX) && 
             Math.abs(value-filter) <= limit)
             minX = x;
@@ -1464,9 +1473,7 @@ var getCoordinatesFromImage = function() {
             if ((maxY == -1 || y > maxY) && 
             Math.abs(value-filter) <= limit)
             maxY = y;
-            }
 
-            if (!weakContrast || (weakContrast && x > 75)) {
             if ((minX2 == -1 || x < minX2) && 
             Math.abs(value-filter2) <= limit)
             minX = x;
@@ -1482,7 +1489,6 @@ var getCoordinatesFromImage = function() {
             if ((maxY2 == -1 || y > maxY2) && 
             Math.abs(value-filter2) <= limit)
             maxY = y;
-            }
         }
     }
 
@@ -1619,7 +1625,7 @@ var mapColor = [ 187, 119, 131 ];
 var mapColor2 = [ 94, 117, 141 ];
 var limit = -5;
 var filterColor = function(imageArray) {
-    if (limit < 0) return;
+    if (limit < 0) return imageArray;
 
     var filter = ((100/(255*3))*
     (mapColor[0]+mapColor[1]+mapColor[2]));
@@ -1672,6 +1678,29 @@ var filterColor = function(imageArray) {
     }
 
     return imageArray;
+};
+
+var imagesLoaded = false;
+var img_list = [
+    "img/placeholder-0.png",
+    "img/placeholder-1.png"
+];
+var loadImages = function(callback) {
+    var count = 0;
+    for (var n = 0; n < img_list.length; n++) {
+        var img = document.createElement("img");
+        img.n = n;
+        img.onload = function() {
+            count += 1;
+            img_list[this.n] = this;
+            if (count == img_list.length) {
+                imagesLoaded = true;
+                callback();
+            }
+        };
+        var rnd = Math.random();
+        img.src = img_list[n]+"?f="+rnd;
+    }
 };
 
 var resolutionEnabled = false;
@@ -1886,6 +1915,20 @@ var drawImage = function(canvas) {
     ctx1.putImageData(greenImageData, 0, 0);
     if (splitColors || colorTurn == 2)
     ctx2.putImageData(blueImageData, 0, 0);
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "orange";
+    ctx.beginPath();
+    ctx.arc(position.center.x, position.center.y, 
+    position.center.radius+10, 0, (Math.PI*2));
+    ctx.stroke();
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "orange";
+    ctx.beginPath();
+    ctx.arc(position.center2.x, position.center2.y, 
+    position.center2.radius+10, 0, (Math.PI*2));
+    ctx.stroke();
 };
 
 var drawToBackground = function(canvas) {
