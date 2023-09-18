@@ -107,7 +107,7 @@
 
                 // Send a request
                 xhttp.open("GET", 
-               "/genius/multitouch/ajax/image-data.php?count=3");
+               "/multitouch/ajax/image-data.php?count=3");
                 xhttp.send();
           }, 500);
      </script>

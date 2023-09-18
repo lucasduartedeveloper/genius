@@ -970,6 +970,7 @@ $(document).ready(function() {
 
     frameViewContainer = document.createElement("div");
     frameViewContainer.style.position = "absolute";
+    frameViewContainer.style.background = "#f0f";
     frameViewContainer.style.left = ((sw/2)-75)+"px";
     frameViewContainer.style.top = ((sh/2)-150)+"px";
     frameViewContainer.style.width = (150)+"px";
@@ -980,6 +981,7 @@ $(document).ready(function() {
 
     frameViewBackside = document.createElement("img");
     frameViewBackside.style.position = "absolute";
+    frameViewBackside.style.display = "none";
     frameViewBackside.style.background = "#fff";
     frameViewBackside.style.objectFit = "cover";
     frameViewBackside.width = 150;
@@ -997,7 +999,6 @@ $(document).ready(function() {
 
     frameView = document.createElement("canvas");
     frameView.style.position = "absolute";
-    frameView.style.background = "rgba(255, 0, 255, 1)";
     frameView.style.objectFit = "cover";
     frameView.width = 150;
     frameView.height = 300;
@@ -1203,7 +1204,7 @@ $(document).ready(function() {
     positionView.style.zIndex = "15";
     document.body.appendChild(positionView);
 
-    var fullscreenEnabled =
+    fullscreenEnabled = false;
     frameViewContainer.onfullscreenchange = function() {
         fullscreenEnabled = 
         document.fullscreenElement ? true : false;
@@ -1211,20 +1212,30 @@ $(document).ready(function() {
         if (fullscreenEnabled) {
             var width = screen.width;
             var height = screen.height;
+            frameViewContainer.style.background = "#000";
             frameViewBackside.style.left = ((width-150)/2)+"px";
             frameViewBackside.style.top = ((height-300)/2)+"px";
             frameViewBackside.style.scale = "1.5";
             frameView.style.left = ((width-150)/2)+"px";
             frameView.style.top = ((height-300)/2)+"px";
             frameView.style.scale = "1.5";
+
+            frameViewContainer.appendChild(videoStream);
+            videoStream.style.left = ((width/2)-(sw/2))+"px";
+            videoStream.style.top = ((height/2)-(sh/2))+"px";
         }
         else {
+            frameViewContainer.style.background = "#f0f";
             frameViewBackside.style.left = (0)+"px";
             frameViewBackside.style.top = (0)+"px";
             frameViewBackside.style.scale = "1";
             frameView.style.left = (0)+"px";
             frameView.style.top = (0)+"px";
             frameView.style.scale = "1";
+
+            document.body.appendChild(videoStream);
+            videoStream.style.left = ((sw/2)-(sw/2))+"px";
+            videoStream.style.top = ((sh/2)-(sh/2))+"px";
         }
     };
 
@@ -1983,7 +1994,8 @@ var itemList = [
     { displayName: "item#4", value: "vixenp", src: "" },
     { displayName: "item#5", value: "lanitarhoa", src: "" },
     { displayName: "item#6", value: "your_dirty_secret", src: "" },
-    { displayName: "item#7", value: "pixel_pixies", src: "" }
+    { displayName: "item#7", value: "pixel_pixies", src: "" },
+    { displayName: "item#8", value: "lopezbecky", src: "" }
 ];
 var fillList = function() {
     videoStreamList.style.height = ((itemList.length*30)+10)+"px";
@@ -2026,7 +2038,14 @@ var fillList = function() {
             }
 
             videoStream.style.display = "initial";
+            videoStream.pause();
+            videoStream.src = null;
             videoStream.src = this.item.src;
+            videoStream.load();
+            videoStream.oncanplay = function() {
+                console.log("canplay");
+            };
+            videoStream.play();
             videoStreamList.style.display = "none";
 
             this.style.background = "#fff";
