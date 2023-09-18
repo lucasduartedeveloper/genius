@@ -112,7 +112,8 @@ $(document).ready(function() {
     filterColorLimitView = document.createElement("span");
     filterColorLimitView.style.position = "absolute";
     filterColorLimitView.style.color = "#fff";
-    filterColorLimitView.innerText = limit+"%";
+    filterColorLimitView.innerText = 
+    limit < 0 ? "OFF" : limit+"%";
     filterColorLimitView.style.lineHeight = "25px";
     filterColorLimitView.style.fontSize = "15px";
     filterColorLimitView.style.fontFamily = "Khand";
@@ -125,8 +126,9 @@ $(document).ready(function() {
 
     filterColorLimitView.onclick = function() {
         limit = (Math.floor((limit/5)*5)+5);
-        limit = limit > 100 ? 0 : limit;
-        filterColorLimitView.innerText = limit+"%";
+        limit = limit > 100 ? -5 : limit;
+        filterColorLimitView.innerText = 
+        limit < 0 ? "OFF" : limit+"%";
     };
 
     lineView = document.createElement("div");
@@ -1412,6 +1414,8 @@ var drawAim = function(canvas) {
 }
 
 var getCoordinatesFromImage = function() {
+    if (limit < 0) return;
+
     var filter = ((100/(255*3))*
     (mapColor[0]+mapColor[1]+mapColor[2]));
     var filter2 = ((100/(255*3))*
@@ -1613,8 +1617,10 @@ var scanFrame = function() {
 
 var mapColor = [ 187, 119, 131 ];
 var mapColor2 = [ 94, 117, 141 ];
-var limit = 0;
+var limit = -5;
 var filterColor = function(imageArray) {
+    if (limit < 0) return;
+
     var filter = ((100/(255*3))*
     (mapColor[0]+mapColor[1]+mapColor[2]));
     var filter2 = ((100/(255*3))*
