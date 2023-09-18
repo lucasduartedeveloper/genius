@@ -1011,6 +1011,8 @@ $(document).ready(function() {
     frameView.getContext("2d").imageSmoothingEnabled = false;
 
     frameViewContainer.ontouchstart = function(e) {
+        if (fullscreenEnabled) return;
+
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
 
@@ -1023,6 +1025,8 @@ $(document).ready(function() {
         setFilter(frameView, filterId, false);
     };
     frameViewContainer.ontouchmove = function(e) {
+        if (fullscreenEnabled) return;
+
         moveX = e.touches[0].clientX;
         moveY = e.touches[0].clientY;
 
@@ -1199,8 +1203,9 @@ $(document).ready(function() {
     positionView.style.zIndex = "15";
     document.body.appendChild(positionView);
 
+    var fullscreenEnabled =
     frameViewContainer.onfullscreenchange = function() {
-        var fullscreenEnabled = 
+        fullscreenEnabled = 
         document.fullscreenElement ? true : false;
         console.log("fullscreen: "+fullscreenEnabled);
         if (fullscreenEnabled) {
