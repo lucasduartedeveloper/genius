@@ -222,6 +222,7 @@ var load3D = function(ar) {
     } );
     framePlane = new THREE.Mesh(geometry, material ); 
     group.add( framePlane );
+    framePlane.castShadow = true;
 
     framePlane.position.y = 2.5;
     //framePlane.rotation.x = -(Math.PI/2);

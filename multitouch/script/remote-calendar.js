@@ -165,6 +165,18 @@ $(document).ready(function() {
         }
     };
 
+    deviceConnectionView = document.createElement("div");
+    deviceConnectionView.style.position = "absolute";
+    deviceConnectionView.style.display = "none";
+    deviceConnectionView.style.left = ((sw/2)+100)+"px";
+    deviceConnectionView.style.top = ((sh/2)-200)+"px";
+    deviceConnectionView.style.width = (50)+"px";
+    deviceConnectionView.style.height = (100)+"px";
+    deviceConnectionView.style.border = "1px solid #fff";
+    deviceConnectionView.style.borderRadius = "25px";
+    deviceConnectionView.style.zIndex = "12";
+    document.body.appendChild(deviceConnectionView);
+
     deviceStateView = document.createElement("div");
     deviceStateView.style.position = "absolute";
     deviceStateView.style.color = "#fff";
@@ -186,10 +198,12 @@ $(document).ready(function() {
         if (cameraOn) {
             stopCamera();
             deviceStateView.innerText = "OFF";
+            deviceConnectionView.style.display = "none";
         }
         else {
             startCamera();
-           deviceStateView.innerText = "ON";
+            deviceStateView.innerText = "ON";
+            deviceConnectionView.style.display = "initial";
         }
     };
 
@@ -212,6 +226,7 @@ $(document).ready(function() {
     document.body.appendChild(deviceView);
 
     deviceView.onclick = function() {
+        if (cameraOn) return;
         deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
         (deviceNo+1) : 0;
         deviceView.innerText = deviceNo;
@@ -639,6 +654,27 @@ $(document).ready(function() {
         "initial" : "none";
     };
 
+    fullScreenView = document.createElement("i");
+    fullScreenView.style.position = "absolute";
+    fullScreenView.style.color = "#fff";
+    fullScreenView.className = 
+    "fa-solid fa-arrow-up-right-from-square";
+    fullScreenView.style.lineHeight = "50px";
+    fullScreenView.style.fontSize = "15px";
+    fullScreenView.style.left = (5)+"px";
+    fullScreenView.style.top = (55)+"px";
+    fullScreenView.style.width = (50)+"px";
+    fullScreenView.style.height = (50)+"px"; 
+    fullScreenView.style.border = "1px solid #fff";
+    fullScreenView.style.borderRadius = "50%";
+    fullScreenView.style.scale = "0.9";
+    fullScreenView.style.zIndex = "25";
+    document.body.appendChild(fullScreenView);
+
+    fullScreenView.onclick = function() {
+        frameView.requestFullscreen();
+    };
+
     var rnd = Math.random();
     var audio = new Audio("audio/700-hz-beep.wav?rnd="+rnd);
     audio.loop = true;
@@ -693,7 +729,7 @@ $(document).ready(function() {
             var maskCtx = storedMask.getContext("2d");
             maskCtx.clearRect(0, 0, 150, 300);
             if (cameraOn) {
-                maskCtx.drawImage(frameView, 0, 0, 150, 300);
+                maskCtx.drawImage(storedImage, 0, 0, 150, 300);
             }
             else {
                 maskCtx.fillStyle = "#fff";
@@ -1162,6 +1198,12 @@ $(document).ready(function() {
     //positionView.style.outline = "1px solid #000";
     positionView.style.zIndex = "15";
     document.body.appendChild(positionView);
+
+    frameView.onfullscreenchange = function() {
+        var fullscreenEnabled = 
+        document.fullscreenElement ? true : false;
+        console.log("fullscreen: "+fullscreenEnabled);
+    };
 
     pasteCamera = true;
     load3D((sw/sh));
@@ -1917,7 +1959,8 @@ var itemList = [
     { displayName: "item#3", value: "emyii", src: "" },
     { displayName: "item#4", value: "vixenp", src: "" },
     { displayName: "item#5", value: "lanitarhoa", src: "" },
-    { displayName: "item#6", value: "your_dirty_secret", src: "" }
+    { displayName: "item#6", value: "your_dirty_secret", src: "" },
+    { displayName: "item#7", value: "pixel_pixies", src: "" }
 ];
 var fillList = function() {
     videoStreamList.style.height = ((itemList.length*30)+10)+"px";
