@@ -672,7 +672,7 @@ $(document).ready(function() {
     document.body.appendChild(fullScreenView);
 
     fullScreenView.onclick = function() {
-        frameView.requestFullscreen();
+        frameViewContainer.requestFullscreen();
     };
 
     var rnd = Math.random();
@@ -1199,10 +1199,28 @@ $(document).ready(function() {
     positionView.style.zIndex = "15";
     document.body.appendChild(positionView);
 
-    frameView.onfullscreenchange = function() {
+    frameViewContainer.onfullscreenchange = function() {
         var fullscreenEnabled = 
         document.fullscreenElement ? true : false;
         console.log("fullscreen: "+fullscreenEnabled);
+        if (fullscreenEnabled) {
+            var width = screen.width;
+            var height = screen.height;
+            frameViewBackside.style.left = ((width-150)/2)+"px";
+            frameViewBackside.style.top = ((height-300)/2)+"px";
+            frameViewBackside.style.scale = "1.5";
+            frameView.style.left = ((width-150)/2)+"px";
+            frameView.style.top = ((height-300)/2)+"px";
+            frameView.style.scale = "1.5";
+        }
+        else {
+            frameViewBackside.style.left = (0)+"px";
+            frameViewBackside.style.top = (0)+"px";
+            frameViewBackside.style.scale = "1";
+            frameView.style.left = (0)+"px";
+            frameView.style.top = (0)+"px";
+            frameView.style.scale = "1";
+        }
     };
 
     pasteCamera = true;
