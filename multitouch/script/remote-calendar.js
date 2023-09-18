@@ -1476,19 +1476,19 @@ var getCoordinatesFromImage = function() {
 
             if ((minX2 == -1 || x < minX2) && 
             Math.abs(value-filter2) <= limit)
-            minX = x;
+            minX2 = x;
 
             if ((maxX2 == -1 || x > maxX2) && 
             Math.abs(value-filter2) <= limit)
-            maxX = x;
+            maxX2 = x;
 
             if ((minY2 == -1 || y < minY2) && 
             Math.abs(value-filter2) <= limit)
-            minY = y;
+            minY2 = y;
 
             if ((maxY2 == -1 || y > maxY2) && 
             Math.abs(value-filter2) <= limit)
-            maxY = y;
+            maxY2 = y;
         }
     }
 
