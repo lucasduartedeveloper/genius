@@ -8,12 +8,6 @@ var coin = new Audio("audio/coin.wav");
 var sw = window.innerWidth;
 var sh = window.innerHeight;
 
-var size = {
-    scale: 2,
-    width: 300,
-    height: 600
-};
-
 var audioBot = false;
 var playerId = new Date().getTime();
 
@@ -74,39 +68,10 @@ $(document).ready(function() {
         weightView.innerText = prompt()+" kg";
     };
 
-    filterColorSwitchView = document.createElement("span");
-    filterColorSwitchView.style.position = "absolute";
-    filterColorSwitchView.style.color = "#fff";
-    filterColorSwitchView.innerText = "SWITCH";
-    filterColorSwitchView.style.lineHeight = "25px";
-    filterColorSwitchView.style.fontSize = "15px";
-    filterColorSwitchView.style.fontFamily = "Khand";
-    filterColorSwitchView.style.left = ((sw/2)-105)+"px";
-    filterColorSwitchView.style.top = ((sh/2)-230)+"px";
-    filterColorSwitchView.style.width = (50)+"px";
-    filterColorSwitchView.style.height = (25)+"px";
-    filterColorSwitchView.style.scale = "0.9";
-    filterColorSwitchView.style.zIndex = "15";
-    document.body.appendChild(filterColorSwitchView);
-
-    filterColorSwitchView.onclick = function() {
-        var tempColor = [ ...mapColor ];
-        mapColor = [ ...mapColor2 ];
-        mapColor2 = [ ...tempColor ];
-
-        filterColorView.style.background = 
-        "rgba("+mapColor[0]+","+mapColor[1]+","+mapColor[2]+",1)";
-
-        filterColorView1.style.background = 
-        "rgba("+mapColor2[0]+","+mapColor2[1]+
-        ","+mapColor2[2]+",1)";
-    };
-
     filterId = 0;
     filterColorView = document.createElement("span");
     filterColorView.style.position = "absolute";
-    filterColorView.style.background = 
-    "rgba("+mapColor[0]+","+mapColor[1]+","+mapColor[2]+",1)";
+    filterColorView.style.background = "#fff";
     filterColorView.style.left = ((sw/2)-(105))+"px";
     filterColorView.style.top = ((sh/2)-(200))+"px";
     filterColorView.style.width = (25)+"px";
@@ -126,8 +91,7 @@ $(document).ready(function() {
 
     filterColorView1 = document.createElement("span");
     filterColorView1.style.position = "absolute";
-    filterColorView1.style.background = 
-    "rgba("+mapColor2[0]+","+mapColor2[1]+","+mapColor2[2]+",1)";
+    filterColorView1.style.background = "#fff";
     filterColorView1.style.left = ((sw/2)-(75))+"px";
     filterColorView1.style.top = ((sh/2)-(200))+"px";
     filterColorView1.style.width = (25)+"px";
@@ -146,8 +110,7 @@ $(document).ready(function() {
     filterColorLimitView = document.createElement("span");
     filterColorLimitView.style.position = "absolute";
     filterColorLimitView.style.color = "#fff";
-    filterColorLimitView.innerText = 
-    limit < 0 ? "OFF" : limit+"%";
+    filterColorLimitView.innerText = limit+"%";
     filterColorLimitView.style.lineHeight = "25px";
     filterColorLimitView.style.fontSize = "15px";
     filterColorLimitView.style.fontFamily = "Khand";
@@ -160,9 +123,8 @@ $(document).ready(function() {
 
     filterColorLimitView.onclick = function() {
         limit = (Math.floor((limit/5)*5)+5);
-        limit = limit > 100 ? -5 : limit;
-        filterColorLimitView.innerText = 
-        limit < 0 ? "OFF" : limit+"%";
+        limit = limit > 100 ? 0 : limit;
+        filterColorLimitView.innerText = limit+"%";
     };
 
     lineView = document.createElement("div");
@@ -201,18 +163,6 @@ $(document).ready(function() {
         }
     };
 
-    deviceConnectionView = document.createElement("div");
-    deviceConnectionView.style.position = "absolute";
-    deviceConnectionView.style.display = "none";
-    deviceConnectionView.style.left = ((sw/2)+100)+"px";
-    deviceConnectionView.style.top = ((sh/2)-200)+"px";
-    deviceConnectionView.style.width = (50)+"px";
-    deviceConnectionView.style.height = (100)+"px";
-    deviceConnectionView.style.border = "1px solid #fff";
-    deviceConnectionView.style.borderRadius = "25px";
-    deviceConnectionView.style.zIndex = "12";
-    document.body.appendChild(deviceConnectionView);
-
     deviceStateView = document.createElement("div");
     deviceStateView.style.position = "absolute";
     deviceStateView.style.color = "#fff";
@@ -234,12 +184,10 @@ $(document).ready(function() {
         if (cameraOn) {
             stopCamera();
             deviceStateView.innerText = "OFF";
-            deviceConnectionView.style.display = "none";
         }
         else {
             startCamera();
-            deviceStateView.innerText = "ON";
-            deviceConnectionView.style.display = "initial";
+           deviceStateView.innerText = "ON";
         }
     };
 
@@ -262,7 +210,6 @@ $(document).ready(function() {
     document.body.appendChild(deviceView);
 
     deviceView.onclick = function() {
-        if (cameraOn) return;
         deviceNo = (deviceNo+1) < (videoDevices.length-1) ? 
         (deviceNo+1) : 0;
         deviceView.innerText = deviceNo;
@@ -485,8 +432,6 @@ $(document).ready(function() {
     timerView.style.zIndex = "12";
     document.body.appendChild(timerView);
 
-    var torchRequested = false;
-    var torchActive = false;
     var onTimer = false;
     var timerInterval;
     timerView.onclick = function() {
@@ -495,21 +440,9 @@ $(document).ready(function() {
 
         colorTurn = 0;
         timerInterval = setInterval(function () {
-            if (delay > 0)
             delay -= 1;
             timerView.innerText = delay;
-            if (deviceNo > 0 && 
-                delay == 0 && !torchRequested && !torchActive) {
-                torchRequested = true;
-                setTorch("on");
-            }
-            else if (deviceNo > 0 && 
-                delay == 0 && torchRequested) {
-                torchActive = getTorch();
-                if (torchActive)
-                torchRequested = false;
-            }
-            if (delay == 0 && (deviceNo == 0 || torchActive)) {
+            if (delay == 0) {
                 drawImage(frameView);
                 colorTurn = (colorTurn+1) < 3 ? (colorTurn+1) : 0;
                 delay = 10;
@@ -532,10 +465,6 @@ $(document).ready(function() {
                 else {
                     beepMilestone.play();
                 }
-
-                setTorch("off");
-                torchRequested = false;
-                torchActive = false;
             }
         }, 1000);
     };
@@ -708,49 +637,6 @@ $(document).ready(function() {
         "initial" : "none";
     };
 
-    fullScreenView = document.createElement("i");
-    fullScreenView.style.position = "absolute";
-    fullScreenView.style.color = "#fff";
-    fullScreenView.className = 
-    "fa-solid fa-arrow-up-right-from-square";
-    fullScreenView.style.lineHeight = "50px";
-    fullScreenView.style.fontSize = "15px";
-    fullScreenView.style.left = (5)+"px";
-    fullScreenView.style.top = (55)+"px";
-    fullScreenView.style.width = (50)+"px";
-    fullScreenView.style.height = (50)+"px"; 
-    fullScreenView.style.border = "1px solid #fff";
-    fullScreenView.style.borderRadius = "50%";
-    fullScreenView.style.scale = "0.9";
-    fullScreenView.style.zIndex = "25";
-    document.body.appendChild(fullScreenView);
-
-    fullScreenView.onclick = function() {
-        frameViewContainer.requestFullscreen();
-    };
-
-    torchView = document.createElement("i");
-    torchView.style.position = "absolute";
-    torchView.style.color = "#fff";
-    torchView.className = "";
-    torchView.style.lineHeight = "25px";
-    torchView.style.fontSize = "10px";
-    torchView.style.left = (105)+"px";
-    torchView.style.top = (5)+"px";
-    torchView.style.width = (25)+"px";
-    torchView.style.height = (25)+"px"; 
-    torchView.style.border = "1px solid #fff";
-    torchView.style.borderRadius = "50%";
-    torchView.style.scale = "0.9";
-    torchView.style.zIndex = "25";
-    document.body.appendChild(torchView);
-
-    torchView.onclick = function() {
-        setTorch("toggle");
-        torchView.className = torchEnabled ? 
-        "fa-solid fa-bolt" : "";
-    };
-
     var rnd = Math.random();
     var audio = new Audio("audio/700-hz-beep.wav?rnd="+rnd);
     audio.loop = true;
@@ -780,134 +666,6 @@ $(document).ready(function() {
         }
     };
 
-    lockShape = false;
-    lockShapeView = document.createElement("i");
-    lockShapeView.style.position = "absolute";
-    lockShapeView.style.color = "#fff";
-    lockShapeView.className = "fa-solid fa-check";
-    lockShapeView.style.lineHeight = "50px";
-    lockShapeView.style.fontSize = "30px";
-    lockShapeView.style.left = (55)+"px";
-    lockShapeView.style.bottom = (5)+"px";
-    lockShapeView.style.width = (50)+"px";
-    lockShapeView.style.height = (50)+"px"; 
-    lockShapeView.style.border = "1px solid #fff";
-    lockShapeView.style.borderRadius = "50%";
-    lockShapeView.style.scale = "0.9";
-    lockShapeView.style.zIndex = "12";
-    document.body.appendChild(lockShapeView);
-
-    lockShapeView.onclick = function() {
-        lockShape = !lockShape;
-        lockShapeView.className = lockShape ? 
-        "fa-solid fa-xmark" : "fa-solid fa-check";
-        if (lockShape) {
-            var maskCtx = storedMask.getContext("2d");
-            maskCtx.clearRect(0, 0, size.width, size.height);
-            if (cameraOn) {
-                maskCtx.drawImage(storedImage, 0, 0, size.width, size.height);
-            }
-            else {
-                maskCtx.fillStyle = "#fff";
-                maskCtx.fillRect(0, 0, size.width, size.height);
-
-                maskCtx.fillStyle = "#000";
-                maskCtx.save();
-                maskCtx.beginPath();
-                maskCtx.arc((size.width/2), (size.height/2), 50, 0, (Math.PI*2));
-                maskCtx.fill();
-            }
-        }
-    };
-
-    leftArrowView = document.createElement("i");
-    leftArrowView.style.position = "absolute";
-    leftArrowView.style.color = "#fff";
-    leftArrowView.className = "fa-solid fa-arrow-left";
-    leftArrowView.style.lineHeight = "50px";
-    leftArrowView.style.fontSize = "30px";
-    leftArrowView.style.left = (105)+"px";
-    leftArrowView.style.bottom = (5)+"px";
-    leftArrowView.style.width = (50)+"px";
-    leftArrowView.style.height = (50)+"px"; 
-    leftArrowView.style.border = "1px solid #fff";
-    leftArrowView.style.borderRadius = "50%";
-    leftArrowView.style.scale = "0.9";
-    leftArrowView.style.zIndex = "12";
-    document.body.appendChild(leftArrowView);
-
-    leftArrowView.onclick = function() {
-        resolution = (resolution-10) > 10 ? (resolution-10) : 10;
-    };
-
-    rightArrowView = document.createElement("i");
-    rightArrowView.style.position = "absolute";
-    rightArrowView.style.color = "#fff";
-    rightArrowView.className = "fa-solid fa-arrow-right";
-    rightArrowView.style.lineHeight = "50px";
-    rightArrowView.style.fontSize = "30px";
-    rightArrowView.style.left = (155)+"px";
-    rightArrowView.style.bottom = (5)+"px";
-    rightArrowView.style.width = (50)+"px";
-    rightArrowView.style.height = (50)+"px"; 
-    rightArrowView.style.border = "1px solid #fff";
-    rightArrowView.style.borderRadius = "50%";
-    rightArrowView.style.scale = "0.9";
-    rightArrowView.style.zIndex = "12";
-    document.body.appendChild(rightArrowView);
-
-    rightArrowView.onclick = function() {
-        resolution = (resolution+10) < 300 ? (resolution+10) : 300;
-    };
-
-    resolutionView = document.createElement("i");
-    resolutionView.style.position = "absolute";
-    resolutionView.style.color = "#fff";
-    resolutionView.className = "fa-solid fa-border-none";
-    resolutionView.style.lineHeight = "50px";
-    resolutionView.style.fontSize = "30px";
-    resolutionView.style.left = (205)+"px";
-    resolutionView.style.bottom = (5)+"px";
-    resolutionView.style.width = (50)+"px";
-    resolutionView.style.height = (50)+"px"; 
-    resolutionView.style.border = "1px solid #fff";
-    resolutionView.style.borderRadius = "50%";
-    resolutionView.style.scale = "0.9";
-    resolutionView.style.zIndex = "12";
-    document.body.appendChild(resolutionView);
-
-    resolutionView.onclick = function() {
-        resolutionEnabled = !resolutionEnabled;
-        resolutionView.className = resolutionEnabled ? 
-        "fa-solid fa-border-all" : "fa-solid fa-border-none";
-    };
-
-    debugEnabled = false;
-    debugView = document.createElement("i");
-    debugView.style.position = "absolute";
-    debugView.style.color = "#fff";
-    debugView.className = "";
-    debugView.style.lineHeight = "50px";
-    debugView.style.fontSize = "30px";
-    debugView.style.right = (5)+"px";
-    debugView.style.bottom = (5)+"px";
-    debugView.style.width = (50)+"px";
-    debugView.style.height = (50)+"px"; 
-    debugView.style.border = "1px solid #fff";
-    debugView.style.borderRadius = "50%";
-    debugView.style.scale = "0.9";
-    debugView.style.zIndex = "12";
-    if (location.href.includes("http:"))
-    document.body.appendChild(debugView);
-
-    debugView.onclick = function() {
-        debugEnabled = !debugEnabled;
-        debugView.className = debugEnabled ? 
-        "fa-solid fa-bug" : "";
-        frameViewContainer.style.outline = debugEnabled ? 
-        "1px solid #000" : "10px solid #000";
-    };
-
     mapEnabled = false;
     mapControlView = document.createElement("i");
     mapControlView.style.position = "absolute";
@@ -935,6 +693,8 @@ $(document).ready(function() {
     mapView.id = "map";
     mapView.style.display = "none";
     mapView.className = "map-box";
+    mapView.width = 150;
+    mapView.height = 300;
     mapView.style.left = ((sw/2)-(75))+"px";
     mapView.style.top = ((sh/2)-(150))+"px";
     mapView.style.width = (150)+"px";
@@ -984,8 +744,8 @@ $(document).ready(function() {
 
     frameView0 = document.createElement("canvas");
     frameView0.style.position = "absolute";
-    frameView0.width = size.width;
-    frameView0.height = size.height;
+    frameView0.width = 150;
+    frameView0.height = 300;
     frameView0.style.left = ((sw/2)-150)+"px";
     frameView0.style.top = ((sh/2)-150)+"px";
     frameView0.style.width = (50)+"px";
@@ -1004,8 +764,8 @@ $(document).ready(function() {
 
     frameView1 = document.createElement("canvas");
     frameView1.style.position = "absolute";
-    frameView1.width = size.width;
-    frameView1.height = size.height;
+    frameView1.width = 150;
+    frameView1.height = 300;
     frameView1.style.left = ((sw/2)-150)+"px";
     frameView1.style.top = ((sh/2)-50)+"px";
     frameView1.style.width = (50)+"px";
@@ -1024,8 +784,8 @@ $(document).ready(function() {
 
     frameView2 = document.createElement("canvas");
     frameView2.style.position = "absolute";
-    frameView2.width = size.width;
-    frameView2.height = size.height;
+    frameView2.width = 150;
+    frameView2.height = 300;
     frameView2.style.left = ((sw/2)-150)+"px";
     frameView2.style.top = ((sh/2)+50)+"px";
     frameView2.style.width = (50)+"px";
@@ -1044,27 +804,26 @@ $(document).ready(function() {
 
     frameViewContainer = document.createElement("div");
     frameViewContainer.style.position = "absolute";
-    frameViewContainer.style.background = "#f0f";
     frameViewContainer.style.left = ((sw/2)-75)+"px";
     frameViewContainer.style.top = ((sh/2)-150)+"px";
     frameViewContainer.style.width = (150)+"px";
-    frameViewContainer.style.height = (300)+"px";
+    frameViewContainer.style.height = (300)+"px"; 
     frameViewContainer.style.outline = "10px solid #000";
     frameViewContainer.style.zIndex = "15";
     document.body.appendChild(frameViewContainer);
 
     frameViewBackside = document.createElement("img");
     frameViewBackside.style.position = "absolute";
-    frameViewBackside.style.display = "none";
     frameViewBackside.style.background = "#fff";
     frameViewBackside.style.objectFit = "cover";
-    frameViewBackside.width = size.width;
-    frameViewBackside.height = size.height;
+    frameViewBackside.width = 150;
+    frameViewBackside.height = 300;
     frameViewBackside.style.left = (0)+"px";
     frameViewBackside.style.top = (0)+"px";
     frameViewBackside.style.width = (150)+"px";
     frameViewBackside.style.height = (300)+"px"; 
     frameViewBackside.style.transform = "rotateY(-180deg)";
+    frameViewBackside.style.outline = "10px solid #000";
     frameViewBackside.style.zIndex = "15";
     frameViewContainer.appendChild(frameViewBackside);
 
@@ -1073,41 +832,41 @@ $(document).ready(function() {
 
     frameView = document.createElement("canvas");
     frameView.style.position = "absolute";
+    frameView.style.background = "rgba(255, 0, 255, 1)";
     frameView.style.objectFit = "cover";
-    frameView.width = size.width;
-    frameView.height = size.height;
+    frameView.width = 150;
+    frameView.height = 300;
     frameView.style.left = (0)+"px";
     frameView.style.top = (0)+"px";
     frameView.style.width = (150)+"px";
     frameView.style.height = (300)+"px"; 
+    frameView.style.outline = "10px solid #000";
+    //frameView.style.borderRadius = "10px";
+    //frameView.style.boxShadow = "0px 0px 10px #000";
     frameView.style.zIndex = "15";
     frameViewContainer.appendChild(frameView);
 
     frameView.getContext("2d").imageSmoothingEnabled = false;
 
     frameViewContainer.ontouchstart = function(e) {
-        if (fullscreenEnabled) return;
-
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
 
         var obj = {
-            x: Math.floor(startX - ((sw/2)-75))*size.scale,
-            y: Math.floor(startY - ((sh/2)-150))*size.scale
+            x: Math.floor(startX - ((sw/2)-75)),
+            y: Math.floor(startY - ((sh/2)-150))
         };
         coordinates[filterId] = obj;
 
         setFilter(frameView, filterId, false);
     };
     frameViewContainer.ontouchmove = function(e) {
-        if (fullscreenEnabled) return;
-
         moveX = e.touches[0].clientX;
         moveY = e.touches[0].clientY;
 
         var obj = {
-            x: Math.floor(moveX - ((sw/2)-75))*size.scale,
-            y: Math.floor(moveY - ((sh/2)-150))*size.scale
+            x: Math.floor(moveX - ((sw/2)-75)),
+            y: Math.floor(moveY - ((sh/2)-150))
         };
         coordinates[filterId] = obj;
 
@@ -1169,7 +928,7 @@ $(document).ready(function() {
                 Math.floor(((accX*360)/rotationSize))*rotationSize;
             }
             else {
-                translation = Math.floor(moveX-(sw/2));
+                translation = (moveX-(sw/2));
             }
         }
         else {
@@ -1232,7 +991,7 @@ $(document).ready(function() {
             img.onload = function() {
                 updateImage = false;
                 var ctx = frameView.getContext("2d");
-                ctx.drawImage(img, 0, 0, size.width, size.height);
+                ctx.drawImage(img, 0, 0, 150, 300);
                 ws.send("PAPER|"+playerId+"|remote-downloaded");
             };
             img.src = msg[3];
@@ -1245,19 +1004,8 @@ $(document).ready(function() {
     };
 
     storedImage = document.createElement("canvas");
-    storedImage.width = size.width;
-    storedImage.height = size.height;
-    storedImage.getContext("2d").imageSmoothingEnabled = false;
-
-    storedMask = document.createElement("canvas");
-    storedMask.width = size.width;
-    storedMask.height = size.height;
-    storedMask.getContext("2d").imageSmoothingEnabled = false;
-
-    animationCanvas = document.createElement("canvas");
-    animationCanvas.width = size.width;
-    animationCanvas.height = size.height;
-    animationCanvas.getContext("2d").imageSmoothingEnabled = false;
+    storedImage.width = 150;
+    storedImage.height = 300;
 
     window.addEventListener("message", (event) => {
             //if (event.origin !== "undefined") return;
@@ -1271,56 +1019,17 @@ $(document).ready(function() {
     positionView = document.createElement("span");
     positionView.style.position = "absolute";
     positionView.style.color = "#fff";
-    positionView.innerText = "radius: 0, x: 0, y: 0";
-    positionView.style.lineHeight = "15px";
+    positionView.innerText = "x: 0, y: 0";
+    positionView.style.lineHeight = "25px";
     positionView.style.fontSize = "15px";
     positionView.style.fontFamily = "Khand";
-    positionView.style.left = ((sw/2)-75)+"px";
+    positionView.style.left = ((sw/2)-50)+"px";
     positionView.style.top = ((sh/2)+170)+"px";
-    positionView.style.width = (150)+"px";
-    positionView.style.height = (45)+"px"; 
+    positionView.style.width = (100)+"px";
+    positionView.style.height = (25)+"px"; 
     //positionView.style.outline = "1px solid #000";
     positionView.style.zIndex = "15";
     document.body.appendChild(positionView);
-
-    fullscreenEnabled = false;
-    frameViewContainer.onfullscreenchange = function() {
-        fullscreenEnabled = 
-        document.fullscreenElement ? true : false;
-        console.log("fullscreen: "+fullscreenEnabled);
-        if (fullscreenEnabled) {
-            var width = screen.width;
-            var height = screen.height;
-            frameViewContainer.style.background = "#000";
-            frameViewBackside.style.left = ((width-150)/2)+"px";
-            frameViewBackside.style.top = ((height-300)/2)+"px";
-            frameViewBackside.style.scale = "2";
-            frameView.style.left = ((width-150)/2)+"px";
-            frameView.style.top = ((height-300)/2)+"px";
-            frameView.style.scale = "2";
-
-            frameViewContainer.appendChild(videoStream);
-            videoStream.style.left = ((width/2)-(sw/2))+"px";
-            videoStream.style.top = ((height/2)-(sh/2))+"px";
-        }
-        else {
-            frameViewContainer.style.background = "#f0f";
-            frameViewBackside.style.left = (0)+"px";
-            frameViewBackside.style.top = (0)+"px";
-            frameViewBackside.style.scale = "1";
-            frameView.style.left = (0)+"px";
-            frameView.style.top = (0)+"px";
-            frameView.style.scale = "1";
-
-            document.body.appendChild(videoStream);
-            videoStream.style.left = ((sw/2)-(sw/2))+"px";
-            videoStream.style.top = ((sh/2)-(sh/2))+"px";
-        }
-    };
-
-    loadImages(function() {
-        console.log("images loaded");
-    });
 
     pasteCamera = true;
     load3D((sw/sh));
@@ -1350,7 +1059,6 @@ var databaseTime = 0;
 var animate = function() {
     if (!backgroundMode) {
         if (pasteCamera) {
-            animateBackground();
             drawImage(frameView);
         }
         if (cameraOn && remoteDownloaded) {
@@ -1362,41 +1070,8 @@ var animate = function() {
             saveImage(dataURL);
             databaseTime = new Date().getTime();
         }
-        updatePosition();
     }
     requestAnimationFrame(animate);
-};
-
-var animationFrame = 0;
-var animateBackground = function() {
-    var ctx = animationCanvas.getContext("2d");
-    ctx.clearRect(0, 0, size.width, size.height);
-
-    ctx.fillStyle = "#557";
-    ctx.fillRect(0, 0, size.width, size.height);
-
-    var c = { x: (size.width/2), y: (size.height/2) };
-
-    ctx.lineWidth = 5;
-    ctx.fillStyle = "#335";
-    for (var n = 0; n < 60; n++) {
-        ctx.beginPath();
-        ctx.arc((size.width/2), (size.height/2), (n*10)+animationFrame, 0, (Math.PI*2));
-        ctx.stroke();
-    }
-
-    if (animationFrame == 10)
-    animationFrame = 0;
-    else
-    animationFrame += 1;
-};
-
-var position = {
-    center: { radius: 0, x: -1, y: -1 },
-    center2: { radius: 0, x: -1, y: -1 },
-};
-var updatePosition = function() {
-    position = getCoordinatesFromImage();
 };
 
 var zoom = 1;
@@ -1406,8 +1081,15 @@ var rotationZ = 0;
 
 var closeImage = function(canvas) {
     var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, size.width, size.height);
+    ctx.clearRect(0, 0, 150, 300);
 };
+
+var polygon = [
+    { x: 75, y: -150 },
+    { x: -75, y: -150 },
+    { x: -75, y: 150 },
+    { x: 75, y: 150 }
+];
 
 var getPolygon = function() {
     var rPolygon = [];
@@ -1434,8 +1116,6 @@ var greenArray = null;
 
 var blueEnabled = true;
 var blueArray = null;
-
-var frameArray = [];
 
 var drawPlaceholderImage = function() {
     var ctx = placeholderImage.getContext("2d");
@@ -1471,7 +1151,7 @@ var drawPlaceholderImage = function() {
     ctx.font = "75px sans serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("1", (sw/2), (sh/2));
+    ctx.fillText("A", (sw/2), (sh/2));
 }
 
 var drawAim = function(canvas) {
@@ -1492,132 +1172,154 @@ var drawAim = function(canvas) {
     ctx.stroke();
 }
 
+var getCoordinatesFromImage2 = function() {
+    
+};
+
 var getCoordinatesFromImage = function() {
-    if (limit < 0) 
-    return {
-        center: { radius: 0, x: -1, y: -1 },
-        center2: { radius: 0, x: -1, y: -1 },
+    var trackingCanvas = document.createElement("canvas");
+    trackingCanvas.width = 150;
+    trackingCanvas.height = 300;
+
+    var ctx = trackingCanvas.getContext("2d");
+    ctx.clearRect(0, 0, 150, 300);
+    ctx.drawImage(storedImage, 0, 0, 150, 300);
+
+    var imageData = ctx.getImageData(0, 0, 150, 300);
+    var imageArray = imageData.data;
+
+    var polygon = getCoordinatesFromArray(imageArray);
+
+    var center = {
+        x: 0,
+        y: 0
     };
 
-    var filter = ((100/(255*3))*
-    (mapColor[0]+mapColor[1]+mapColor[2]));
+    positionView.innerText = "x: "+center.x+", y: "+center.y;
+    return polygon;
+};
+
+var getCoordinatesFromArray = function(imageArray) {
     var filter2 = ((100/(255*3))*
     (mapColor2[0]+mapColor2[1]+mapColor2[2]));
 
-    var trackingCanvas = document.createElement("canvas");
-    trackingCanvas.width = size.width;
-    trackingCanvas.height = size.height;
-
-    var ctx = trackingCanvas.getContext("2d");
-    ctx.clearRect(0, 0, size.width, size.width);
-    ctx.drawImage(storedImage, 0, 0, size.width, size.height);
-
-    var imageData = ctx.getImageData(0, 0, size.width, size.height);
-    var imageArray = imageData.data;
-
-    var minX = -1;
-    var maxX = -1;
-    var minY = -1;
-    var maxY = -1;
-    var minX2 = -1;
-    var maxX2 = -1;
-    var minY2 = -1;
-    var maxY2 = -1;
-    for (var y = 0; y < size.height; y++) {
-        for (var x = 0; x < size.height; x++) {
-            var n = ((y*(size.width))+x)*4;
+    var leftResult = [];
+    for (var y = 300; y > 0; y--) {
+        for (var x = 0; x < 150; x++) {
+            var n = ((y*150)+x)*4;
             var value = ((100/(255*3))*
             (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
 
-            if ((minX == -1 || x < minX) && 
-            Math.abs(value-filter) <= limit)
-            minX = x;
-
-            if ((maxX == -1 || x > maxX) && 
-            Math.abs(value-filter) <= limit)
-            maxX = x;
-
-            if ((minY == -1 || y < minY) && 
-            Math.abs(value-filter) <= limit)
-            minY = y;
-
-            if ((maxY == -1 || y > maxY) && 
-            Math.abs(value-filter) <= limit)
-            maxY = y;
-
-            if ((minX2 == -1 || x < minX2) && 
-            Math.abs(value-filter2) <= limit)
-            minX2 = x;
-
-            if ((maxX2 == -1 || x > maxX2) && 
-            Math.abs(value-filter2) <= limit)
-            maxX2 = x;
-
-            if ((minY2 == -1 || y < minY2) && 
-            Math.abs(value-filter2) <= limit)
-            minY2 = y;
-
-            if ((maxY2 == -1 || y > maxY2) && 
-            Math.abs(value-filter2) <= limit)
-            maxY2 = y;
+            if (Math.abs(value-filter2) <= limit) {
+                leftResult.push({ from: "left", x: x, y: y });
+                break;
+            }
         }
     }
 
-    var center = {
-        radius: (((maxX-minX)+(maxY-minY))/2),
-        x: minX+((maxX-minX)/2),
-        y: minY+((maxY-minY)/2)
-    };
+    var topResult = [];
+    for (var x = 0; x < 150; x++) {
+        for (var y = 0; y < 300; y++) {
+            var n = ((y*150)+x)*4;
+            var value = ((100/(255*3))*
+            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
 
-    var center2 = {
-        radius: (((maxX2-minX2)+(maxY2-minY2))/2),
-        x: minX2+((maxX2-minX2)/2),
-        y: minY2+((maxY2-minY2)/2)
-    };
-
-    if (center.x == -1 && center.y == -1) {
-        center.x = 4*(size.width/8);
-        center.y = 7*(size.height/8);
+            if (Math.abs(value-filter2) <= limit) {
+                topResult.push({ from: "top", x: x, y: y });
+                break;
+            }
+        }
     }
 
-    if (center2.x == -1 && center2.y == -1) {
-        center2.x = 3*(size.width/8);
-        center2.y = 0*(size.height/8);
+    var rightResult = [];
+    for (var y = 0; y < 300; y++) {
+        for (var x = 150; x > 0; x--) {
+            var n = ((y*150)+x)*4;
+            var value = ((100/(255*3))*
+            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
+
+            if (Math.abs(value-filter2) <= limit) {
+                rightResult.push({ from: "right", x: x, y: y });
+                break;
+            }
+        }
     }
 
-    var obj = {
-        center: center,
-        center2: center2
-    };
+    var bottomResult = [];
+    for (var x = 150; x > 0; x--) {
+        for (var y = 300; y > 0; y--) {
+            var n = ((y*150)+x)*4;
+            var value = ((100/(255*3))*
+            (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
 
-    positionView.innerText = 
-    "radius: "+center.radius+", "+
-    "x: "+center.x+", y: "+center.y+"\n"+
-    "radius: "+center2.radius+", "+
-    "x: "+center2.x+", y: "+center2.y+"\n"+
-    "contrast: "+(Math.abs(filter2-filter).toFixed(2))+"%";
+            if (Math.abs(value-filter2) <= limit) {
+                bottomResult.push({ from: "bottom", x: x, y: y });
+                break;
+            }
+        }
+    }
 
-    return obj;
+    var result = 
+    [ ...leftResult, ...topResult, ...rightResult, ...bottomResult ];
+
+    var mappedArray = result.map((m) => 
+    [ m.x+","+m.y, m ]);
+    var map = new Map(mappedArray);
+    var iterator = map.values();
+    var polygon = [ ...iterator ];
+
+    var ordered = [];
+
+    if (polygon.length > 0) {
+        var count = polygon.length;
+        var closed = false;
+        var startPos = { ...polygon[0] };
+        var pos = { ...startPos }
+        polygon.splice(0, 1);
+        ordered.push(startPos);
+        //return ordered;
+        //while (!closed) {
+        for (var j = 0; j < (count-1); j++) {
+            var k = 0;
+            var lastDist = -1;
+            var dist = 0;
+            for (var n = 0; n < polygon.length; n++) {
+                var co = Math.abs(polygon[n].x - pos.x);
+                var ca = Math.abs(polygon[n].y - pos.y);
+                dist = Math.sqrt(
+                Math.pow(co, 2)+ 
+                Math.pow(ca, 2));
+                if (lastDist == -1 || dist < lastDist) {
+                    k = n;
+                    lastDist = dist;
+                }
+            }
+            var pos = polygon.splice(k, 1)[0];
+            ordered.push(pos);
+
+            //count -= 1;
+            //if (count == 0)
+            //closed == true;
+        }
+    }
+
+    return ordered;
 };
 
 var fixedPixel = false;
-var coordinates = [
-   { x: 0, y: 0 },
-   { x: 0, y: 0 }
-];
+var coordinates = [];
 var setFilter = function(obj, id, debug=false) {
     var x = coordinates[filterId].x;
     var y = coordinates[filterId].y;
 
-    var n = (y*(size.height))+(x);
+    var n = (y*(150))+(x);
     n = n < 0 ? 0 : n;
-    n = n > ((size.height*size.width)-1) ? 
-    ((size.height*size.width)-1) : n;
+    n = n > (45000-1) ? (45000-1) : n;
 
     var imageArray;
     if (obj.getContext) {
         var ctx = obj.getContext("2d");
-        var imageData = ctx.getImageData(0, 0, size.width, size.height);
+        var imageData = ctx.getImageData(0, 0, 150, 300);
         imageArray = imageData.data;
     }
     else
@@ -1663,18 +1365,45 @@ var setFilter = function(obj, id, debug=false) {
     ") selected");
 };
 
-var mapColor = [ 187, 119, 131 ];
-var mapColor2 = [ 94, 117, 141 ];
-var limit = -5;
-var filterColor = function(imageArray) {
-    if (limit < 0) return imageArray;
+var scanFrame = function() {
+    var ctx = frameView.getContext("2d");
+    var imageData = ctx.getImageData(0, 0, 150, 300);
+    imageArray = imageData.data;
 
+    for (var y = 0; y < 300; y++) {
+        for (var x = 0; x < 150; x++) {
+             var n = (y*(150))+(x);
+             n = n < 0 ? 0 : n;
+             n = n > (45000-1) ? (45000-1) : n;
+
+             setTimeout(function() {
+             //console.log(this);
+
+             imageArray[(this*4)] = 
+             Math.floor(((1-(1/45000)*this))*255);
+             imageArray[(this*4)+1] = 
+             Math.floor(((1-(1/45000)*this))*255);
+             imageArray[(this*4)+2] = 
+             Math.floor(((1-(1/45000)*this))*0);
+
+             var newImageData = new ImageData(imageArray, 
+             imageData.width, imageData.height);
+
+             ctx.putImageData(newImageData, 0, 0);
+             }.bind(n), n);
+        }
+    }
+};
+
+var mapColor = [ 0, 0, 0 ];
+var mapColor2 = [ 0, 0, 0 ];
+var limit = 0;
+var filterColor = function(imageArray) {
     var filter = ((100/(255*3))*
     (mapColor[0]+mapColor[1]+mapColor[2]));
     var filter2 = ((100/(255*3))*
     (mapColor2[0]+mapColor2[1]+mapColor2[2]));
 
-    if (!lockShape)
     for (var n = 0; n < imageArray.length; n += 4) {
         var value = ((100/(255*3))*
         (imageArray[n]+imageArray[n+1]+imageArray[n+2]));
@@ -1686,31 +1415,13 @@ var filterColor = function(imageArray) {
         imageArray[n+3] = 0;
     }
 
-    var ctx = animationCanvas.getContext("2d");
-    var animationImageData = ctx.getImageData(0, 0, size.width, size.height);
-    animationArray = animationImageData.data;
-    for (var n = 0; n < animationArray.length; n += 4) {
-        var value = ((100/(255*3))*
-        (imageArray[n]+imageArray[n+1]+
-        imageArray[n+2]));
-
-        if (Math.abs(value-filter) <= limit || 
-            Math.abs(value-filter2) <= limit) {
-            imageArray[n] = animationArray[n];
-            imageArray[n+1] = animationArray[n+1];
-            imageArray[n+2] = animationArray[n+2];
-            imageArray[n+3] = 255;
-        }
-    }
-
     for (var k = 0; k < coordinates.length; k++) {
         var x = coordinates[k].x;
         var y = coordinates[k].y;
 
-        var n = Math.floor((y*(size.height))+(x));
+        var n = Math.floor((y*(150))+(x));
         n = n < 0 ? 0 : n;
-        n = n > ((size.height*size.width)-1) ? 
-        ((size.height*size.width)-1) : n;
+        n = n > (45000-1) ? (45000-1) : n;
 
         imageArray[(n*4)] = 255;
         imageArray[(n*4)+1] = 255;
@@ -1718,90 +1429,23 @@ var filterColor = function(imageArray) {
         imageArray[(n*4)+3] = 255;
     }
 
-    var maskCtx = storedMask.getContext("2d");
-    var maskImageData = maskCtx.getImageData(0, 0, size.width, size.height);
-    var maskImageArray = maskImageData.data;
-
-    //return imageArray;
-    if (lockShape)
-    for (var n = 0; n < maskImageArray.length; n+=4) {
-        var value = ((100/(255*3))*
-        (maskImageArray[n]+
-        maskImageArray[n+1]+
-        maskImageArray[n+2]));
-
-        if (Math.abs(value-filter2) > limit) {
-            imageArray[n] = maskImageArray[n];
-            imageArray[n+1] = maskImageArray[n+1];
-            imageArray[n+2] = maskImageArray[n+2];
-        }
-    }
-
     return imageArray;
 };
 
-var imagesLoaded = false;
-var img_list = [
-    "img/placeholder-0.png",
-    "img/placeholder-1.png"
-];
-var loadImages = function(callback) {
-    var count = 0;
-    for (var n = 0; n < img_list.length; n++) {
-        var img = document.createElement("img");
-        img.n = n;
-        img.onload = function() {
-            count += 1;
-            img_list[this.n] = this;
-            if (count == img_list.length) {
-                imagesLoaded = true;
-                callback();
-            }
-        };
-        var rnd = Math.random();
-        img.src = img_list[n]+"?f="+rnd;
-    }
-};
-
-var resolutionEnabled = false;
-var resolution = 10;
 var updateImage = true;
 var drawImage = function(canvas) {
     var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, size.width, size.height);
+    ctx.clearRect(0, 0, 150, 300);
 
-    var resolutionCanvas = document.createElement("canvas");
-    resolutionCanvas.imageSmoothingEnabled = false;
-    resolutionCanvas.width = resolution;
-    resolutionCanvas.height = resolution*2;
+    var vw_zoom = (vw/zoom);
+    var vh_zoom = (vh/zoom);
 
-    var ctxResolution = resolutionCanvas.getContext("2d");
-
-    var vw_zoom = (vw/zoom)*size.scale;
-    var vh_zoom = (vh/zoom)*size.scale;
-
-    var scale = (size.width/resolution);
-    var resolutionFormat = {
-        left: ((resolution/2)-((vw_zoom/2)/scale)),
-        top: ((resolution)-((vh_zoom/2)/scale)),
-        width: (vw_zoom/scale),
-        height: (vh_zoom/scale)
-    };
     var format = {
-        left: ((size.width/2)-(vw_zoom/2)),
-        top: ((size.height/2)-(vh_zoom/2)),
+        left: (75-(vw_zoom/2)),
+        top: (150-(vh_zoom/2)),
         width: (vw_zoom),
         height: (vh_zoom)
     };
-
-    var resolutionLeft = (deviceNo == 0) ? 
-    resolutionFormat.left+(translation/scale) : 
-    resolutionFormat.left-(translation/scale);
-
-    if (debugEnabled) {
-        console.log(resolutionFormat.left);
-        console.log(translation);
-    }
 
     var left = (deviceNo == 0) ? 
     format.left+translation : 
@@ -1812,90 +1456,50 @@ var drawImage = function(canvas) {
     (rotationZ*(Math.PI/180));
 
     if (!updateImage) {
-        if (resolutionEnabled) {
-            ctxResolution.drawImage(storedImage, 0, 0, 
-            (resolution), (resolution*2));
-        }
-        else {
-            ctx.drawImage(storedImage, 0, 0, size.width, size.height);
-        }
+        ctx.drawImage(storedImage, 0, 0, 150, 300);
     }
     else {
-        ctxResolution.save();
         ctx.save();
         if (cameraOn && deviceNo == 0) {
-            ctxResolution.scale(-1, 1);
-            ctxResolution.translate(-resolution, 0);
             ctx.scale(-1, 1);
-            ctx.translate(-size.width, 0);
+            ctx.translate(-150, 0);
         }
+        /*if (flipY) {
+            ctx.scale(-1, 1);
+            ctx.translate(-150, 0);
+        }*/
 
-        ctxResolution.translate((resolution/2), (resolution));
-        ctxResolution.rotate(-radiansZ);
-        ctxResolution.translate(-(resolution/2), -(resolution));
-        ctx.translate((size.width/2), (size.height/2));
+        ctx.translate(75, 150);
         ctx.rotate(-radiansZ);
-        ctx.translate(-(size.width/2), -(size.height/2));
+        ctx.translate(-75, -150);
 
         if (cameraOn) {
-            if (resolutionEnabled) {
-                ctxResolution.drawImage(camera, resolutionLeft, 
-                resolutionFormat.top, 
-                resolutionFormat.width, 
-                resolutionFormat.height);
-            }
-            else {
-                ctx.drawImage(camera, left, format.top, 
-                format.width, format.height);
-            }
+            ctx.drawImage(camera, left, format.top, 
+            format.width, format.height);
         }
         else {
-            var sw_zoom = Math.ceil(sw/zoom)*size.scale;
-            var sh_zoom = Math.ceil(sh/zoom)*size.scale;
+            var sw_zoom = (sw/zoom);
+            var sh_zoom = (sh/zoom);
 
-            var resolutionFormat = {
-                left: ((resolution/2)-((sw_zoom/2)/scale)),
-                top: ((resolution)-((sh_zoom/2)/scale)),
-                width: (sw_zoom/scale),
-                height: (sh_zoom/scale)
-            };
             var format = {
-                left: ((size.width/2)-(sw_zoom/2)),
-                top: ((size.height/2)-(sh_zoom/2)),
+                left: (75-(sw_zoom/2)),
+                top: (150-(sh_zoom/2)),
                 width: (sw_zoom),
                 height: (sh_zoom)
             };
 
-            var resolutionLeft = 
-            resolutionFormat.left-translation;
             var left = 
             format.left-translation;
 
-            if (resolutionEnabled) {
-                ctxResolution.drawImage(placeholderImage, 
-                resolutionLeft, 
-                resolutionFormat.top, 
-                resolutionFormat.width, 
-                resolutionFormat.height);
-            }
-            else {
-                ctx.drawImage(placeholderImage, left, format.top, 
-                format.width, format.height);
-            }
+            ctx.drawImage(placeholderImage, left, format.top, 
+            format.width, format.height);
         }
 
-        ctxResolution.rotate(radiansZ);
-        ctxResolution.restore();
         ctx.rotate(radiansZ);
         ctx.restore();
     }
 
-    if (resolutionEnabled) {
-         ctx.drawImage(resolutionCanvas, 0, 0, 
-         (size.width), (size.height));
-    }
-
-    var imageData = ctx.getImageData(0, 0, (size.width), (size.height));
+    var imageData = ctx.getImageData(0, 0, 150, 300);
     var imageArray = imageData.data;
 
     var newRedArray = new Uint8ClampedArray(imageArray);
@@ -1933,11 +1537,11 @@ var drawImage = function(canvas) {
 
     if (updateImage) {
         var storedCtx = storedImage.getContext("2d");
-        storedCtx.clearRect(0, 0, size.width, size.height);
-        storedCtx.drawImage(canvas, 0, 0, size.width, size.height);
+        storedCtx.clearRect(0, 0, 150, 300);
+        storedCtx.drawImage(canvas, 0, 0, 150, 300);
     }
 
-    var filteredArray = filterColor(imageArray);
+    var filteredArray = imageArray; //filterColor(imageArray);
     var newImageData = !glueColors ? 
     new ImageData(filteredArray, 
     imageData.width, imageData.height) : 
@@ -1975,20 +1579,6 @@ var drawImage = function(canvas) {
     ctx1.putImageData(greenImageData, 0, 0);
     if (splitColors || colorTurn == 2)
     ctx2.putImageData(blueImageData, 0, 0);
-
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "orange";
-    ctx.beginPath();
-    ctx.arc(position.center.x, position.center.y, 
-    position.center.radius+10, 0, (Math.PI*2));
-    ctx.stroke();
-
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = "orange";
-    ctx.beginPath();
-    ctx.arc(position.center2.x, position.center2.y, 
-    position.center2.radius+10, 0, (Math.PI*2));
-    ctx.stroke();
 };
 
 var drawToBackground = function(canvas) {
@@ -2029,7 +1619,7 @@ var drawToBackground = function(canvas) {
 var combineArray = function(canvas) {
     var ctx = canvas.getContext("2d");
 
-    var imageData = ctx.getImageData(0, 0, size.width, size.height);
+    var imageData = ctx.getImageData(0, 0, 150, 300);
     var imageArray = imageData.data;
 
     var newArray = new Uint8ClampedArray(imageArray);
@@ -2049,9 +1639,9 @@ var combineArray = function(canvas) {
 
 var combineArray_effect0 = function(canvas) {
     var ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, size.width, size.height);
+    ctx.clearRect(0, 0, 150, 300);
 
-    var imageData = ctx.getImageData(0, 0, size.width, size.height);
+    var imageData = ctx.getImageData(0, 0, 150, 300);
     var imageArray = imageData.data;
 
     var newArray = new Uint8ClampedArray(imageArray);
@@ -2188,9 +1778,7 @@ var itemList = [
     { displayName: "item#3", value: "emyii", src: "" },
     { displayName: "item#4", value: "vixenp", src: "" },
     { displayName: "item#5", value: "lanitarhoa", src: "" },
-    { displayName: "item#6", value: "your_dirty_secret", src: "" },
-    { displayName: "item#7", value: "pixel_pixies", src: "" },
-    { displayName: "item#8", value: "lopezbecky", src: "" }
+    { displayName: "item#6", value: "your_dirty_secret", src: "" }
 ];
 var fillList = function() {
     videoStreamList.style.height = ((itemList.length*30)+10)+"px";
@@ -2233,14 +1821,7 @@ var fillList = function() {
             }
 
             videoStream.style.display = "initial";
-            videoStream.pause();
-            videoStream.src = null;
             videoStream.src = this.item.src;
-            videoStream.load();
-            videoStream.oncanplay = function() {
-                console.log("canplay");
-            };
-            videoStream.play();
             videoStreamList.style.display = "none";
 
             this.style.background = "#fff";
