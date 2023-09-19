@@ -1250,6 +1250,11 @@ $(document).ready(function() {
     storedMask.height = 300;
     storedMask.getContext("2d").imageSmoothingEnabled = false;
 
+    animationCanvas = document.createElement("canvas");
+    animationCanvas.width = 150;
+    animationCanvas.height = 300;
+    animationCanvas.getContext("2d").imageSmoothingEnabled = false;
+
     window.addEventListener("message", (event) => {
             //if (event.origin !== "undefined") return;
             console.log("iframe message: ", event.data);
@@ -1285,10 +1290,10 @@ $(document).ready(function() {
             frameViewContainer.style.background = "#000";
             frameViewBackside.style.left = ((width-150)/2)+"px";
             frameViewBackside.style.top = ((height-300)/2)+"px";
-            frameViewBackside.style.scale = "1.5";
+            frameViewBackside.style.scale = "2";
             frameView.style.left = ((width-150)/2)+"px";
             frameView.style.top = ((height-300)/2)+"px";
-            frameView.style.scale = "1.5";
+            frameView.style.scale = "2";
 
             frameViewContainer.appendChild(videoStream);
             videoStream.style.left = ((width/2)-(sw/2))+"px";
@@ -1341,6 +1346,7 @@ var databaseTime = 0;
 var animate = function() {
     if (!backgroundMode) {
         if (pasteCamera) {
+            animateBackground();
             drawImage(frameView);
         }
         if (cameraOn && remoteDownloaded) {
@@ -1355,6 +1361,30 @@ var animate = function() {
         updatePosition();
     }
     requestAnimationFrame(animate);
+};
+
+var animationFrame = 0;
+var animateBackground = function() {
+    var ctx = animationCanvas.getContext("2d");
+    ctx.clearRect(0, 0, 150, 300);
+
+    ctx.fillStyle = "#557";
+    ctx.fillRect(0, 0, 150, 300);
+
+    var c = { x: 75, y: 150 };
+
+    ctx.lineWidth = 2.5;
+    ctx.fillStyle = "#335";
+    for (var n = 0; n < 60; n++) {
+        ctx.beginPath();
+        ctx.arc(75, 150, (n*5)+animationFrame, 0, (Math.PI*2));
+        ctx.stroke();
+    }
+
+    if (animationFrame == 5)
+    animationFrame = 0;
+    else
+    animationFrame += 1;
 };
 
 var position = {
@@ -1433,6 +1463,8 @@ var greenArray = null;
 
 var blueEnabled = true;
 var blueArray = null;
+
+var frameArray = [];
 
 var drawPlaceholderImage = function() {
     var ctx = placeholderImage.getContext("2d");
@@ -1710,6 +1742,23 @@ var filterColor = function(imageArray) {
 
         if (Math.abs(value-filter2) <= limit)
         imageArray[n+3] = 0;
+    }
+
+    var ctx = animationCanvas.getContext("2d");
+    var animationImageData = ctx.getImageData(0, 0, 150, 300);
+    animationArray = animationImageData.data;
+    for (var n = 0; n < animationArray.length; n += 4) {
+        var value = ((100/(255*3))*
+        (imageArray[n]+imageArray[n+1]+
+        imageArray[n+2]));
+
+        if (Math.abs(value-filter) <= limit || 
+            Math.abs(value-filter2) <= limit) {
+            imageArray[n] = animationArray[n];
+            imageArray[n+1] = animationArray[n+1];
+            imageArray[n+2] = animationArray[n+2];
+            imageArray[n+3] = 255;
+        }
     }
 
     for (var k = 0; k < coordinates.length; k++) {
