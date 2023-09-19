@@ -1961,9 +1961,9 @@ var drawImage = function(canvas) {
 
     ctx.fillStyle = "#fff";
     ctx.font = "15px sans serif";
-    ctx.textAlign = "center";
+    ctx.textAlign = "left";
     ctx.textBaseline = "middle";
-    ctx.fillText("00:00", 25, 15);
+    ctx.fillText(moment().format('LT'), 10, 15);
 
     var ctx0 = frameView0.getContext("2d");
     var ctx1 = frameView1.getContext("2d");
@@ -1976,6 +1976,7 @@ var drawImage = function(canvas) {
     if (splitColors || colorTurn == 2)
     ctx2.putImageData(blueImageData, 0, 0);
 
+    return;
     ctx.lineWidth = 1;
     ctx.strokeStyle = "orange";
     ctx.beginPath();
